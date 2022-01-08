@@ -88,9 +88,19 @@ function SongDatabase:new()
 		return songdata.AudioMD5Hash
 	end
 
-	function self:get_difficulty_for_key(key)
+	function self:get_difficulty_for_key(key, rate)
+		rate = if rate then rate else 1
+
 		local songdata = self:get_data_for_key(key)
-		return songdata.AudioDifficulty
+		local difficulty = songdata.AudioDifficulty
+
+		if rate == 1 then
+			return difficulty
+		elseif rate < 1 then
+			return difficulty * (459616.4 + (-0.008317092 - 459616.4)/(1 + (rate/5051.127)^1.532436))
+		else
+			return difficulty * (946.4179 + (-6.728875 - 946.4179)/(1 + (rate/85114960)^0.2634697))
+		end
 	end
 
 	function self:get_description_for_key(key)

@@ -87,7 +87,7 @@ function ScoreService.Client:SubmitScore(player, songMD5Hash, rating, score, mar
             },
             data = {
                 UserId = player.UserId,
-                PlayerName = player.DisplayName,
+                PlayerName = player.Name,
                 Rating = rating,
                 Score = score,
                 Marvelouses = marvelouses,

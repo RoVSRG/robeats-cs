@@ -21,7 +21,7 @@ function Users:render()
     for _, player in ipairs(game.Players:GetPlayers()) do
         buttons[player.UserId] = e(UserButton, {
             UserId = player.UserId,
-            PlayerName = player.DisplayName,
+            PlayerName = player.Name,
             OnKick = function(userId, playerName)
                 self.props.history:push("/moderation/kick", {
                     userId = userId,
