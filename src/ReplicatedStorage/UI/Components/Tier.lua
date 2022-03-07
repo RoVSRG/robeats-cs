@@ -34,7 +34,8 @@ function Tier:render()
     return e(RoundedImageLabel, props, {
         UIAspectRatioConstraint = e("UIAspectRatioConstraint", {
             AspectRatio = 1
-        })
+        }),
+        Roact.createFragment(self.props[Roact.Children])
     })
 end
 

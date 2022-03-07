@@ -12,6 +12,8 @@ local LoadingWheel = require(game.ReplicatedStorage.UI.Components.Base.LoadingWh
 
 local Tier = require(game.ReplicatedStorage.UI.Components.Tier)
 
+local Tiers = require(game.ReplicatedStorage.Tiers)
+
 local PlayerProfile = Roact.Component:extend("PlayerProfile")
 
 function PlayerProfile:init()
@@ -29,15 +31,16 @@ function PlayerProfile:init()
 
     self.scoreService:GetProfile():andThen(function(profile)
         if not Llama.isEmpty(profile) then
-            local succeeded, tier = self.props.tierService:GetTierFromRating(profile.Rating):await()
+            local tier = Tiers:GetTierFromRating(profile.Rating)
 
             self:setState({
                 rank = profile.Rank,
                 rating = profile.Rating or 0,
                 accuracy = profile.Accuracy or 0,
                 totalMapsPlayed = profile.TotalMapsPlayed or 0,
-                tier = if succeeded then tier.name else nil,
-                division = if succeeded then tier.division else nil,
+                tier = tier.name,
+                division = tier.division,
+                subdivision = tier.subdivision,
                 loaded = true
             })
         else
@@ -105,11 +108,11 @@ function PlayerProfile:render()
            }),
            PlayerName = e(RoundedTextLabel, {
                Position = UDim2.fromScale(1.2, 0),
-               Size = UDim2.fromScale(2.35, 0.3),
+               Size = UDim2.fromScale(4.5, 0.3),
                RichText = true,
                TextXAlignment = Enum.TextXAlignment.Left,
                TextColor3 = Color3.fromRGB(255, 255, 255),
-               Text = if self.state.tier then string.format("%s <font color=\"#b3b3b3\">[%s]</font>", self.state.playerName, self.state.tier..(if self.state.division then string.format(" %d", self.state.division) else "")) else self.state.playerName,
+               Text = if self.state.tier then string.format("%s <font color=\"#b3b3b3\">[%s]</font>", self.state.playerName, self.state.tier..(if self.state.division then string.format(" %s Division %s", string.rep("I", self.state.division), if self.state.subdivision == 4 then "IV" else string.rep("I", self.state.subdivision)) else "")) else self.state.playerName,
                TextScaled = true,
                BackgroundTransparency = 1
            }),
@@ -169,6 +172,5 @@ function PlayerProfile:render()
 end
 
 return withInjection(PlayerProfile, {
-    scoreService = "ScoreService",
-    tierService = "TierService"
+    scoreService = "ScoreService"
 })
