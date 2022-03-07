@@ -21,16 +21,18 @@ local _player_gui
 
 function EnvironmentSetup:initial_setup()
 	game.StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
+	game.StarterPlayer.EnableMouseLockOption = false
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 
-	_game_environment = game.Workspace.GameEnvironment
+	_game_environment = workspace.GameEnvironment
 	_game_environment.Parent = nil
 	
-	_element_protos_folder = game.Workspace.ElementProtos
+	_element_protos_folder = workspace.ElementProtos
 	_element_protos_folder.Parent = game.ReplicatedStorage
 	
-	_local_elements_folder = Instance.new("Folder",game.Workspace)
+	_local_elements_folder = Instance.new("Folder")
 	_local_elements_folder.Name = "LocalElements"
+	_local_elements_folder.Parent = workspace
 
 	_player_gui = Instance.new("ScreenGui")
 	_player_gui.Parent = game.Players.LocalPlayer.PlayerGui
@@ -93,7 +95,7 @@ end
 function EnvironmentSetup:set_mode(mode)
 	AssertType:is_enum_member(mode, EnvironmentSetup.Mode)
 	if mode == EnvironmentSetup.Mode.Game then
-		_game_environment.Parent = game.Workspace
+		_game_environment.Parent = workspace
 	else
 		_game_environment.Parent = nil
 	end

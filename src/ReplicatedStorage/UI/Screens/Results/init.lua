@@ -67,6 +67,7 @@ end
 
 function Results:didMount()
 	if self.knit then
+
 		local PreviewController = self.knit.GetController("PreviewController")
 
 		PreviewController:PlayId("rbxassetid://6419511015", function(audio)
@@ -305,6 +306,7 @@ function Results:render()
 			TextSize = 16,
 			ZIndex = 5,
 			OnClick = function()
+				self.knit:GetController("PreviewController"):Silence()
 				self.props.history:push("/play")
 			end
 		}) else nil,
