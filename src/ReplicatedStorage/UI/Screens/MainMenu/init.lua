@@ -20,6 +20,12 @@ local Actions = require(game.ReplicatedStorage.Actions)
 local MainMenuUI = Roact.Component:extend("MainMenuUI")
 
 function MainMenuUI:init()
+    self:setState({
+        currSFXName = SongDatabase:get_data_for_key(self.props.songKey).AudioFilename,
+        currSFXArtistName = SongDatabase:get_data_for_key(self.props.songKey).AudioArtist,
+        currSFXBackground = SongDatabase:get_data_for_key(self.props.songKey).AudioCoverImageAssetId,
+    })
+
     self.previewController = self.props.previewController
 end
 
@@ -59,13 +65,14 @@ function MainMenuUI:render()
         Size = UDim2.new(1, 0, 1, 0),
         Position = UDim2.fromScale(0.5,0.5),
         AnchorPoint = Vector2.new(0.5,0.5),
-        Image = "rbxassetid://6859763885",
+        --Image = "rbxassetid://6859763885",
+        Image = "http://www.roblox.com/asset/?id=8574590582",
         ImageColor3 = Color3.fromRGB(100,100,100)
     }, {
         Logo = e(RoundedImageLabel, {
             Image = "rbxassetid://6224561143";
             Size = UDim2.fromScale(0.4, 0.9);
-            Position = UDim2.fromScale(0.02, 0.47);
+            Position = UDim2.fromScale(0.02, 0.45);
             AnchorPoint = Vector2.new(0.05, 0.5);
             BackgroundTransparency = 1;
         }, {
@@ -168,7 +175,11 @@ function MainMenuUI:render()
                 LayoutOrder = 2;
                 HoldSize = UDim2.fromScale(0.95, 0.125),
                 OnClick = function()
-                    self.props.history:push("/options")
+                    if not self.props.location.state.OptionsVisible then
+                        self.props.history:push("/", {
+                            OptionsVisible = true
+                        })
+                    end
                 end
             }, {
                 UITextSizeConstraint = e("UITextSizeConstraint", {
@@ -196,6 +207,26 @@ function MainMenuUI:render()
                     MaxTextSize = 15;
                 })
             });
+            MultiButton = e(RoundedTextButton, {
+                TextXAlignment = Enum.TextXAlignment.Left;
+                BackgroundColor3 = Color3.fromRGB(22, 22, 22);
+                BorderMode = Enum.BorderMode.Inset,
+                BorderSizePixel = 0,
+                Size = UDim2.fromScale(1, 0.125),
+                Text = "  Multiplayer";
+                TextScaled = true;
+                TextColor3 = Color3.fromRGB(255, 255, 255);
+                LayoutOrder = 5;
+                HoldSize = UDim2.fromScale(0.95, 0.125),
+                OnClick = function()
+                    self.props.history:push("/multiplayer")
+                end
+            }, {
+                UITextSizeConstraint = e("UITextSizeConstraint", {
+                    MinTextSize = 10;
+                    MaxTextSize = 15;
+                })
+            }),
         });
         Title = e("TextLabel", {
             BackgroundTransparency = 1;

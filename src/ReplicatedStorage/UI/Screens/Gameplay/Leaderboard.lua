@@ -41,7 +41,7 @@ function Leaderboard:render()
     local localSlot = string.format("LocalPlayer(%d)", game.Players.LocalPlayer.UserId)
 
     table.insert(scores, {
-        PlayerName = game.Players.LocalPlayer.DisplayName,
+        PlayerName = game.Players.LocalPlayer.Name,
         UserId = game.Players.LocalPlayer.UserId,
         Rating = self.props.LocalRating,
         Accuracy = self.props.LocalAccuracy,

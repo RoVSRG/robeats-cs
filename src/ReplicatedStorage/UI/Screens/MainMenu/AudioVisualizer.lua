@@ -36,14 +36,15 @@ function AudioVisualizer:render()
     local numOfLines = 120
 
     for i = 1, numOfLines do
-        local lineElement = e(RoundedFrame, {
+        local lineElement = e("Frame", {
             Size = self.motorBinding:map(function(a)
-                a += math.random(-20, 20)
+                a += math.random(-40, 40)
 
                 return UDim2.fromScale(1/numOfLines, a/650)
             end),
             BackgroundColor3 = Color3.fromRGB(99, 99, 99),
-            LayoutOrder = i
+            LayoutOrder = i,
+            BorderSizePixel = 0
         })
 
         table.insert(lines, lineElement)

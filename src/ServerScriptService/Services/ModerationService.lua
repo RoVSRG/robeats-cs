@@ -7,6 +7,8 @@ local ModerationService = Knit.CreateService {
     Client = {};
 }
 
+local RunService
+
 local PermissionsService
 local AuthService
 
@@ -17,7 +19,7 @@ local url = require(game.ServerScriptService.URLs)
 function ModerationService:OnPlayerAdded(player)
     -- Check if the user's account age is too young to join the game
 
-    if player.AccountAge < 2 then
+    if player.AccountAge < 2 and not RunService:IsStudio() then
         player:Kick(string.format("Your account must be older than 2 days to join this game. %d days left", 2 - player.AccountAge))
     end
 
@@ -52,7 +54,8 @@ function ModerationService:BanUser(userId, reason)
     pcall(Raxios.post, url "/bans", {
         query = {
             userid = userId,
-            reason = reason
+            reason = reason,
+            auth = AuthService.APIKey
         }
     })
 
@@ -66,25 +69,25 @@ end
 function ModerationService.Client:BanUser(moderator, userId, reason)
     if PermissionsService:HasModPermissions(moderator) then
         if moderator.UserId == userId then
-            warn("Moderator tried to take action on self!")
+            warn("You can't do that silly")
             return
         end
 
-        ModerationService:BanUser(userId, reason)
+        ModerationService:BanUser(userId, reason .. " | Moderator: ".. moderator.Name)
     end
 end
 
 function ModerationService.Client:KickUser(moderator, userId, reason)
     if PermissionsService:HasModPermissions(moderator) then
         if moderator.UserId == userId then
-            warn("Moderator tried to take action on self!")
+            warn("N O P E")
             return
         end
         
         local player = game.Players:GetPlayerByUserId(userId)
 
         if player then
-            player:Kick(reason)
+            player:Kick(reason .. " | Moderator: " .. moderator.Name)
         end
     end
 end

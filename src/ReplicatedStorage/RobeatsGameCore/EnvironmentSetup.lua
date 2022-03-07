@@ -73,7 +73,7 @@ end
 function EnvironmentSetup:teardown_2d_environment()
 	local _gameplay_frame = EnvironmentSetup:get_player_gui_root():FindFirstChild("GameplayFrame")
 	if _gameplay_frame == nil then
-		DebugOut:warnf("[EnvironmentSetup] this shouldn't happen if 2D setting enabled... but if from 3D why you called it???")
+		DebugOut:warnf("[EnvironmentSetup] >> This shouldn't happen if 2D setting enabled >>")
 		return
 	end
 

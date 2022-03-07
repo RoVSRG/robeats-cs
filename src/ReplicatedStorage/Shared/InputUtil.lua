@@ -52,6 +52,9 @@ function InputUtil:new()
 	local _textbox_focused = false
 	local _do_textbox_unfocus = false
 
+	self.InputBegan = Instance.new("BindableEvent")
+	self.InputEnded = Instance.new("BindableEvent")
+
 	local keybinds = {}
 
 	function self:cons()
@@ -183,11 +186,15 @@ function InputUtil:new()
 	function self:input_began(keycode)
 		_down_keys:add(keycode, true)
 		_just_pressed_keys:add(keycode, true)
+
+		self.InputBegan:Fire(keycode)
 	end
 
 	function self:input_ended(keycode)
 		_down_keys:remove(keycode)
 		_just_released_keys:add(keycode, true)
+
+		self.InputEnded:Fire(keycode)
 	end
 
 	local _last_cursor = SPVector:new(0,0)

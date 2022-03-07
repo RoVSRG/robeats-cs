@@ -17,7 +17,7 @@ function RateLimitService:CanProcessRequestWithRateLimit(player, eventName, requ
     local keysToRemove = {}
 
     for i, v in ipairs(userRequests) do
-        if tick() - v.time >= 1 then
+        if workspace.DistributedGameTime - v.time >= 1 then
             table.insert(keysToRemove, {
                 globalId = v._id,
                 localId = i
@@ -37,7 +37,7 @@ function RateLimitService:CanProcessRequestWithRateLimit(player, eventName, requ
     table.insert(self.Requests, {
         player = player,
         eventName = eventName,
-        time = tick()
+        time = workspace.DistributedGameTime
     })
 
     return true

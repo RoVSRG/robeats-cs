@@ -155,7 +155,7 @@ function LeaderboardSlot:render()
                 Position = UDim2.new(1.25, 0, 0.6, 0),
                 Size = UDim2.new(12.75, 0, 0.35, 0),
                 Font = Enum.Font.GothamSemibold,
-                Text = string.format("Rating: %0.2f", self.props.Data.Rating),
+                Text = if self.props.Data.Rating ~= 0 then string.format("Rating: %0.2f", self.props.Data.Rating) else string.format("Score: %d", self.props.Data.Score),
                 TextColor3 = Color3.fromRGB(80, 80, 80),
                 TextScaled = true,
                 TextXAlignment = Enum.TextXAlignment.Left,

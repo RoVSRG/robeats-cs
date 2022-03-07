@@ -5,7 +5,6 @@ local RoactRodux = require(game.ReplicatedStorage.Packages.RoactRodux)
 
 local SongDatabase = require(game.ReplicatedStorage.RobeatsGameCore.SongDatabase)
 
-local State = require(game.ReplicatedStorage.State)
 local Actions = require(game.ReplicatedStorage.Actions)
 
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
@@ -22,6 +21,8 @@ local Options = require(Screens.Options)
 local Rankings = require(Screens.Rankings)
 local Scores  = require(Screens.Scores)
 local Moderation = require(Screens.Moderation)
+local Multiplayer = require(Screens.Multiplayer)
+local Room = require(Screens.Room)
 
 local TopBar = require(game.ReplicatedStorage.UI.Components.TopBar)
 
@@ -30,12 +31,8 @@ local RoactController = Knit.CreateController({
 })
 
 function RoactController:KnitStart()
-    self:InitializeState()
-    self:MountRoactNodes()
-end
-
-function RoactController:InitializeState()
-    State.Store:dispatch(Actions.setTransientOption("SongKey", math.random(1, SongDatabase:get_key_count())))
+    local store = Knit.GetController("StateController").Store
+    self:MountRoactNodes(store)
 end
 
 function RoactController:GetRoutes()
@@ -61,8 +58,7 @@ function RoactController:GetRoutes()
             component = Results
         }),
         Options = Roact.createElement(RoactRouter.Route, {
-            path = "/options",
-            exact = true,
+            alwaysRender = true,
             component = Options
         }),
         Rankings = Roact.createElement(RoactRouter.Route, {
@@ -85,6 +81,16 @@ function RoactController:GetRoutes()
             exact = true,
             component = Moderation
         }),
+        Multiplayer = Roact.createElement(RoactRouter.Route, {
+            path = "/multiplayer",
+            exact = true,
+            component = Multiplayer
+        }),
+        Room = Roact.createElement(RoactRouter.Route, {
+            path = "/room",
+            exact = true,
+            component = Room
+        })
     }
 end
 
@@ -100,7 +106,7 @@ function RoactController:GetDependencies()
     }
 end
 
-function RoactController:MountRoactNodes()
+function RoactController:MountRoactNodes(store)
     local routes = self:GetRoutes()
 
     local router = Roact.createElement(RoactRouter.Router, {
@@ -109,7 +115,7 @@ function RoactController:MountRoactNodes()
     }, routes)
 
     local storeProvider = Roact.createElement(RoactRodux.StoreProvider, {
-        store = State.Store
+        store = store
     }, {
         AppRouter = router
     })

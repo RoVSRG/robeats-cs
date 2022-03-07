@@ -32,6 +32,10 @@ function LeaderboardSlot:didUpdate()
     self.motor:setGoal(Flipper.Spring.new(self.props.Place, self.springProps))
 end
 
+function LeaderboardSlot:shouldUpdate(prevProps)
+    return prevProps.Rating ~= self.props.Rating or prevProps.Score ~= self.props.Score or prevProps.Accuracy ~= self.props.Accuracy or prevProps.Place ~= self.props.Place
+end
+
 function LeaderboardSlot:render()
     return e(RoundedFrame, {
         Size = UDim2.fromScale(1, 0.13),
@@ -76,7 +80,7 @@ function LeaderboardSlot:render()
                 Size = UDim2.fromScale(4, 0.38),
                 TextXAlignment = Enum.TextXAlignment.Left,
                 TextYAlignment = Enum.TextYAlignment.Top,
-                Text = string.format("%0.2f | %0.2f%%", self.props.Rating, self.props.Accuracy),
+                Text = if self.props.Score then string.format("%d | %0.2f%%", self.props.Score, self.props.Accuracy) else string.format("%0.2f | %0.2f%%", self.props.Rating, self.props.Accuracy),
                 TextColor3 = Color3.fromRGB(167, 167, 167),
                 TextScaled = true,
                 AnchorPoint = Vector2.new(0, 0.5),

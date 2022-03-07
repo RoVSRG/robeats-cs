@@ -18,7 +18,7 @@ local function noop() end
 local Skin = Roact.Component:extend("Skin")
 
 Skin.defaultProps = {
-    Size = UDim2.fromScale(1, 1),
+    Size = UDim2.fromScale(0.8, 0.8),
     OnSkinSelected = function()
 
     end,
@@ -118,7 +118,11 @@ function Skin:render()
 
     return e(RoundedFrame, {
         Size = self.props.Size,
-        Position = self.props.Position
+        Position = self.props.Position,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.fromRGB(22, 22, 22),
+        ZIndex = self.props.ZIndex,
+        Visible = self.props.Visible
     }, {
         SkinListContainer = e(RoundedAutoScrollingFrame, {
             Size = UDim2.fromScale(0.3, 0.8),

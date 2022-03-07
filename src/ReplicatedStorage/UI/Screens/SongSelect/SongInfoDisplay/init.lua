@@ -179,7 +179,7 @@ function SongInfoDisplay:render()
                 CellSize = UDim2.fromScale(0.1165, 0.33)
             }),
             DifficultyDisplay = e(GridInfoDisplay, {
-                Value = Rating:get_rating_from_accuracy(self.props.SongKey, 97, self.props.SongRate / 100),
+                Value = SongDatabase:get_difficulty_for_key(self.props.SongKey, self.props.SongRate / 100),
                 FormatValue = function(value)
                     return string.format("Difficulty: %d", value)
                 end,

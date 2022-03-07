@@ -5,21 +5,23 @@ local Knit = require(game:GetService("ReplicatedStorage").Packages.Knit)
 local FriendsController = Knit.CreateController { Name = "FriendsController" }
 
 function FriendsController:KnitInit()
-    local pages = game.Players:GetFriendsAsync(game.Players.LocalPlayer.UserId)
-
     self.Friends = {}
+    
+    pcall(function()
+        local pages = game.Players:GetFriendsAsync(game.Players.LocalPlayer.UserId)
 
-    while true do
-        table.foreachi(pages:GetCurrentPage(), function(i, friend)
-            table.insert(self.Friends, friend.Id)
-        end)
+        while true do
+            table.foreachi(pages:GetCurrentPage(), function(i, friend)
+                table.insert(self.Friends, friend.Id)
+            end)
 
-        if pages.IsFinished then
-            break
+            if pages.IsFinished then
+                break
+            end
+
+            pages:AdvanceToNextPageAsync()
         end
-
-        pages:AdvanceToNextPageAsync()
-    end
+    end)
 end
 
 function FriendsController:IsFriend(id)

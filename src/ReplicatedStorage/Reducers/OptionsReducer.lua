@@ -40,6 +40,9 @@ local defaultState = {
         HideChat = false;
         HideLeaderboard = false;
 
+        --Mobile Settings
+        DividersEnabled = true,
+
         --Change this to swap the timing preset
         TimingPreset = "Standard",
 

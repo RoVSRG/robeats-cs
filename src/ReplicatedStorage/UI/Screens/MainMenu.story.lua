@@ -1,7 +1,11 @@
 local Roact = require(game.ReplicatedStorage.Packages.Roact)
+local Rodux = require(game.ReplicatedStorage.Packages.Rodux)
 local RoactRodux = require(game.ReplicatedStorage.Packages.RoactRodux)
 local e = Roact.createElement
-local State = require(game.ReplicatedStorage.State)
+
+local OptionsReducer = require(game.ReplicatedStorage.Reducers.OptionsReducer)
+local PermissionsReducer = require(game.ReplicatedStorage.Reducers.PermissionsReducer)
+local MultiplayerReducer = require(game.ReplicatedStorage.Reducers.MultiplayerReducer)
 
 local Promise = require(game.ReplicatedStorage.Packages.Promise)
 
@@ -15,10 +19,18 @@ local a = Fitumi.a
 local MainMenu = require(script.Parent.MainMenu)
 
 return function(target)
-    State.Store:dispatch(Actions.setAdmin(true))
+    local combinedReducers = Rodux.combineReducers({
+        options = OptionsReducer,
+        permissions = PermissionsReducer,
+        multiplayer = MultiplayerReducer
+    })
+        
+    local store = Rodux.Store.new(combinedReducers)
+
+    store:dispatch(Actions.setAdmin(true))
 
     local storeProvider = Roact.createElement(RoactRodux.StoreProvider, {
-        store = State.Store
+        store = store
     }, {
         App = Roact.createElement(MainMenu)
     })

@@ -7,7 +7,7 @@ realm = "shared"
 [dependencies]
 Roact = "roblox/roact@1.4.2"
 Rodux = "roblox/rodux@3.0.0"
-RoactRodux = "roblox/roact-rodux@0.3.0"
+RoactRodux = "thenerdie/roact-rodux@0.1.4"
 Fitumi = "bytebit/fitumi@1.0.11"
 Llama = "shanebutt/llama@1.1.0"
 RoactFlipper = "reselim/roact-flipper@1.1.0"

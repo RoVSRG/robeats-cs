@@ -42,7 +42,19 @@ function ScoreManager:new(_game)
 
 	local _on_change = Signal.new()
 
-	function self:get_end_records() return _marvelous_count,_perfect_count,_great_count,_good_count,_bad_count,_miss_count,_max_chain end
+	function self:get_end_records()
+		return {
+			Score = _score,
+			Marvelouses = _marvelous_count,
+			Perfects = _perfect_count,
+			Greats = _great_count,
+			Goods = _good_count,
+			Bads = _bad_count,
+			Misses = _miss_count,
+			MaxChain = _max_chain,
+			Accuracy = self:get_accuracy() * 100
+		}
+	end
 
 	function self:get_total_judgements()
 		return _marvelous_count + _perfect_count + _great_count + _good_count + _bad_count
