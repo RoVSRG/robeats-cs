@@ -32,7 +32,8 @@
 			"$path": "src/Workspace",
 			"$properties": {
 				"FilteringEnabled": true,
-				"Gravity": 0
+				"Gravity": 0,
+				"StreamingEnabled": true
 			}
 		},
 
