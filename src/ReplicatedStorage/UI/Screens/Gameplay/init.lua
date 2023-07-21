@@ -506,7 +506,7 @@ function Gameplay:onGameplayEnd()
 
     local oldRating = self.props.profile and self.props.profile.GlickoRating
 
-    if (not self.forcedQuit) and (options.TimingPreset == "Standard") and not spectate then
+    if (not self.forcedQuit) and (options.TimingPreset == "Standard") and (not options.UseCustomJudgements) and not spectate then
         local pb = self:submitScore(finalRecords, hits)
 
         if pb then
