@@ -23,6 +23,10 @@ ModSelection.defaultProps = {
         [Mods.Mirror] = { 
             name = "Mirror",
             color = Color3.fromRGB(85, 212, 46)
+        },
+        [Mods.Sway] = {
+            name = "Sway",
+            color = Color3.fromRGB(188, 107, 226)
         }
     },
     Visible = true

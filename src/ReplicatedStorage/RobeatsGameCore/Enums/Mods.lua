@@ -1,9 +1,11 @@
 local Mods = {
-    Mirror = 1
+    Mirror = 1,
+    Sway = 2
 }
 
 local mod_to_string = {
-    [Mods.Mirror] = "MR"
+    [Mods.Mirror] = "MR",
+    [Mods.Sway] = "SW"
 }
 
 function Mods:get_string_for_mods(mods)
