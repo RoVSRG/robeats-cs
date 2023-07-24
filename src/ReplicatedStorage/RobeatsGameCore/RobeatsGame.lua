@@ -1,6 +1,7 @@
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 local InputUtil = require(game.ReplicatedStorage.Shared.InputUtil)
 local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
+local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
 local AudioManager = require(game.ReplicatedStorage.RobeatsGameCore.AudioManager)
 local ObjectPool = require(game.ReplicatedStorage.RobeatsGameCore.ObjectPool)
 local SFXManager = require(game.ReplicatedStorage.RobeatsGameCore.SFXManager)
@@ -18,6 +19,8 @@ local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
 local SongDatabase = require(game.ReplicatedStorage.RobeatsGameCore.SongDatabase)
 local Replay = require(game.ReplicatedStorage.RobeatsGameCore.Replay)
 local FlashEvery = require(game.ReplicatedStorage.Shared.FlashEvery)
+
+local Mods = require(game.ReplicatedStorage.RobeatsGameCore.Enums.Mods)
 
 local ContentProvider = game:GetService("ContentProvider")
 
@@ -40,6 +43,11 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		_sfx_manager = SFXManager:new();
 		_object_pool = ObjectPool:new();
 	}
+
+	local left_tar_orientation = math.rad(30);
+	local right_tar_orientation = math.rad(-30);
+
+	self.target_cam_orientation = 0;
 
 	self.keybind_pressed = Instance.new("BindableEvent")
 	self._config = _config
@@ -76,6 +84,8 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 	self._score_manager = ScoreManager:new(self)
 
 	self._mode_changed = Signal.new()
+
+	self.original_cam_cf = CFrame.new()
 	
 	local _local_game_slot = 0
 	function self:get_local_game_slot() return _local_game_slot end
@@ -136,6 +146,9 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 	function self:get_note_color() return _note_color end
 	function self:set_note_color(val) _note_color = val end
 
+	function self:get_target_cam_orientation() return self.target_cam_orientation end
+	function self:set_target_cam_orientation(val: number) self.target_cam_orientation = val end 
+
 	function self:get_mods() return _mods end
 	function self:set_mods(val) _mods = val end
 	function self:is_mod_active(mod)
@@ -144,7 +157,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 				return true
 			end
 
-			return false
+			return false 
 		end
 	end
 
@@ -160,6 +173,8 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		workspace.CurrentCamera.CFrame = GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) + self:get_game_environment_center_position()
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 		workspace.CurrentCamera.CameraSubject = nil
+		self.original_cam_cf = workspace.CurrentCamera.CFrame
+		self:set_target_cam_orientation(self.original_cam_cf.Rotation.Z);
 	end
 
 	function self:start_game(_start_time_ms)
@@ -187,6 +202,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		replay:add_replay_hit(self._audio_manager:get_current_time_ms(true), track, action, judgement, scoreData)
 	end
 
+	local z_calc
 	function self:update(dt_scale)
 		send_replay_data:update(dt_scale)
 
@@ -205,18 +221,55 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 			else
 				for itr_key,itr_index in GameTrack:inpututil_key_to_track_index():key_itr() do
 					if self._input:control_just_pressed(itr_key) then
+						--mod work
+
+
 						self.keybind_pressed:Fire(itr_index)
 						
 						local note_result = self:get_local_tracksystem():press_track_index(itr_index)
 
 						self:add_replay_hit(itr_index, Replay.HitType.Press, note_result, self._score_manager:get_end_records())
+
+						if self:is_mod_active(Mods.Sway) then
+							if itr_key == 0 or itr_key == 1 then
+								self:set_target_cam_orientation(left_tar_orientation)
+							elseif itr_key == 2 or itr_key == 3 then
+								self:set_target_cam_orientation(right_tar_orientation)
+							else
+								self:set_target_cam_orientation(0)
+							end
+
+							z_calc = CurveUtil:Expt(
+								workspace.CurrentCamera.CFrame.Rotation.Z,
+								self:get_target_cam_orientation(),
+								CurveUtil:NormalizedDefaultExptValueInSeconds(2),
+								dt_scale
+							)
+
+							
+						end
+						
 					end
 
 					if self._input:control_just_released(itr_key) then
 						local note_result = self:get_local_tracksystem():release_track_index(itr_index)
 
 						self:add_replay_hit(itr_index, Replay.HitType.Release, note_result, self._score_manager:get_end_records())
+
+						if self:is_mod_active(Mods.Sway) then
+							self:set_target_cam_orientation(0)
+
+							z_calc = CurveUtil:Expt(
+								workspace.CurrentCamera.CFrame.Rotation.Z,
+								0,
+								CurveUtil:NormalizedDefaultExptValueInSeconds(2),
+								dt_scale
+							)
+
+						end
 					end
+
+					workspace.CurrentCamera.CFrame *= CFrame.Angles(0, 0, z_calc)
 				end
 			end
 
@@ -230,7 +283,9 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 			
 			self._sfx_manager:update()
 			self._score_manager:update()
+
 			self._effects:update(dt_scale)
+
 			self._input:post_update()
 		end
 	end
