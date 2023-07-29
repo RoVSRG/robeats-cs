@@ -26,8 +26,6 @@ local Mods = require(game.ReplicatedStorage.RobeatsGameCore.Enums.Mods)
 
 local ContentProvider = game:GetService("ContentProvider")
 
---local Settings = require(game.ReplicatedStorage.)
-
 local RobeatsGame = {}
 RobeatsGame.Mode = {
 	Setup = 1;
@@ -213,8 +211,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 	function self:add_replay_hit(track, action, judgement, scoreData)
 		replay:add_replay_hit(self._audio_manager:get_current_time_ms(true), track, action, judgement, scoreData)
 	end
-
-	--local z_calc = self:get_target_cam_orientation()
+	
 	function self:update(dt_scale)
 		send_replay_data:update(dt_scale)
 
@@ -251,15 +248,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 								self:set_target_cam_orientation(0)
 							end
 
-							self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_cam_orientation(), self.SPRING_CONSTANTS)) -- z calc is the goal
-							-- z_calc = CurveUtil:Expt(
-							-- 	workspace.CurrentCamera.CFrame.Rotation.Z,
-							-- 	self:get_target_cam_orientation(),
-							-- 	CurveUtil:NormalizedDefaultExptValueInSeconds(0.45),
-							-- 	dt_scale
-							-- )
-
-							
+							self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_cam_orientation(), self.SPRING_CONSTANTS))
 						end
 						
 					end
@@ -271,20 +260,9 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 
 						if self:is_mod_active(Mods.Sway) then
 							self:set_target_cam_orientation(0)
-							self._sway_motor:setGoal(Flipper.Spring.new(0, self.SPRING_CONSTANTS)) -- z calc is the goal
-							-- z_calc = CurveUtil:Expt(
-							-- 	workspace.CurrentCamera.CFrame.Rotation.Z,
-							-- 	0,
-							-- 	CurveUtil:NormalizedDefaultExptValueInSeconds(0.45),
-							-- 	dt_scale
-							-- )
-
-							
-
+							self._sway_motor:setGoal(Flipper.Spring.new(0, self.SPRING_CONSTANTS))
 						end
 					end
-
-					--workspace.CurrentCamera.CFrame = self.original_cam_cf * CFrame.Angles(0, 0, z_calc)
 				end
 			end
 
