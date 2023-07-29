@@ -20,6 +20,8 @@ local SongDatabase = require(game.ReplicatedStorage.RobeatsGameCore.SongDatabase
 local Replay = require(game.ReplicatedStorage.RobeatsGameCore.Replay)
 local FlashEvery = require(game.ReplicatedStorage.Shared.FlashEvery)
 
+local Flipper = require(game.ReplicatedStorage.Packages.Flipper)
+
 local Mods = require(game.ReplicatedStorage.RobeatsGameCore.Enums.Mods)
 
 local ContentProvider = game:GetService("ContentProvider")
@@ -44,13 +46,15 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		_object_pool = ObjectPool:new();
 	}
 
-	local left_tar_orientation = math.rad(30);
-	local right_tar_orientation = math.rad(-30);
+	local left_tar_orientation = math.rad(10);
+	local right_tar_orientation = math.rad(-10);
 
 	self.target_cam_orientation = 0;
 
 	self.keybind_pressed = Instance.new("BindableEvent")
 	self._config = _config
+
+	self.SPRING_CONSTANTS = { frequency = 2.25, dampingRatio = 0.35 }
 
 	local _skin
 	local _2d_hit_pos
@@ -175,6 +179,14 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		workspace.CurrentCamera.CameraSubject = nil
 		self.original_cam_cf = workspace.CurrentCamera.CFrame
 		self:set_target_cam_orientation(self.original_cam_cf.Rotation.Z);
+
+		if self:is_mod_active(Mods.Sway) then
+			self._sway_motor = Flipper.SingleMotor.new(0);
+
+			self._sway_motor:onStep(function(val)
+				workspace.CurrentCamera.CFrame = self.original_cam_cf * CFrame.Angles(0, 0, val)
+			end)
+		end
 	end
 
 	function self:start_game(_start_time_ms)
@@ -202,7 +214,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		replay:add_replay_hit(self._audio_manager:get_current_time_ms(true), track, action, judgement, scoreData)
 	end
 
-	local z_calc
+	--local z_calc = self:get_target_cam_orientation()
 	function self:update(dt_scale)
 		send_replay_data:update(dt_scale)
 
@@ -239,12 +251,13 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 								self:set_target_cam_orientation(0)
 							end
 
-							z_calc = CurveUtil:Expt(
-								workspace.CurrentCamera.CFrame.Rotation.Z,
-								self:get_target_cam_orientation(),
-								CurveUtil:NormalizedDefaultExptValueInSeconds(2),
-								dt_scale
-							)
+							self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_cam_orientation(), self.SPRING_CONSTANTS)) -- z calc is the goal
+							-- z_calc = CurveUtil:Expt(
+							-- 	workspace.CurrentCamera.CFrame.Rotation.Z,
+							-- 	self:get_target_cam_orientation(),
+							-- 	CurveUtil:NormalizedDefaultExptValueInSeconds(0.45),
+							-- 	dt_scale
+							-- )
 
 							
 						end
@@ -258,18 +271,20 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 
 						if self:is_mod_active(Mods.Sway) then
 							self:set_target_cam_orientation(0)
+							self._sway_motor:setGoal(Flipper.Spring.new(0, self.SPRING_CONSTANTS)) -- z calc is the goal
+							-- z_calc = CurveUtil:Expt(
+							-- 	workspace.CurrentCamera.CFrame.Rotation.Z,
+							-- 	0,
+							-- 	CurveUtil:NormalizedDefaultExptValueInSeconds(0.45),
+							-- 	dt_scale
+							-- )
 
-							z_calc = CurveUtil:Expt(
-								workspace.CurrentCamera.CFrame.Rotation.Z,
-								0,
-								CurveUtil:NormalizedDefaultExptValueInSeconds(2),
-								dt_scale
-							)
+							
 
 						end
 					end
 
-					workspace.CurrentCamera.CFrame *= CFrame.Angles(0, 0, z_calc)
+					--workspace.CurrentCamera.CFrame = self.original_cam_cf * CFrame.Angles(0, 0, z_calc)
 				end
 			end
 
