@@ -26,12 +26,8 @@ ModSelection.defaultProps = {
         },
         [Mods.Sway] = {
             name = "Sway",
-            color = Color3.fromRGB(188, 107, 226)
+            color = Color3.fromRGB(196, 73, 253)
         },
-        [Mods.Wither] = {
-            name = "Wither",
-            color = Color3.fromRGB(173, 224, 240);
-        }
     },
     Visible = true
 }
