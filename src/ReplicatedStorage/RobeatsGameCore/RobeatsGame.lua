@@ -44,8 +44,8 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		_object_pool = ObjectPool:new();
 	}
 
-	local left_tar_orientation = math.rad(15);
-	local right_tar_orientation = math.rad(-15);
+	local left_tar_orientation = math.rad(13.5);
+	local right_tar_orientation = math.rad(-13.5);
 
 	local _2d_left_tar_pos = 0.1;
 	local _2d_right_tar_pos = -0.1;
