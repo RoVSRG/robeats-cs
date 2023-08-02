@@ -289,6 +289,8 @@ function AudioManager:new(_game)
 	local _ended_connection = nil
 
 	function self:update(dt_scale)
+		_note_prebuffer_time = 13720 / _game._config.NoteSpeed
+
 		if _current_mode == AudioManager.Mode.PreStart then
 			--Do pre-start countdown
 			local pre_start_time_pre = _pre_start_time_ms

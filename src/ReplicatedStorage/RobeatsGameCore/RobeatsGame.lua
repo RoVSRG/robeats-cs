@@ -230,6 +230,13 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 
 		if _current_mode == RobeatsGame.Mode.Game then
 			self._audio_manager:update(dt_scale)
+
+			-- if self._input:control_just_pressed(InputUtil.KEY_SPEEDUP) then
+			-- 	self._config.NoteSpeed += 1
+			-- elseif self._input:control_just_pressed(InputUtil.KEY_SPEEDDOWN) then
+			-- 	self._config.NoteSpeed -= 1
+			-- end
+
 			if replay.viewing then
 				local actions = replay:get_actions_this_frame(self._audio_manager:get_current_time_ms(true))
 

@@ -68,8 +68,9 @@ function SingleNote2D:new(_game, _track_index, _slot_index, _creation_time_ms, _
 	
 	--[[Override--]] function self:update(dt_scale)
 		if _state == SingleNote2D.State.Pre then
-			_t = (_game._audio_manager:get_current_time_ms() - _creation_time_ms) / (_hit_time_ms - _creation_time_ms)
-			
+			--_t = (_game._audio_manager:get_current_time_ms() - _creation_time_ms) / (_hit_time_ms - _creation_time_ms)
+			_t = 1 - (_hit_time_ms - _game._audio_manager:get_current_time_ms()) / _game._audio_manager:get_note_prebuffer_time_ms()
+
 			self:update_visual(_t)
 			
 			if self:should_remove() then

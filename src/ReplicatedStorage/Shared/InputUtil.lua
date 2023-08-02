@@ -12,6 +12,9 @@ InputUtil.KEY_TRACK2 = 1
 InputUtil.KEY_TRACK3 = 2
 InputUtil.KEY_TRACK4 = 3
 
+InputUtil.KEY_SPEEDUP = 80
+InputUtil.KEY_SPEEDDOWN = 81
+
 InputUtil.KEY_DOWN = 11
 InputUtil.KEY_LEFT = 12
 InputUtil.KEY_RIGHT = 13
@@ -304,6 +307,14 @@ function InputUtil:new()
 			else
 				active_dict:contains(InputUtil.KEYCODE_TOUCH_TRACK4) or
 				active_dict:contains(keybinds[4])
+
+		-- elseif control == InputUtil.KEY_SPEEDUP then
+		-- 	return active_dict:contains(InputUtil.KEY_SPEEDUP) or
+		-- 		active_dict:contains(Enum.KeyCode.Nine)
+
+		-- elseif control == InputUtil.KEY_SPEEDDOWN then
+		-- 	return active_dict:contains(InputUtil.KEY_SPEEDDOWN) or
+		-- 		active_dict:contains(Enum.KeyCode.Zero)
 
 		-- I wonder what these keys are for?
 		elseif control == InputUtil.KEYCODE_TOUCH_TRACK1 then

@@ -93,7 +93,7 @@ function HeldNote2D:new(
 	end	
 	
 	local function get_head_position()
-		return (_game_audio_manager_get_current_time_ms - _creation_time_ms) / (_hit_time_ms - _creation_time_ms)
+		return 1 - (_hit_time_ms - _game._audio_manager:get_current_time_ms()) / _game._audio_manager:get_note_prebuffer_time_ms()
 	end
 	
 	local function get_tail_hit_time()
@@ -105,8 +105,7 @@ function HeldNote2D:new(
 	end
 	
 	local function get_tail_t()
-		local tail_show_time = _game._audio_manager:get_current_time_ms() - get_tail_hit_time() + _game._audio_manager:get_note_prebuffer_time_ms()
-		return tail_show_time / _game._audio_manager:get_note_prebuffer_time_ms()
+		return 1 - (get_tail_hit_time() - _game._audio_manager:get_current_time_ms()) / _game._audio_manager:get_note_prebuffer_time_ms()
 	end
 	
 	local function get_tail_position()
