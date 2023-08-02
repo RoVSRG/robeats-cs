@@ -44,15 +44,20 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		_object_pool = ObjectPool:new();
 	}
 
-	local left_tar_orientation = math.rad(10);
-	local right_tar_orientation = math.rad(-10);
+	local left_tar_orientation = math.rad(15);
+	local right_tar_orientation = math.rad(-15);
+
+	local _2d_left_tar_pos = 0.1;
+	local _2d_right_tar_pos = -0.1;
 
 	self.target_cam_orientation = 0;
+	self.target_2d_playfield_pos = 0;
 
 	self.keybind_pressed = Instance.new("BindableEvent")
 	self._config = _config
 
-	self.SPRING_CONSTANTS = { frequency = 2.25, dampingRatio = 0.35 }
+	self.SPRING_CONSTANTS = { frequency = 3.5, dampingRatio = 0.5 }
+	self._2D_SPRING_CONSTANTS = { frequency = 2, dampingRatio = 1 }
 
 	local _skin
 	local _2d_hit_pos
@@ -149,7 +154,10 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 	function self:set_note_color(val) _note_color = val end
 
 	function self:get_target_cam_orientation() return self.target_cam_orientation end
-	function self:set_target_cam_orientation(val: number) self.target_cam_orientation = val end 
+	function self:set_target_cam_orientation(val: number) self.target_cam_orientation = val end
+
+	function self:get_target_2d_playfield_pos() return self.target_2d_playfield_pos end
+	function self:set_target_2d_playfield_pos(val) self.target_2d_playfield_pos = val end
 
 	function self:get_mods() return _mods end
 	function self:set_mods(val) _mods = val end
@@ -175,14 +183,19 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		workspace.CurrentCamera.CFrame = GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) + self:get_game_environment_center_position()
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 		workspace.CurrentCamera.CameraSubject = nil
-		self.original_cam_cf = workspace.CurrentCamera.CFrame
-		self:set_target_cam_orientation(self.original_cam_cf.Rotation.Z);
+		self.original_cam_cf = workspace.CurrentCamera.CFrame -- find a way to implement this honestly
+		self:set_target_cam_orientation(self.original_cam_cf.Rotation.Z)
+		self:set_target_2d_playfield_pos(if self:get_2d_mode() then self.original_2d_playfield_pos.X.Scale else 0) -- this might not work
 
 		if self:is_mod_active(Mods.Sway) then
 			self._sway_motor = Flipper.SingleMotor.new(0);
 
 			self._sway_motor:onStep(function(val)
-				workspace.CurrentCamera.CFrame = self.original_cam_cf * CFrame.Angles(0, 0, val)
+				if not self:get_2d_mode() then
+					workspace.CurrentCamera.CFrame = self.original_cam_cf * CFrame.Angles(0, 0, val)
+				else
+					self._gameplay_frame.Position = UDim2.fromScale(self.original_2d_playfield_pos.X.Scale + val, self._gameplay_frame.Position.Y.Scale)
+				end
 			end)
 		end
 	end
@@ -241,14 +254,28 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 
 						if self:is_mod_active(Mods.Sway) then
 							if itr_key == 0 or itr_key == 1 then
-								self:set_target_cam_orientation(left_tar_orientation)
+								if not self:get_2d_mode() then
+									self:set_target_cam_orientation(left_tar_orientation)
+								else
+									self:set_target_2d_playfield_pos(_2d_left_tar_pos)
+								end
 							elseif itr_key == 2 or itr_key == 3 then
-								self:set_target_cam_orientation(right_tar_orientation)
+								if not self:get_2d_mode() then
+									self:set_target_cam_orientation(right_tar_orientation)
+								else
+									self:set_target_2d_playfield_pos(_2d_right_tar_pos)
+								end
 							else
 								self:set_target_cam_orientation(0)
+								self:set_target_2d_playfield_pos(self.original_2d_playfield_pos.X.Scale);
 							end
 
-							self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_cam_orientation(), self.SPRING_CONSTANTS))
+							if not self:get_2d_mode() then
+								self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_cam_orientation(), self.SPRING_CONSTANTS))
+							else
+								self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_2d_playfield_pos(), self._2D_SPRING_CONSTANTS))
+							end
+							
 						end
 						
 					end
@@ -259,8 +286,13 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 						self:add_replay_hit(itr_index, Replay.HitType.Release, note_result, self._score_manager:get_end_records())
 
 						if self:is_mod_active(Mods.Sway) then
-							self:set_target_cam_orientation(0)
-							self._sway_motor:setGoal(Flipper.Spring.new(0, self.SPRING_CONSTANTS))
+							if not self:get_2d_mode() then
+								self:set_target_cam_orientation(0)
+								self._sway_motor:setGoal(Flipper.Spring.new(0, self.SPRING_CONSTANTS))
+							else
+								self:set_target_2d_playfield_pos(self.original_2d_playfield_pos.X.Scale)
+								self._sway_motor:setGoal(Flipper.Spring.new(0, self.SPRING_CONSTANTS))
+							end
 						end
 					end
 				end
@@ -313,6 +345,9 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 			end)
 
 			EnvironmentSetup:setup_2d_environment(_skin, _config)
+			self._gameplay_frame = EnvironmentSetup:get_player_gui_root():WaitForChild("GameplayFrame")
+			self.original_2d_playfield_pos = self._gameplay_frame.Position
+
 		end
 
 		self._audio_manager:load_song(_song_key, _config)
