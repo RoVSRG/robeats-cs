@@ -152,7 +152,7 @@ function AudioManager:new(_game)
 		end
 		
 		--Apply note speed multiplier
-		_note_prebuffer_time = 13720 / _config.NoteSpeed
+		_note_prebuffer_time = 13720 / math.clamp(_config.NoteSpeed, 1, 100)
 		
 		--Apply timing windows
 		if (not _config.UseCustomJudgements) then
@@ -289,7 +289,7 @@ function AudioManager:new(_game)
 	local _ended_connection = nil
 
 	function self:update(dt_scale)
-		_note_prebuffer_time = 13720 / _game._config.NoteSpeed
+		_note_prebuffer_time = 13720 / math.clamp(_game._config.NoteSpeed, 1, 100)
 
 		if _current_mode == AudioManager.Mode.PreStart then
 			--Do pre-start countdown

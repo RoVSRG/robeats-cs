@@ -129,7 +129,7 @@ function Options:getSettingElements()
                 return string.format("%d", value)
             end,
             Name = "Note Speed",
-            MinValue = 0,
+            MinValue = 1,
             MaxValue = 100,
             LayoutOrder = 3
         })
