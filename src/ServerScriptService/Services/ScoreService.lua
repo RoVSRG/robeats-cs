@@ -266,7 +266,7 @@ function ScoreService.Client:SubmitScore(player, data)
         embed:SetURL("https://www.roblox.com/users/" .. player.UserId .."/profile")
         embed:SetTitle(string.format("%s played %s - %s [%0.2fx rate]", player.Name, songArtist, songTitle, data.Rate / 100))
         embed:SetThumbnailIconURL(string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", player.UserId))
-        embed:SetColor3(Color3.fromRGB(math.random(0, 255), math.random(0, 255),math.random(0, 255))) -- this is bad\
+        embed:SetColor3(Color3.fromRGB(math.random(0, 255), math.random(0, 255),math.random(0, 255)))
         embed:AppendFooter("this is a certified hood classic") -- we must protect this at all costs
 
         --PLAYSTATSFIELD
