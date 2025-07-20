@@ -1,0 +1,19 @@
+# Project place file
+/robeats-cs-scripts.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+# Aftman
+/.aftman
+
+# MacOS
+.DS_Store
+
+# VS Code
+.vscode/settings.json
+
+# Temporary files
+*.tmp
+*.temp
