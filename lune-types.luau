@@ -4,9 +4,9 @@
 export type fs = {
     readFile: (path: string) -> string,
     writeFile: (path: string, contents: string) -> (),
-    mkdir: (path: string, recursive: boolean?) -> (),
+    writeDir: (path: string) -> (),
     isDir: (path: string) -> boolean,
-    join: (...string) -> string,
+    isFile: (path: string) -> boolean,
 }
 
 export type roblox = {

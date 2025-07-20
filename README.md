@@ -29,6 +29,7 @@ lune run export.luau
 ```
 
 This will extract all scripts from:
+
 - **ReplicatedStorage** → `src/shared/`
 - **StarterPlayerScripts** → `src/client/`
 - **ServerScriptService** → `src/server/`

@@ -21,10 +21,10 @@ end
 
 -- Save a script to the appropriate target folder
 local function saveScript(targetDir: string, relPath: string, source: string)
-    local fullPath = fs.join(targetDir, relPath)
+    local fullPath = targetDir .. "/" .. relPath
     local folder = fullPath:match("(.+)/[^/]+$") -- strip filename
     if not fs.isDir(folder) then
-        fs.mkdir(folder, true)
+        fs.writeDir(folder)
     end
     fs.writeFile(fullPath, source)
     print("[Extracted]", fullPath)
@@ -71,9 +71,9 @@ local starterPlayer = place:FindFirstChild("StarterPlayer")
 local serverScriptService = place:FindFirstChild("ServerScriptService")
 
 -- Paths for each group
-local sharedDir = fs.join(OUTPUT_DIR, "shared")
-local clientDir = fs.join(OUTPUT_DIR, "client")
-local serverDir = fs.join(OUTPUT_DIR, "server")
+local sharedDir = OUTPUT_DIR .. "/shared"
+local clientDir = OUTPUT_DIR .. "/client"
+local serverDir = OUTPUT_DIR .. "/server"
 
 -- Process ReplicatedStorage → src/shared
 if replicatedStorage then
