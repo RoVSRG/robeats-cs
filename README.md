@@ -1,22 +1,103 @@
 # Robeats CS Scripts
 
-A Roblox project for Robeats-related scripts and utilities, built with [Rojo](https://github.com/rojo-rbx/rojo) 7.4.4.
+This project contains the source code for Robeats CS, organized for modern Roblox development with proper build tooling.
 
-## Getting Started
+## Development Workflow
 
-To build the place from scratch, use:
+### Directory Structure
 
-```bash
-rojo build -o "robeats-cs-scripts.rbxlx"
+- `src/shared/` - Shared modules (maps to ReplicatedStorage)
+- `src/client/` - Client-side scripts (maps to StarterPlayerScripts)
+- `src/server/` - Server-side scripts (maps to ServerScriptService)
+
+### Import System
+
+During development, use the `@shared/` import syntax for shared modules:
+
+```luau
+local MyModule = require("@shared/MyModule")
+local Utils = require("@shared/Shared/Utils")
+local GameCore = require("@shared/RobeatsGameCore/RobeatsGame")
 ```
 
-Next, open `robeats-cs-scripts.rbxlx` in Roblox Studio and start the Rojo server:
+### Building for Roblox
+
+#### Development Mode (with Auto-transformation)
+
+For active development, start the file watcher for automatic transformation on save:
 
 ```bash
-rojo serve
+./watch.sh
 ```
 
-## Script Extraction
+This will:
+
+- Monitor all files in `src/` for changes
+- Automatically transform `@shared/xxx` imports to `game.ReplicatedStorage.xxx`
+- Update the corresponding files in `dist/` in real-time
+- Keep running until you stop it with Ctrl+C
+
+#### Production Build
+
+To build a complete place file ready for Roblox Studio:
+
+```bash
+./build.sh
+# or using Lune directly:
+lune run build.luau
+```
+
+This will:
+
+1. Transform all `@shared/xxx` imports to `game.ReplicatedStorage.xxx`
+2. Convert path separators from `/` to `.` for Roblox
+3. Generate a production-ready place file: `robeats-cs-built.rbxl`
+
+### Development vs Production
+
+**Development (src/):**
+
+- Use `@shared/` imports for better IDE support and portability
+- Cleaner, more readable code
+- Better autocomplete and navigation
+
+**Production (dist/ and built .rbxl):**
+
+- Uses proper `game.ReplicatedStorage.xxx` syntax
+- Compatible with Roblox Studio and runtime
+- Generated automatically by the build process
+
+### Tools Used
+
+- **Rojo**: Project management and building
+- **Lune**: Script transformation and build automation
+- **Aftman**: Tool version management
+
+### Getting Started
+
+1. **Install tools**: `aftman install`
+2. **Start development watcher**: `./watch.sh` (keeps `dist/` updated automatically)
+3. **Make changes in `src/`** (files are transformed instantly on save)
+4. **Build for production**: `./build.sh` (creates `robeats-cs-built.rbxl`)
+5. **Sync to Roblox Studio**: Open and sync `robeats-cs-built.rbxl`
+
+### VS Code Integration
+
+Use **Ctrl+Shift+P** → **Tasks: Run Task** to access:
+
+- **"Watch and Transform"** - Start the file watcher (background task)
+- **"Build Production"** - Build the final .rbxl file
+
+### Available Commands
+
+| Command                   | Purpose                                   | Output                          |
+| ------------------------- | ----------------------------------------- | ------------------------------- |
+| `./watch.sh`              | Development mode with auto-transformation | Updates `dist/` on file save    |
+| `./build.sh`              | Production build                          | Creates `robeats-cs-built.rbxl` |
+| `lune run transform.luau` | Manual transformation                     | Updates `dist/` once            |
+| `lune run build.luau`     | Alternative build command                 | Same as `./build.sh`            |
+
+This setup gives you the best of both worlds: modern development experience with full Roblox compatibility.
 
 This project includes `export.luau`, a Lune script for extracting scripts from existing Roblox place files:
 

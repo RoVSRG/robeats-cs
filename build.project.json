@@ -1,0 +1,25 @@
+{
+  "name": "robeats-cs-scripts",
+  "tree": {
+    "$className": "DataModel",
+    "$ignoreUnknownInstances": true,
+
+    "ReplicatedStorage": {
+      "$path": "dist/shared",
+      "$ignoreUnknownInstances": true
+    },
+
+    "ServerScriptService": {
+      "$path": "dist/server",
+      "$ignoreUnknownInstances": true
+    },
+
+    "StarterPlayer": {
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$path": "dist/client",
+        "$ignoreUnknownInstances": true
+      }
+    }
+  }
+}

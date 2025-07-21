@@ -19,14 +19,14 @@ local function createGui()
 end
 
 Players.PlayerAdded:Connect(function(player)
-	local playerGui = player:WaitForChild("PlayerGui")
+	local playerGui: PlayerGui = player:WaitForChild("PlayerGui")
 	
-	local gui = createGui(playerGui)
+	local gui = createGui()
 	gui.Parent = playerGui
 	
-	for _, gui in ipairs(StarterGui:GetChildren()) do
-		if gui.Name == "Dev" then
-			for _, element in gui:GetChildren() do
+	for _, guiObject: GuiObject in ipairs(StarterGui:GetChildren()) do
+		if guiObject.Name == "Dev" then
+			for _, element in guiObject:GetChildren() do
 				if element:IsA("Frame") then
 					element:Clone().Parent = playerGui:FindFirstChild("Screens")
 				end
@@ -35,7 +35,7 @@ Players.PlayerAdded:Connect(function(player)
 			continue
 		end
 		
-		local element = gui:Clone()
+		local element = guiObject:Clone()
 		element.Parent = playerGui
 	end
 	

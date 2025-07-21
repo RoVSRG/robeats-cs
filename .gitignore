@@ -7,6 +7,10 @@
 
 /*.rbxl
 
+# Build outputs
+/dist/
+/robeats-cs-built.rbxl
+
 # Aftman
 /.aftman
 

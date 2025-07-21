@@ -7,7 +7,7 @@ local colorKeys = {}
 
 local Functions = game.ReplicatedStorage.Remotes.Functions
 
-Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex)
+Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 	local songs = Songs:GetChildren()
 	table.sort(songs, function(a, b)
 		return tonumber(a.Name:match("%[(%d+)%]")) < tonumber(b.Name:match("%[(%d+)%]"))

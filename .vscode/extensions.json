@@ -1,3 +1,7 @@
 {
-  "recommendations": ["johnnymorganz.luau-lsp", "evaera.vscode-rojo"]
+  "recommendations": [
+    "johnnymorganz.luau-lsp",
+    "evaera.vscode-rojo",
+    "johnnymorganz.stylua"
+  ]
 }
