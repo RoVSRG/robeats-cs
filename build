@@ -1,0 +1,9 @@
+#!/bin/bash
+# Simple wrapper script for cross-platform building
+if command -v lune >/dev/null 2>&1; then
+    lune run scripts/build.luau
+else
+    echo "Error: Lune is not installed or not in PATH"
+    echo "Please run: aftman install"
+    exit 1
+fi

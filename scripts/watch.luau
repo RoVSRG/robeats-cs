@@ -3,6 +3,14 @@
 local process = require("@lune/process")
 local fs = require("@lune/fs")
 
+-- Simple sleep function
+local function sleep(seconds)
+	local start = os.clock()
+	while os.clock() - start < seconds do
+		-- Busy wait
+	end
+end
+
 -- Import the transformation logic from transform.luau
 local function transformFile(inputPath: string, outputPath: string)
 	local content = fs.readFile(inputPath)
@@ -88,9 +96,8 @@ print("✅ Initial transformation complete")
 
 -- Watch loop
 while true do
-	-- Wait a bit before scanning again (cross-platform sleep)
-	local sleepCommand = if process.os == "windows" then { "timeout", "/t", "1", "/nobreak" } else { "sleep", "1" }
-	process.spawn(sleepCommand[1], { table.unpack(sleepCommand, 2) })
+	-- Wait a bit before scanning again
+	sleep(1)
 
 	-- Scan for changes
 	lastScan = scanForChanges("src", lastScan)

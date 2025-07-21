@@ -27,23 +27,25 @@ local GameCore = require("@shared/RobeatsGameCore/RobeatsGame")
 For active development, start the file watcher for automatic transformation on save:
 
 ##### macOS/Linux
+
 ```bash
-./watch.sh
+./watch
 ```
 
 ##### Windows
+
 Choose one of these options:
 
 ```cmd
-watch.bat           # Command Prompt
+scripts\watch.bat           # Command Prompt
 ```
 
 ```powershell
-.\watch.ps1         # PowerShell (recommended)
+.\scripts\watch.ps1         # PowerShell (recommended)
 ```
 
 ```cmd
-lune run watch.luau # Direct Lune command
+lune run scripts/watch.luau # Direct Lune command
 ```
 
 This will:
@@ -58,23 +60,25 @@ This will:
 To build a complete place file ready for Roblox Studio:
 
 ##### macOS/Linux
+
 ```bash
-./build.sh
+./build
 ```
 
 ##### Windows
+
 Choose one of these options:
 
 ```cmd
-build.bat           # Command Prompt
+scripts\build.bat           # Command Prompt
 ```
 
 ```powershell
-.\build.ps1         # PowerShell (recommended)
+.\scripts\build.ps1         # PowerShell (recommended)
 ```
 
 ```cmd
-lune run build.luau # Direct Lune command
+lune run scripts/build.luau # Direct Lune command
 ```
 
 This will:
@@ -106,9 +110,9 @@ This will:
 ### Getting Started
 
 1. **Install tools**: `aftman install`
-2. **Start development watcher**: `./watch.sh` (keeps `dist/` updated automatically)
+2. **Start development watcher**: `./watch` (keeps `dist/` updated automatically)
 3. **Make changes in `src/`** (files are transformed instantly on save)
-4. **Build for production**: `./build.sh` (creates `robeats-cs-built.rbxl`)
+4. **Build for production**: `./build` (creates `robeats-cs-built.rbxl`)
 5. **Sync to Roblox Studio**: Open and sync `robeats-cs-built.rbxl`
 
 ### VS Code Integration
@@ -120,12 +124,12 @@ Use **Ctrl+Shift+P** → **Tasks: Run Task** to access:
 
 ### Available Commands
 
-| Command                   | Purpose                                   | Output                          |
-| ------------------------- | ----------------------------------------- | ------------------------------- |
-| `./watch.sh`              | Development mode with auto-transformation | Updates `dist/` on file save    |
-| `./build.sh`              | Production build                          | Creates `robeats-cs-built.rbxl` |
-| `lune run transform.luau` | Manual transformation                     | Updates `dist/` once            |
-| `lune run build.luau`     | Alternative build command                 | Same as `./build.sh`            |
+| Command                           | Purpose                                   | Output                          |
+| --------------------------------- | ----------------------------------------- | ------------------------------- |
+| `./watch`                         | Development mode with auto-transformation | Updates `dist/` on file save    |
+| `./build`                         | Production build                          | Creates `robeats-cs-built.rbxl` |
+| `lune run scripts/transform.luau` | Manual transformation                     | Updates `dist/` once            |
+| `lune run scripts/build.luau`     | Alternative build command                 | Same as `./build`               |
 
 This setup gives you the best of both worlds: modern development experience with full Roblox compatibility.
 
@@ -136,7 +140,7 @@ This project includes `export.luau`, a Lune script for extracting scripts from e
 3. Run the extraction:
 
 ```bash
-lune run export.luau
+lune run scripts/export.luau
 ```
 
 This will extract all scripts from:
