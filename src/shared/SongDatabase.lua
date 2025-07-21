@@ -55,7 +55,7 @@ function SongDatabase:GetPropertyByKey(key, property)
 end
 
 local Functions = game.ReplicatedStorage.Remotes.Functions
-local CompressMachine = require(game.ReplicatedStorage.Libraries.CompressMachine)
+local CompressMachine = require("@shared/Libraries/CompressMachine")
 
 function SongDatabase:GetHitObjectsForFolderName(name)
 	-- 1. Ask server for compressed chart string

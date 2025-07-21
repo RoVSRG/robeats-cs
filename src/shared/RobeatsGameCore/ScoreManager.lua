@@ -1,16 +1,16 @@
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
-local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
-local SFXManager = require(game.ReplicatedStorage.RobeatsGameCore.SFXManager)
-local InputUtil = require(game.ReplicatedStorage.Shared.InputUtil)
-local NoteResultPopupEffect = require(game.ReplicatedStorage.RobeatsGameCore.Effects.NoteResultPopupEffect)
-local NoteResultPopupEffect2D = require(game.ReplicatedStorage.RobeatsGameCore.Effects.NoteResultPopupEffect2D)
-local HoldingNoteEffect = require(game.ReplicatedStorage.RobeatsGameCore.Effects.HoldingNoteEffect)
-local HoldingNoteEffect2D = require(game.ReplicatedStorage.RobeatsGameCore.Effects.HoldingNoteEffect2D)
-local RenderableHit = require(game.ReplicatedStorage.RobeatsGameCore.RenderableHit)
-local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
+local SPUtil = require("@shared/Shared/SPUtil")
+local CurveUtil = require("@shared/Shared/CurveUtil")
+local NoteResult = require("@shared/RobeatsGameCore/Enums/NoteResult")
+local SFXManager = require("@shared/RobeatsGameCore/SFXManager")
+local InputUtil = require("@shared/Shared/InputUtil")
+local NoteResultPopupEffect = require("@shared/RobeatsGameCore/Effects/NoteResultPopupEffect")
+local NoteResultPopupEffect2D = require("@shared/RobeatsGameCore/Effects/NoteResultPopupEffect2D")
+local HoldingNoteEffect = require("@shared/RobeatsGameCore/Effects/HoldingNoteEffect")
+local HoldingNoteEffect2D = require("@shared/RobeatsGameCore/Effects/HoldingNoteEffect2D")
+local RenderableHit = require("@shared/RobeatsGameCore/RenderableHit")
+local DebugOut = require("@shared/Shared/DebugOut")
 
-local Signal = require(game.ReplicatedStorage.Libraries.LemonSignal)
+local Signal = require("@shared/Libraries/LemonSignal")
 
 local ScoreManager = {}
 

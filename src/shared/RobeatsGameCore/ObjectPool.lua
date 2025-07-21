@@ -1,4 +1,4 @@
-local SPMultiDict = require(game.ReplicatedStorage.Shared.SPMultiDict)
+local SPMultiDict = require("@shared/Shared/SPMultiDict")
 local ObjectPool = {}
 
 function ObjectPool:new()

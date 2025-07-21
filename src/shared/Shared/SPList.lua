@@ -1,4 +1,4 @@
-local RandomLua = require(game.ReplicatedStorage.Shared.RandomLua)
+local RandomLua = require("@shared/Shared/RandomLua")
 
 local SPList = {}
 

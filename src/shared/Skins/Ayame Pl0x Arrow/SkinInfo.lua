@@ -1,8 +1,0 @@
-return {
-	Name = "Ayame Pl0x",
-	Author = "YasiCree // Ayame // Pl0x",
-	Type = "Arrow",
-	NoteAsHeldArrowHit = true,
-	Number = 0, -- Keep this empty for skin number
-	Data = nil -- Keep this empty for skin data
-}

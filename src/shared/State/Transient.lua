@@ -1,4 +1,4 @@
-local Val = require(game.ReplicatedStorage.Libraries.Val)
+local Val = require("@shared/Libraries/Val")
 
 local Transient = {}
 

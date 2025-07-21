@@ -1,8 +1,8 @@
 --local player = game.Players.LocalPlayer
 --local playerGui = player:WaitForChild("PlayerGui")
 
-local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
-local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
+local ScreenChief = require("@shared/Modules/ScreenChief")
+local SongDatabase = require("@shared/SongDatabase")
 
 local live = ScreenChief:GetScreenGui()
 

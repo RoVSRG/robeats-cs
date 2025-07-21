@@ -1,5 +1,5 @@
   
-local SPList = require(game.ReplicatedStorage.Shared.SPList)
+local SPList = require("@shared/Shared/SPList")
 
 local Gradient = {}
 

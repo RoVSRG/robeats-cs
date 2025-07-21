@@ -1,4 +1,4 @@
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
+local CurveUtil = require("@shared/Shared/CurveUtil")
 
 local SPVector = {}
 

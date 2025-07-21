@@ -1,7 +1,7 @@
-local SPList = require(game.ReplicatedStorage.Shared.SPList)
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
-local SFXManager = require(game.ReplicatedStorage.RobeatsGameCore.SFXManager)
-local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
+local SPList = require("@shared/Shared/SPList")
+local SPDict = require("@shared/Shared/SPDict")
+local SFXManager = require("@shared/RobeatsGameCore/SFXManager")
+local DebugOut = require("@shared/Shared/DebugOut")
 
 local HitSFXGroup = {}
 

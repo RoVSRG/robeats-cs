@@ -1,12 +1,12 @@
-local CurveUtil         = require(game.ReplicatedStorage.Shared.CurveUtil)
-local HitSFXGroup       = require(game.ReplicatedStorage.RobeatsGameCore.HitSFXGroup)
-local EnvironmentSetup  = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-local AssertType        = require(game.ReplicatedStorage.Shared.AssertType)
-local TimingPresets     = require(game.ReplicatedStorage.RobeatsGameCore.TimingPresets)
-local SingleNote        = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.SingleNote)
-local HeldNote          = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.HeldNote)
-local SingleNote2D      = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.SingleNote2D)
-local HeldNote2D        = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.HeldNote2D)
+local CurveUtil         = require("@shared/Shared/CurveUtil")
+local HitSFXGroup       = require("@shared/RobeatsGameCore/HitSFXGroup")
+local EnvironmentSetup  = require("@shared/RobeatsGameCore/EnvironmentSetup")
+local AssertType        = require("@shared/Shared/AssertType")
+local TimingPresets     = require("@shared/RobeatsGameCore/TimingPresets")
+local SingleNote        = require("@shared/RobeatsGameCore/NoteTypes/SingleNote")
+local HeldNote          = require("@shared/RobeatsGameCore/NoteTypes/HeldNote")
+local SingleNote2D      = require("@shared/RobeatsGameCore/NoteTypes/SingleNote2D")
+local HeldNote2D        = require("@shared/RobeatsGameCore/NoteTypes/HeldNote2D")
 
 local AudioManager = {}
 AudioManager.Mode = {

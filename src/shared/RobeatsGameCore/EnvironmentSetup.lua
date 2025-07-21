@@ -1,7 +1,7 @@
-local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
-local AssertType = require(game.ReplicatedStorage.Shared.AssertType)
-local Skins = require(game.ReplicatedStorage.Skins)
+local DebugOut = require("@shared/Shared/DebugOut")
+local SPDict = require("@shared/Shared/SPDict")
+local AssertType = require("@shared/Shared/AssertType")
+local Skins = require("@shared/Skins")
 
 local EnvironmentSetup = {}
 EnvironmentSetup.Mode = {

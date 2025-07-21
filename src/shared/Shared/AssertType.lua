@@ -1,5 +1,5 @@
-local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
+local DebugOut = require("@shared/Shared/DebugOut")
+local SPDict = require("@shared/Shared/SPDict")
 
 local AssertType = {}
 

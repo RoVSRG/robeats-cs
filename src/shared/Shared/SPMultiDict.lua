@@ -1,5 +1,5 @@
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
-local SPList = require(game.ReplicatedStorage.Shared.SPList)
+local SPDict = require("@shared/Shared/SPDict")
+local SPList = require("@shared/Shared/SPList")
 
 local SPMultiDict = {}
 

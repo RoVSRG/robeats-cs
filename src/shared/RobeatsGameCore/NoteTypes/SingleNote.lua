@@ -1,13 +1,13 @@
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
-local NoteBase = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.NoteBase)
-local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
-local SFXManager = require(game.ReplicatedStorage.RobeatsGameCore.SFXManager)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-local HitParams = require(game.ReplicatedStorage.RobeatsGameCore.HitParams)
-local HoldingNoteEffect = require(game.ReplicatedStorage.RobeatsGameCore.Effects.HoldingNoteEffect)
-local TriggerNoteEffect = require(game.ReplicatedStorage.RobeatsGameCore.Effects.TriggerNoteEffect)
-local RenderableHit = require(game.ReplicatedStorage.RobeatsGameCore.RenderableHit)
+local SPUtil = require("@shared/Shared/SPUtil")
+local CurveUtil = require("@shared/Shared/CurveUtil")
+local NoteBase = require("@shared/RobeatsGameCore/NoteTypes/NoteBase")
+local NoteResult = require("@shared/RobeatsGameCore/Enums/NoteResult")
+local SFXManager = require("@shared/RobeatsGameCore/SFXManager")
+local EnvironmentSetup = require("@shared/RobeatsGameCore/EnvironmentSetup")
+local HitParams = require("@shared/RobeatsGameCore/HitParams")
+local HoldingNoteEffect = require("@shared/RobeatsGameCore/Effects/HoldingNoteEffect")
+local TriggerNoteEffect = require("@shared/RobeatsGameCore/Effects/TriggerNoteEffect")
+local RenderableHit = require("@shared/RobeatsGameCore/RenderableHit")
 
 
 local SingleNote = {}

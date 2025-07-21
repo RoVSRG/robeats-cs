@@ -1,6 +1,6 @@
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+local SPUtil = require("@shared/Shared/SPUtil")
+local CurveUtil = require("@shared/Shared/CurveUtil")
+local EnvironmentSetup = require("@shared/RobeatsGameCore/EnvironmentSetup")
 
 local TriggerButton = {}
 

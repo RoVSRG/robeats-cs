@@ -1,9 +1,9 @@
-local EffectSystem = require(game.ReplicatedStorage.RobeatsGameCore.Effects.EffectSystem)
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
-local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-local Skins = require(game.ReplicatedStorage.Skins)
+local EffectSystem = require("@shared/RobeatsGameCore/Effects/EffectSystem")
+local SPUtil = require("@shared/Shared/SPUtil")
+local CurveUtil = require("@shared/Shared/CurveUtil")
+local NoteResult = require("@shared/RobeatsGameCore/Enums/NoteResult")
+local EnvironmentSetup = require("@shared/RobeatsGameCore/EnvironmentSetup")
+local Skins = require("@shared/Skins")
 
 local HoldingNoteEffect2D = {}
 HoldingNoteEffect2D.Type = "HoldingNoteEffect2D"

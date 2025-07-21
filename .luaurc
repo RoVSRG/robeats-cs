@@ -1,3 +1,14 @@
 {
-  "languageMode": "strict"
+  "languageMode": "strict",
+  "aliases": {
+    "shared": "src/shared",
+    "client": "src/client",
+    "server": "src/server"
+  },
+  "lint": {
+    "*": true
+  },
+  "lintErrors": false,
+  "typeErrors": false,
+  "globals": []
 }

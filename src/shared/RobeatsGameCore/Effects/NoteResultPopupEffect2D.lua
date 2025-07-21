@@ -1,9 +1,9 @@
-local EffectSystem = require(game.ReplicatedStorage.RobeatsGameCore.Effects.EffectSystem)
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
-local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
-local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+local EffectSystem = require("@shared/RobeatsGameCore/Effects/EffectSystem")
+local SPUtil = require("@shared/Shared/SPUtil")
+local CurveUtil = require("@shared/Shared/CurveUtil")
+local NoteResult = require("@shared/RobeatsGameCore/Enums/NoteResult")
+local DebugOut = require("@shared/Shared/DebugOut")
+local EnvironmentSetup = require("@shared/RobeatsGameCore/EnvironmentSetup")
 
 local NoteResultPopupEffect2D = {}
 NoteResultPopupEffect2D.HitColor = {

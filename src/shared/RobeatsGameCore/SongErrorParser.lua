@@ -1,4 +1,4 @@
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
+local SPDict = require("@shared/Shared/SPDict")
 
 local SongErrorParser	= {}
 

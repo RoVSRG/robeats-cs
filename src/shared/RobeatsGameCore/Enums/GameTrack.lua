@@ -1,5 +1,5 @@
-local InputUtil = require(game.ReplicatedStorage.Shared.InputUtil)
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
+local InputUtil = require("@shared/Shared/InputUtil")
+local SPDict = require("@shared/Shared/SPDict")
 
 local GameTrack = {
 	Track1 = 1;

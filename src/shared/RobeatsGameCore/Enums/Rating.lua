@@ -1,4 +1,4 @@
-local SongDatabase = require(game.ReplicatedStorage.RobeatsGameCore.SongDatabase)
+local SongDatabase = require("@shared/SongDatabase")
 
 local function weightingPercentage(x)
 	if x == 100 then return 110

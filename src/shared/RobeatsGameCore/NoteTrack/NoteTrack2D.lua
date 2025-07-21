@@ -1,11 +1,11 @@
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
-local TriggerButton2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.TriggerButton2D)
-local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameSlot)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameTrack)
-local AssertType = require(game.ReplicatedStorage.Shared.AssertType)
-local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
+local SPUtil = require("@shared/Shared/SPUtil")
+local CurveUtil = require("@shared/Shared/CurveUtil")
+local TriggerButton2D = require("@shared/RobeatsGameCore/NoteTrack/TriggerButton2D")
+local GameSlot = require("@shared/RobeatsGameCore/Enums/GameSlot")
+local EnvironmentSetup = require("@shared/RobeatsGameCore/EnvironmentSetup")
+local GameTrack = require("@shared/RobeatsGameCore/Enums/GameTrack")
+local AssertType = require("@shared/Shared/AssertType")
+local DebugOut = require("@shared/Shared/DebugOut")
 
 local NoteTrack = {}
 
