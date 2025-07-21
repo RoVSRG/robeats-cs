@@ -29,10 +29,17 @@ local function transformFile(inputPath: string, outputPath: string)
 end
 
 local function getModificationTime(path: string): number
-	-- Simple implementation - in a real scenario you'd want proper file stat
-	-- For now, we'll use file size + current time as a simple heuristic
+	-- Use Lune's fs metadata if available, otherwise fallback to file size heuristic
 	if fs.isFile(path) then
-		return #fs.readFile(path) + os.time()
+		-- Try to get actual modification time (this works on all platforms with Lune)
+		local success, result = pcall(function()
+			return fs.metadata(path).modifiedAt
+		end)
+		if success and result then
+			return result
+		end
+		-- Fallback: use file size as a simple change detection
+		return #fs.readFile(path)
 	end
 	return 0
 end
@@ -81,8 +88,9 @@ print("✅ Initial transformation complete")
 
 -- Watch loop
 while true do
-	-- Wait a bit before scanning again
-	process.spawn("sleep", { "1" })
+	-- Wait a bit before scanning again (cross-platform sleep)
+	local sleepCommand = if process.os == "windows" then {"timeout", "/t", "1", "/nobreak"} else {"sleep", "1"}
+	process.spawn(sleepCommand[1], {table.unpack(sleepCommand, 2)})
 
 	-- Scan for changes
 	lastScan = scanForChanges("src", lastScan)

@@ -26,8 +26,24 @@ local GameCore = require("@shared/RobeatsGameCore/RobeatsGame")
 
 For active development, start the file watcher for automatic transformation on save:
 
+##### macOS/Linux
 ```bash
 ./watch.sh
+```
+
+##### Windows
+Choose one of these options:
+
+```cmd
+watch.bat           # Command Prompt
+```
+
+```powershell
+.\watch.ps1         # PowerShell (recommended)
+```
+
+```cmd
+lune run watch.luau # Direct Lune command
 ```
 
 This will:
@@ -41,10 +57,24 @@ This will:
 
 To build a complete place file ready for Roblox Studio:
 
+##### macOS/Linux
 ```bash
 ./build.sh
-# or using Lune directly:
-lune run build.luau
+```
+
+##### Windows
+Choose one of these options:
+
+```cmd
+build.bat           # Command Prompt
+```
+
+```powershell
+.\build.ps1         # PowerShell (recommended)
+```
+
+```cmd
+lune run build.luau # Direct Lune command
 ```
 
 This will:
