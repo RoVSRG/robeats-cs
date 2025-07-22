@@ -37,11 +37,12 @@ robeats-cs-scripts/
 │   ├── client/          # StarterPlayerScripts
 │   ├── server/          # ServerScriptService  
 │   ├── shared/          # ReplicatedStorage
-│   └── gui/             # StarterGui (synced from Studio)
+│   └── gui/
+│       └── screens/     # StarterGui.Screens (runtime screen templates)
 ├── scripts/
-│   ├── sync-launcher.luau   # Main two-way sync orchestrator
+│   ├── sync-launcher.luau   # Instructions helper
 │   ├── studio-watcher.luau  # Watches for Studio saves
-│   └── sync.{ps1,bat,sh}    # Platform-specific launchers
+│   └── sync.{ps1,bat,sh}    # Platform launchers
 └── default.project.json     # Full game hierarchy mapping
 ```
 
@@ -53,15 +54,22 @@ robeats-cs-scripts/
 - Full IntelliSense and autocomplete for entire game hierarchy
 
 ### 2. GUI Development (Studio → VS Code)
-- Edit GUI in Roblox Studio visually
+- **Visual Editing**: Edit GUI in **StarterGui.Dev** ScreenGui for visual design
+- **Screen Templates**: Edit actual screens in **StarterGui.Screens** Folder  
 - **Save the place file** (`Ctrl+S`)
-- GUI changes **auto-pull** to `src/gui/` within 2 seconds
-- Changes are **auto-committed** to Git with message "Auto-sync GUI from Studio"
+- Both Dev and Screens changes **auto-pull** to `src/gui/screens/` within 2 seconds
+- Changes are **auto-committed** to Git with message "Auto-sync GUI from Studio (Dev + Screens)"
 
-### 3. Full IntelliSense
+### 3. GUI Architecture
+- **StarterGui.Dev**: ScreenGui for visual editing (destroyed at runtime)
+- **StarterGui.Screens**: Folder containing all screen templates (MenuScreen, GameScreen, etc.)
+- **src/gui/screens/**: Git repository containing screen definitions (.json files)
+- **Runtime**: ScreenChief creates "Main" ScreenGui and clones screens from StarterGui.Screens
+
+### 4. Full IntelliSense
 - VS Code can see the **entire game hierarchy**:
   - `game.ReplicatedStorage.*` (from `src/shared/`)
-  - `game.StarterGui.*` (from `src/gui/`)
+  - `game.StarterGui.Screens.*` (from `src/gui/screens/`)
   - `game.ServerScriptService.*` (from `src/server/`)
   - `game.StarterPlayerScripts.*` (from `src/client/`)
 

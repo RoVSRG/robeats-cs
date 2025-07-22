@@ -5,10 +5,11 @@
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 
-local live = ScreenChief:GetScreenGui()
+-- Initialize ScreenChief with default screen
+ScreenChief:Initialize("MenuScreen")
 
-local MainMenu = ScreenChief:GetScreen("MainMenu")
-
-MainMenu.Parent = live
-
+-- Load songs
 SongDatabase:LoadAllSongs()
+
+print("🎮 Robeats client initialized!")
+print("📱 Available screens:", table.concat(ScreenChief:GetAvailableScreens(), ", "))

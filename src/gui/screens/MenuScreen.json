@@ -1,0 +1,38 @@
+{
+  "ClassName": "CanvasGroup",
+  "Name": "MenuScreen",
+  "Properties": {
+    "Size": { "X": { "Scale": 1, "Offset": 0 }, "Y": { "Scale": 1, "Offset": 0 } },
+    "Position": { "X": { "Scale": 0, "Offset": 0 }, "Y": { "Scale": 0, "Offset": 0 } },
+    "BackgroundTransparency": 1,
+    "GroupTransparency": 0
+  },
+  "Children": [
+    {
+      "ClassName": "TextLabel",
+      "Name": "Title",
+      "Properties": {
+        "Size": { "X": { "Scale": 0.8, "Offset": 0 }, "Y": { "Scale": 0.2, "Offset": 0 } },
+        "Position": { "X": { "Scale": 0.1, "Offset": 0 }, "Y": { "Scale": 0.1, "Offset": 0 } },
+        "BackgroundTransparency": 1,
+        "Text": "Robeats - Main Menu",
+        "TextColor3": { "R": 1, "G": 1, "B": 1 },
+        "TextScaled": true,
+        "Font": "SourceSansBold"
+      }
+    },
+    {
+      "ClassName": "TextButton", 
+      "Name": "PlayButton",
+      "Properties": {
+        "Size": { "X": { "Scale": 0.3, "Offset": 0 }, "Y": { "Scale": 0.1, "Offset": 0 } },
+        "Position": { "X": { "Scale": 0.35, "Offset": 0 }, "Y": { "Scale": 0.5, "Offset": 0 } },
+        "BackgroundColor3": { "R": 0.2, "G": 0.8, "B": 0.4 },
+        "Text": "Play",
+        "TextColor3": { "R": 1, "G": 1, "B": 1 },
+        "TextScaled": true,
+        "Font": "SourceSansBold"
+      }
+    }
+  ]
+}

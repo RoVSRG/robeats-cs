@@ -29,7 +29,7 @@
       "label": "Rojo Serve Only",
       "type": "shell",
       "command": "rojo",
-      "args": ["serve", "default.project.json", "--port", "34872"],
+      "args": ["serve", "default.project.json"],
       "group": "build",
       "presentation": {
         "echo": true,

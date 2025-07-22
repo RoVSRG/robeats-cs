@@ -53,17 +53,34 @@ local function pullGuiFromStudio()
 		return false
 	end
 	
-	-- Pull GUI changes
-	print("⬇️ Pulling StarterGui changes...")
-	local pullResult = process.spawn("rojo", {
+	-- Pull Dev ScreenGui changes (where you visually edit)
+	print("⬇️ Pulling StarterGui.Dev changes...")
+	local devPullResult = process.spawn("rojo", {
 		"upload",
-		"--include-non-strict",
-		"--include", "StarterGui",
+		"--include-non-strict", 
+		"--include", "StarterGui.Dev",
 		"default.project.json"
 	})
 	
-	if pullResult.ok then
+	if not devPullResult.ok then
+		print("❌ Failed to pull Dev changes:")
+		print(devPullResult.stderr)
+		return false
+	end
+	
+	-- Pull Screens Folder changes (the runtime screens)
+	print("⬇️ Pulling StarterGui.Screens changes...")
+	local screensPullResult = process.spawn("rojo", {
+		"upload",
+		"--include-non-strict",
+		"--include", "StarterGui.Screens", 
+		"default.project.json"
+	})
+	
+	if screensPullResult.ok then
 		print("✅ GUI changes pulled successfully!")
+		print("   📱 Dev ScreenGui → Available for visual editing")
+		print("   📂 Screens Folder → src/gui/screens/")
 		
 		-- Optional: Auto-commit the changes
 		local gitResult = process.spawn("git", {
@@ -72,7 +89,7 @@ local function pullGuiFromStudio()
 		
 		if gitResult.ok then
 			local commitResult = process.spawn("git", {
-				"commit", "-m", "Auto-sync GUI from Studio", "--allow-empty"
+				"commit", "-m", "Auto-sync GUI from Studio (Dev + Screens)", "--allow-empty"
 			})
 			if commitResult.ok then
 				print("📝 Changes auto-committed to Git")
@@ -81,8 +98,8 @@ local function pullGuiFromStudio()
 		
 		return true
 	else
-		print("❌ Failed to pull GUI changes:")
-		print(pullResult.stderr)
+		print("❌ Failed to pull Screens changes:")
+		print(screensPullResult.stderr)
 		return false
 	end
 end
