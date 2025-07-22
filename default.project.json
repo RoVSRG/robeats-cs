@@ -20,6 +20,11 @@
         "$path": "src/client",
         "$ignoreUnknownInstances": true
       }
+    },
+
+    "StarterGui": {
+      "$path": "src/gui",
+      "$ignoreUnknownInstances": true
     }
   }
 }

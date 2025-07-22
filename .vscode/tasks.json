@@ -2,11 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Watch and Transform",
+      "label": "Two-Way Sync (Full Rojo)",
       "type": "shell",
       "command": "lune",
-      "args": ["run", "scripts/watch.luau"],
-      "group": "build",
+      "args": ["run", "scripts/sync-launcher.luau"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "presentation": {
         "echo": true,
         "reveal": "always",
@@ -23,29 +26,10 @@
       }
     },
     {
-      "label": "Build Production",
+      "label": "Rojo Serve Only",
       "type": "shell",
-      "command": "lune",
-      "args": ["run", "scripts/build.luau"],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Transform Once",
-      "type": "shell",
-      "command": "lune",
-      "args": ["run", "scripts/transform.luau"],
+      "command": "rojo",
+      "args": ["serve", "default.project.json", "--port", "34872"],
       "group": "build",
       "presentation": {
         "echo": true,
@@ -53,8 +37,26 @@
         "focus": false,
         "panel": "shared",
         "showReuseMessage": true,
-        "clear": true
+        "clear": false
       },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Studio Watcher Only",
+      "type": "shell",
+      "command": "lune",
+      "args": ["run", "scripts/studio-watcher.luau"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "isBackground": true,
       "problemMatcher": []
     }
   ]

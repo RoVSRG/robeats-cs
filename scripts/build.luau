@@ -21,17 +21,6 @@ print("🔄 Transforming @shared/ imports...")
 local function transformFile(inputPath, outputPath)
 	local content = fs.readFile(inputPath)
 
-	-- Transform @shared/xxx imports to game.ReplicatedStorage.xxx
-	content = content:gsub('require%("@shared/([^"]*)"%)', function(path)
-		local dotPath = path:gsub("/", ".")
-		return "require(game.ReplicatedStorage." .. dotPath .. ")"
-	end)
-
-	content = content:gsub("require%('@shared/([^']*)%'%)", function(path)
-		local dotPath = path:gsub("/", ".")
-		return "require(game.ReplicatedStorage." .. dotPath .. ")"
-	end)
-
 	-- Create output directory if needed
 	local outputDir = outputPath:match("(.+)/[^/]+$")
 	if outputDir and not fs.isDir(outputDir) then

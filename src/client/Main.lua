@@ -2,8 +2,8 @@
 --local playerGui = player:WaitForChild("PlayerGui")
 -- Test comment for file watcher
 
-local ScreenChief = require("@shared/Modules/ScreenChief")
-local SongDatabase = require("@shared/SongDatabase")
+local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
+local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 
 local live = ScreenChief:GetScreenGui()
 
