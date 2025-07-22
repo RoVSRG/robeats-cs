@@ -6,7 +6,15 @@
 
     "ReplicatedStorage": {
       "$path": "src/shared",
-      "$ignoreUnknownInstances": true
+      "$ignoreUnknownInstances": true,
+      "Remotes": {
+        "$path": "src/remotes",
+        "$ignoreUnknownInstances": true
+      },
+      "RobeatsGameCore": {
+        "$path": "src/engine",
+        "$ignoreUnknownInstances": true
+      }
     },
 
     "ServerScriptService": {
