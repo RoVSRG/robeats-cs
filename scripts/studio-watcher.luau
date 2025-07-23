@@ -1,20 +1,23 @@
 --!strict
 -- Studio Place File Watcher - Auto-pulls GUI changes when Studio saves
-local process = require("@lune/process")
 local fs = require("@lune/fs")
+local roblox = require("@lune/roblox")
 
 local CHECK_INTERVAL = 1.0 -- Check every second
 local DEBOUNCE_TIME = 2.0 -- Wait 2 seconds after last change before pulling
 
 -- Cross-platform place file detection
-local function findPlaceFiles(): { string }
-	local files = {}
+local function findPlaceFile(): string?
+	local file
+
 	for _, entry in fs.readDir(".") do
 		if entry:match("%.rbxlx?$") and not entry:match("%.lock$") then
-			table.insert(files, entry)
+			file = entry
+			break
 		end
 	end
-	return files
+
+	return file
 end
 
 -- Get modification time of a file
@@ -35,73 +38,78 @@ local function getModificationTime(path: string): number
 	return #fs.readFile(path)
 end
 
--- Run Rojo sourcemap generation and GUI pull
-local function pullGuiFromStudio()
-	print("🎯 Studio save detected! Pulling GUI changes...")
-	
-	-- First, generate sourcemap to ensure Rojo knows the current state
-	print("📋 Generating sourcemap...")
-	local sourcemapResult = process.spawn("rojo", {
-		"sourcemap",
-		"default.project.json",
-		"--output", "sourcemap.json"
-	})
-	
-	if not sourcemapResult.ok then
-		print("❌ Failed to generate sourcemap:")
-		print(sourcemapResult.stderr)
-		return false
-	end
-	
-	-- Pull Dev ScreenGui changes (where you visually edit)
-	print("⬇️ Pulling StarterGui.Dev changes...")
-	local devPullResult = process.spawn("rojo", {
-		"upload",
-		"--include-non-strict", 
-		"--include", "StarterGui.Dev",
-		"default.project.json"
-	})
-	
-	if not devPullResult.ok then
-		print("❌ Failed to pull Dev changes:")
-		print(devPullResult.stderr)
-		return false
-	end
-	
-	-- Pull Screens Folder changes (the runtime screens)
-	print("⬇️ Pulling StarterGui.Screens changes...")
-	local screensPullResult = process.spawn("rojo", {
-		"upload",
-		"--include-non-strict",
-		"--include", "StarterGui.Screens", 
-		"default.project.json"
-	})
-	
-	if screensPullResult.ok then
-		print("✅ GUI changes pulled successfully!")
-		print("   📱 Dev ScreenGui → Available for visual editing")
-		print("   📂 Screens Folder → src/gui/screens/")
-		
-		-- Optional: Auto-commit the changes
-		local gitResult = process.spawn("git", {
-			"add", "src/gui/"
-		})
-		
-		if gitResult.ok then
-			local commitResult = process.spawn("git", {
-				"commit", "-m", "Auto-sync GUI from Studio (Dev + Screens)", "--allow-empty"
-			})
-			if commitResult.ok then
-				print("📝 Changes auto-committed to Git")
-			end
+-- Custom implementation of FindFirstChildWhichIsA for Lune Roblox instances
+local function findFirstChildWhichIsA(parent: any, className: string): any?
+	for _, child in parent:GetChildren() do
+		if child.ClassName == className then
+			return child
 		end
-		
-		return true
-	else
-		print("❌ Failed to pull Screens changes:")
-		print(screensPullResult.stderr)
-		return false
 	end
+	return nil
+end
+
+local BASE_DIR = "src"
+local GUI_DIR = BASE_DIR .. "/gui"
+local SCREENS_DIR = GUI_DIR .. "/screens"
+
+-- Run Rojo sourcemap generation and GUI pull
+local function pullGuiFromPlace(path: string)
+	print("🎯 Studio save detected! Pulling GUI changes...")
+
+	local file = fs.readFile(path)
+	if not file then
+		error("[StudioWatcher] Failed to read place file:", path)
+		return
+	end
+
+	local game = roblox.deserializePlace(file)
+	if not game then
+		error("[StudioWatcher] Failed to deserialize place file:", path)
+		return
+	end
+
+	local starterGui = game:GetService("StarterGui")
+	local screens = starterGui:FindFirstChild("Screens")
+	local dev = starterGui:FindFirstChild("Dev")
+
+	if not screens then
+		error("[StudioWatcher] No Screens folder found in StarterGui.")
+		return
+	end
+
+	if not dev then
+		warn("[StudioWatcher] No Dev folder found in StarterGui. Moving on...")
+		return
+	end
+
+	print("📦 Pulling GUI changes from place file...")
+
+	for _, screen in screens:GetChildren() do
+		if screen.ClassName == "Frame" then
+			local fileName = screen.Name .. ".rbxm"
+			local screenPath = SCREENS_DIR .. "/" .. fileName
+			
+			-- Serialize and save the screen
+			local serializedModel = roblox.serializeModel({screen})
+			fs.writeFile(screenPath, serializedModel)
+
+			print("💾 Saved: " .. fileName)
+		end
+	end
+
+	if dev then
+		local screen = findFirstChildWhichIsA(dev, "Frame")
+
+		if screen then
+			local fileName = screen.Name .. ".rbxm"
+			local screenPath = SCREENS_DIR .. "/" .. fileName
+	
+			local serializedModel = roblox.serializeModel({screen})
+			fs.writeFile(screenPath, serializedModel)
+		end
+	end
+
+	print("✅ GUI changes pulled successfully!")
 end
 
 -- Main watcher loop
@@ -109,42 +117,33 @@ local function startWatching()
 	print("👀 Starting Studio place file watcher...")
 	print("🎮 Watching for changes to .rbxl/.rbxlx files")
 	print("🛑 Press Ctrl+C to stop")
-	
-	local placeFiles = findPlaceFiles()
-	if #placeFiles == 0 then
+
+	local placeFile = findPlaceFile()
+	if not placeFile then
 		print("⚠️ No place files found. Make sure you have a .rbxl or .rbxlx file in the project root.")
 		return
 	end
-	
-	for _, file in placeFiles do
-		print("📁 Watching: " .. file)
-	end
-	
-	local lastModTimes: { [string]: number } = {}
-	local lastChangeTime = 0
-	
-	-- Initialize modification times
-	for _, file in placeFiles do
-		lastModTimes[file] = getModificationTime(file)
-	end
-	
+
+	print("📁 Watching: " .. placeFile)
+
+	local previousModificationTime: number = getModificationTime(placeFile)
+	local lastChangeTime: number? = nil
+
 	while true do
 		-- Check for file changes
 		local currentTime = os.clock()
-		
-		for _, file in placeFiles do
-			local currentModTime = getModificationTime(file)
-			if currentModTime > lastModTimes[file] then
-				lastModTimes[file] = currentModTime
-				lastChangeTime = currentTime
-				print("📝 Change detected in: " .. file)
-			end
+
+		local modificationTime = getModificationTime(placeFile)
+		if modificationTime > previousModificationTime then
+			previousModificationTime = modificationTime
+			lastChangeTime = currentTime
+			print("📝 Change detected in: " .. placeFile)
 		end
 		
 		-- If we have changes and enough time has passed (debounce), pull
-		if lastChangeTime > 0 and (currentTime - lastChangeTime) >= DEBOUNCE_TIME then
-			pullGuiFromStudio()
-			lastChangeTime = 0 -- Reset
+		if lastChangeTime and (currentTime - lastChangeTime) >= DEBOUNCE_TIME then
+			pullGuiFromPlace(placeFile)
+			lastChangeTime = nil -- Reset after pulling
 		end
 		
 		-- Sleep before next check

@@ -28,6 +28,11 @@
       "$ignoreUnknownInstances": true
     },
 
+    "Workspace": {
+      "$ignoreUnknownInstances": true,
+      "$path": "src/workspace"
+    },
+
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "$path": "src/client"
