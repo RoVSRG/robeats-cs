@@ -1,8 +1,6 @@
 local SongDatabase = require(game.ReplicatedStorage.RobeatsGameCore.SongDatabase)
 local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
 
-local Knit = require(game.ReplicatedStorage.Packages.Knit)
-
 local Replay = {}
 
 Replay.HitType = {
@@ -10,19 +8,22 @@ Replay.HitType = {
     Release = 2,
 }
 
-function Replay:new(config)
+type Config = {
+    viewing: boolean,
+}
+
+function Replay:new(config: Config)
     local self = {}
+
     self.viewing = not not config.viewing
     self.hits = {}
     self.scoreChanged = Instance.new("BindableEvent")
-
-    local SpectatingService = Knit.GetService("SpectatingService")
 
     local hitsSinceLastSend = {}
 
     local minIndex = 1
 
-    function self:add_replay_hit(time, track, action, judgement, scoreData)
+    function self:add_replay_hit(time, track, action, judgement: any?, scoreData: any?)
         local hit = {
             time = time,
             track = track,
@@ -43,7 +44,7 @@ function Replay:new(config)
         return self.hits
     end
 
-    function self:get_actions_this_frame(time)
+    function self:get_actions_this_frame(time: number)
         local actions = {}
         local lastScoreData
 
@@ -70,10 +71,10 @@ function Replay:new(config)
         return actions
     end
 
-    function self:send_last_hits()
-        SpectatingService:DisemminateHits(hitsSinceLastSend)
-        table.clear(hitsSinceLastSend)
-    end
+    -- function self:send_last_hits()
+    --     SpectatingService:DisemminateHits(hitsSinceLastSend)
+    --     table.clear(hitsSinceLastSend)
+    -- end
 
     return self
 end
@@ -81,7 +82,7 @@ end
 function Replay.perfect(hash, rate)
     local hitObjects = SongDatabase:get_hit_objects_for_key(SongDatabase:get_key_for_hash(hash), rate / 100)
 
-    local replay = Replay:new()
+    local replay = Replay:new({ viewing = true })
 
     for _, hitObject in ipairs(hitObjects) do
         if hitObject.Type == 1 then
@@ -95,7 +96,7 @@ function Replay.perfect(hash, rate)
 
     local hits = replay:get_hits()
 
-    table.sort(hits, function(a, b)
+    table.sort(hits, function(a:{ action: any, time: any }, b:{ action: any, time: any })
         if a.time == b.time then
             return a.action < b.action
         end

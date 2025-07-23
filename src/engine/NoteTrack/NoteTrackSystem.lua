@@ -7,6 +7,8 @@ local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameTrack
 local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 local HitParams = require(game.ReplicatedStorage.RobeatsGameCore.HitParams)
+local NoteTrack2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack2D)
+local NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack)
 
 local NoteTrackSystem = {}
 

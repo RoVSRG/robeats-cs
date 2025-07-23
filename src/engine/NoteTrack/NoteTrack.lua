@@ -9,7 +9,7 @@ local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
 
 local NoteTrack = {}
 
-function NoteTrack:new(_game, _parent_track_system, _track_obj, _game_track, _config)
+function NoteTrack:new(_game, _parent_track_system, _track_obj, _game_track, _config: any?)
 	AssertType:is_enum_member(_game_track, GameTrack)
 	local self = {}
 	
@@ -17,7 +17,7 @@ function NoteTrack:new(_game, _parent_track_system, _track_obj, _game_track, _co
 	local _start_position
 	local _end_position
 	
-	function self:cons(player_info)
+	function self:cons()
 		local start_position_marker = _track_obj:FindFirstChild("StartPosition")
 		if start_position_marker == nil then
 			return DebugOut:errf("StartPosition marker not found under _track_obj(%s)", _track_obj.Name)

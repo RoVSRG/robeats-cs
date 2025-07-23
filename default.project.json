@@ -18,6 +18,9 @@
           "$path": "src/remotes/functions"
         }
       },
+      "Skins": {
+        "$path": "src/skins"
+      },
       "RobeatsGameCore": {
         "$path": "src/engine"
       }
