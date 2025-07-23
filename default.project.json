@@ -8,12 +8,18 @@
       "$path": "src/shared",
       "$ignoreUnknownInstances": true,
       "Remotes": {
-        "$path": "src/remotes",
-        "$ignoreUnknownInstances": true
+        "$className": "Folder",
+        "Events": {
+          "$className": "Folder",
+          "$path": "src/shared/remotes/events"
+        },
+        "Functions": {
+          "$className": "Folder",
+          "$path": "src/shared/remotes/functions"
+        }
       },
       "RobeatsGameCore": {
-        "$path": "src/engine",
-        "$ignoreUnknownInstances": true
+        "$path": "src/engine"
       }
     },
 
@@ -23,10 +29,8 @@
     },
 
     "StarterPlayer": {
-      "$ignoreUnknownInstances": true,
       "StarterPlayerScripts": {
-        "$path": "src/client",
-        "$ignoreUnknownInstances": true
+        "$path": "src/client"
       }
     },
 

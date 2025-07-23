@@ -54,7 +54,6 @@ function SongDatabase:GetPropertyByKey(key, property)
 	return SongDatabase:GetSongByKey(key)[property]
 end
 
-local Functions = game.ReplicatedStorage.Remotes.Functions
 local CompressMachine = require(game.ReplicatedStorage.Libraries.CompressMachine)
 
 function SongDatabase:GetHitObjectsForFolderName(name)
@@ -67,7 +66,7 @@ function SongDatabase:GetHitObjectsForFolderName(name)
 		warn("[SongDatabase] Failed to fetch hitobjects for", name)
 		return nil
 	end
-
+ 
 	-- 2. Decode Base64 -> compressed binary
 	local compressed = CompressMachine.fromBase64(chartB64)
 
