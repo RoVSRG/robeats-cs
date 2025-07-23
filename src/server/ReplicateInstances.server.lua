@@ -18,7 +18,6 @@ Players.PlayerAdded:Connect(function(player)
 	local playerGui: PlayerGui = player:WaitForChild("PlayerGui")
 	
 	local gui = createGui()
-	gui.Parent = playerGui
 	
 	for _, guiObject: GuiObject in ipairs(StarterGui:GetChildren()) do
 		if guiObject.Name == "Dev" then
@@ -32,12 +31,14 @@ Players.PlayerAdded:Connect(function(player)
 	local screens = playerGui:FindFirstChild("Screens")
 	
 	for _, screen in screens:GetChildren() do
-		local canvasGroup = Instance.new("Frame")
-		canvasGroup.BackgroundTransparency = 1
-		canvasGroup.Size = UDim2.fromScale(1, 1)
-		canvasGroup.Name = screen.Name
+		local wrapperFrame = Instance.new("Frame")
+		wrapperFrame.BackgroundTransparency = 1
+		wrapperFrame.Size = UDim2.fromScale(1, 1)
+		wrapperFrame.Name = screen.Name
 		
-		screen.Parent = canvasGroup
-		canvasGroup.Parent = screens
+		screen.Parent = wrapperFrame
+		wrapperFrame.Parent = screens
 	end
+	
+	gui.Parent = playerGui
 end)

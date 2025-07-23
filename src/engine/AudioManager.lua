@@ -7,6 +7,7 @@ local SingleNote = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.Sing
 local HeldNote = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.HeldNote)
 local SingleNote2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.SingleNote2D)
 local HeldNote2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.HeldNote2D)
+local Config = require(game.ReplicatedStorage.RobeatsGameCore.Types.Config)
 
 local AudioManager = {}
 AudioManager.Mode = {
@@ -99,11 +100,11 @@ function AudioManager:new(_game)
 	local _note_count = 0
 	function self:get_note_count() return _note_count end
 
-	function self:get_note_prebuffer_time_ms()
+	function self:get_note_prebuffer_time_ms(): number
 		return _note_prebuffer_time
 	end
 
-	function self:load_song(song_key, _config)
+	function self:load_song(song_key, _config: Config.GameConfig)
 		_song_key = song_key
 		_current_mode = AudioManager.Mode.Loading
 		_audio_data_index = 1
@@ -415,12 +416,12 @@ function AudioManager:new(_game)
 		end
 	end
 
-	function self:get_current_time_ms(no_offset)
+	function self:get_current_time_ms(no_offset): number
 		return _bgm_time_position * 1000 + (if no_offset then 0 else _pre_start_time_ms) + _audio_time_offset
 	end
 
-	function self:get_song_length_ms()
-		local _time_length = if _bgm.TimeLength ~= 0 then _bgm.TimeLength else SongDatabase:get_song_length_for_key(_song_key) / 1000
+	function self:get_song_length_ms(): number
+		local _time_length = if _bgm.TimeLength ~= 0 then _bgm.TimeLength else 0 / 1000
 
 		return _time_length * 1000 / _rate + _pre_countdown_time_ms
 	end

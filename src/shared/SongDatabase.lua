@@ -6,7 +6,7 @@ local Functions = Remotes:WaitForChild("Functions")
 
 local SongDatabase = {}
 SongDatabase.songs = {}          -- Table of all songs loaded client-side
-SongDatabase.songByKey = {}      -- Quick lookup by Name or ID
+SongDatabase.songByKey = {} :: {[any]: any}      -- Quick lookup by Name or ID
 SongDatabase.pageSize = 100      -- Should match server PAGE_SIZE
 
 -- This BindableEvent fires every time a new song is added.

@@ -8,7 +8,6 @@ local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 local live = ScreenChief:GetScreenGui()
 
 local MainMenu = ScreenChief:GetScreen("MainMenu")
-
 MainMenu.Parent = live
 
 SongDatabase:LoadAllSongs()

@@ -22,6 +22,17 @@ function ScreenChief:GetScreen(name)
 	return screen
 end
 
+function ScreenChief:GetTemplates(name: string)
+	local screen: Frame = self:GetScreen(name):FindFirstChild(name)
+
+	if not screen:FindFirstChild("Templates") then
+		error(`"{name}" does not have a Templates folder.`)
+	end
+
+	return screen:FindFirstChild("Templates")
+end
+
+
 function ScreenChief:GetScreenGui()
 	return live
 end
