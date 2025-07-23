@@ -11,10 +11,6 @@ local function createGui()
 	local scale = Instance.new("UIScale")
 	scale.Parent = screenGui
 	
-	local styleLink = Instance.new("StyleLink")
-	styleLink.StyleSheet = game:GetService("ReplicatedStorage").Design.MainStyleSheet
-	styleLink.Parent = screenGui
-	
 	return screenGui
 end
 
@@ -26,12 +22,6 @@ Players.PlayerAdded:Connect(function(player)
 	
 	for _, guiObject: GuiObject in ipairs(StarterGui:GetChildren()) do
 		if guiObject.Name == "Dev" then
-			for _, element in guiObject:GetChildren() do
-				if element:IsA("Frame") then
-					element:Clone().Parent = playerGui:FindFirstChild("Screens")
-				end
-			end
-			
 			continue
 		end
 		

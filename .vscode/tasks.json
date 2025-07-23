@@ -2,10 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Two-Way Sync (Full Rojo)",
+      "label": "Two-Way Sync",
       "type": "shell",
       "command": "lune",
-      "args": ["run", "scripts/sync-launcher.luau"],
+      "args": ["run", "scripts/studio-watcher.luau"],
       "group": {
         "kind": "build",
         "isDefault": true
@@ -24,40 +24,6 @@
         "instanceLimit": 1,
         "runOn": "folderOpen"
       }
-    },
-    {
-      "label": "Rojo Serve Only",
-      "type": "shell",
-      "command": "rojo",
-      "args": ["serve", "default.project.json"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "isBackground": true,
-      "problemMatcher": []
-    },
-    {
-      "label": "Studio Watcher Only",
-      "type": "shell",
-      "command": "lune",
-      "args": ["run", "scripts/studio-watcher.luau"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
-        "clear": false
-      },
-      "isBackground": true,
-      "problemMatcher": []
     }
   ]
 }
