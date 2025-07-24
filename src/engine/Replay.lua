@@ -1,4 +1,4 @@
-local SongDatabase = require(game.ReplicatedStorage.Shared.SongDatabase)
+local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
 
 local Replay = {}
@@ -79,33 +79,33 @@ function Replay:new(config: Config)
     return self
 end
 
-function Replay.perfect(hash, rate)
-    local hitObjects = SongDatabase:get_hit_objects_for_key(SongDatabase:get_key_for_hash(hash), rate / 100)
+-- function Replay.perfect(hash, rate)
+--     local hitObjects = SongDatabase:get_hit_objects_for_key(SongDatabase:get_key_for_hash(hash), rate / 100)
 
-    local replay = Replay:new({ viewing = true })
+--     local replay = Replay:new({ viewing = true })
 
-    for _, hitObject in ipairs(hitObjects) do
-        if hitObject.Type == 1 then
-            replay:add_replay_hit(hitObject.Time, hitObject.Track, Replay.HitType.Press, NoteResult.Marvelous)
-            replay:add_replay_hit(hitObject.Time, hitObject.Track, Replay.HitType.Release)
-        else
-            replay:add_replay_hit(hitObject.Time, hitObject.Track, Replay.HitType.Press, NoteResult.Marvelous)
-            replay:add_replay_hit(hitObject.Time + hitObject.Duration, hitObject.Track, Replay.HitType.Release, NoteResult.Marvelous)
-        end
-    end
+--     for _, hitObject in ipairs(hitObjects) do
+--         if hitObject.Type == 1 then
+--             replay:add_replay_hit(hitObject.Time, hitObject.Track, Replay.HitType.Press, NoteResult.Marvelous)
+--             replay:add_replay_hit(hitObject.Time, hitObject.Track, Replay.HitType.Release)
+--         else
+--             replay:add_replay_hit(hitObject.Time, hitObject.Track, Replay.HitType.Press, NoteResult.Marvelous)
+--             replay:add_replay_hit(hitObject.Time + hitObject.Duration, hitObject.Track, Replay.HitType.Release, NoteResult.Marvelous)
+--         end
+--     end
 
-    local hits = replay:get_hits()
+--     local hits = replay:get_hits()
 
-    table.sort(hits, function(a:{ action: any, time: any }, b:{ action: any, time: any })
-        if a.time == b.time then
-            return a.action < b.action
-        end
+--     table.sort(hits, function(a:{ action: any, time: any }, b:{ action: any, time: any })
+--         if a.time == b.time then
+--             return a.action < b.action
+--         end
 
-        return a.time < b.time
-    end)
+--         return a.time < b.time
+--     end)
 
-    return replay
-end
+--     return replay
+-- end
 
 return Replay
 

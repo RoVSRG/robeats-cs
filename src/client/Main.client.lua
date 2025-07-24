@@ -4,6 +4,9 @@
 
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
+local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+
+EnvironmentSetup:initial_setup()
 
 local live = ScreenChief:GetScreenGui()
 

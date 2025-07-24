@@ -24,10 +24,10 @@ function EnvironmentSetup:initial_setup()
 	game.StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 
-	_game_environment = workspace.Environment.GameEnvironment
+	_game_environment = workspace:WaitForChild("Environment"):WaitForChild("GameEnvironment")
 	_game_environment.Parent = nil
 
-	_element_protos_folder = workspace.Environment.ElementProtos
+	_element_protos_folder = workspace:WaitForChild("Environment"):WaitForChild("ElementProtos")
 	_element_protos_folder.Parent = game.ReplicatedStorage
 
 	_local_elements_folder = Instance.new("Folder")

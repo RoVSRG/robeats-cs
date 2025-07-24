@@ -1,14 +1,14 @@
 local SPList = require(game.ReplicatedStorage.Shared.SPList)
-local _NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore._legacy.NoteTrack.NoteTrack)
-local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore._legacy.Enums.GameSlot)
+local _NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack)
+local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameSlot)
 local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
-local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore._legacy.Enums.NoteResult)
-local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore._legacy.Enums.GameTrack)
+local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
+local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameTrack)
 local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore._legacy.EnvironmentSetup)
-local HitParams = require(game.ReplicatedStorage.RobeatsGameCore._legacy.HitParams)
-local NoteTrack2D = require(game.ReplicatedStorage.RobeatsGameCore._legacy.NoteTrack.NoteTrack2D)
-local NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore._legacy.NoteTrack.NoteTrack)
+local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+local HitParams = require(game.ReplicatedStorage.RobeatsGameCore.HitParams)
+local NoteTrack2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack2D)
+local NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack)
 
 local NoteTrackSystem = {}
 

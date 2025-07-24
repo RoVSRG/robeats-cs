@@ -1,5 +1,5 @@
 {
-  "languageMode": "strict",
+  "languageMode": "nonstrict",
   "aliases": {
     "shared": "src/shared",
     "client": "src/client",
