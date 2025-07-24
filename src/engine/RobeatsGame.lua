@@ -95,7 +95,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 	local _local_game_slot = 0
 	function self:get_local_game_slot() return _local_game_slot end
 	
-	local _current_mode = RobeatsGame.Mode.up
+	local _current_mode = RobeatsGame.Mode.Setup
 	function self:get_mode() return _current_mode end
 	function self:set_mode(val) 
 		AssertType:is_enum_member(val, RobeatsGame.Mode)
@@ -164,9 +164,8 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 			if mod == itr_mod then
 				return true
 			end
-
-			return false 
 		end
+		return false 
 	end
 
 	function self:get_note_color_affects_2d() return _note_color_affects_2d end
@@ -178,7 +177,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 
 	function self:setup_world(game_slot)
 		_local_game_slot = game_slot
-		workspace.CurrentCamera.CFrame = GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) + self:get_game_environment_center_position()
+		workspace.CurrentCamera.CFrame = GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) + CFrame.new(self:get_game_environment_center_position())
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 		workspace.CurrentCamera.CameraSubject = nil
 		self.original_cam_cf = workspace.CurrentCamera.CFrame -- find a way to implement this honestly
@@ -381,3 +380,4 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 end
 
 return RobeatsGame
+

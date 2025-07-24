@@ -51,3 +51,4 @@ function NoteTrack:new(_game, _parent_track_system, _game_track)
 end
 
 return NoteTrack
+

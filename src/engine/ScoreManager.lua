@@ -228,3 +228,4 @@ function ScoreManager:new(_game)
 end
 
 return ScoreManager
+

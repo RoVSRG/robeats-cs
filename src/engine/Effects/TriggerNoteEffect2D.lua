@@ -55,3 +55,4 @@ function TriggerNoteEffect2D:new(_game, _track_index)
 end
 
 return TriggerNoteEffect2D
+

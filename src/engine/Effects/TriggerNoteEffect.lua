@@ -95,3 +95,4 @@ function TriggerNoteEffect:new(_game, _position, _result)
 end
 
 return TriggerNoteEffect
+

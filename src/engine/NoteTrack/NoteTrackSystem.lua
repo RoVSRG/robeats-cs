@@ -1,14 +1,14 @@
 local SPList = require(game.ReplicatedStorage.Shared.SPList)
-local NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack)
-local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameSlot)
+local _NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore._legacy.NoteTrack.NoteTrack)
+local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore._legacy.Enums.GameSlot)
 local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
-local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
-local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameTrack)
+local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore._legacy.Enums.NoteResult)
+local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore._legacy.Enums.GameTrack)
 local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-local HitParams = require(game.ReplicatedStorage.RobeatsGameCore.HitParams)
-local NoteTrack2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack2D)
-local NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrack)
+local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore._legacy.EnvironmentSetup)
+local HitParams = require(game.ReplicatedStorage.RobeatsGameCore._legacy.HitParams)
+local NoteTrack2D = require(game.ReplicatedStorage.RobeatsGameCore._legacy.NoteTrack.NoteTrack2D)
+local NoteTrack = require(game.ReplicatedStorage.RobeatsGameCore._legacy.NoteTrack.NoteTrack)
 
 local NoteTrackSystem = {}
 
@@ -77,9 +77,6 @@ function NoteTrackSystem:new(_game, _game_slot)
 		end
 	end
 	
-	function self:get_game_slot()
-		return _game_slot
-	end
 	function self:get_track(index)
 		return _tracks:get(index)
 	end
@@ -109,9 +106,12 @@ function NoteTrackSystem:new(_game, _game_slot)
 				NoteResult.Miss,
 				_game_slot,
 				track_index,
-				HitParams:new():set_play_hold_effect(false):set_whiff_miss(true):set_ghost_tap(true)
+				HitParams:new():set_play_hold_effect(false):set_whiff_miss(true):set_ghost_tap(true),
+				nil
 			)
 		end
+		
+		return nil
 	end
 
 	function self:release_track_index(track_index, judgement)
@@ -131,6 +131,8 @@ function NoteTrackSystem:new(_game, _game_slot)
 				end
 			end
 		end
+		
+		return nil
 	end
 
 	self:cons()
@@ -138,3 +140,4 @@ function NoteTrackSystem:new(_game, _game_slot)
 end
 
 return NoteTrackSystem
+

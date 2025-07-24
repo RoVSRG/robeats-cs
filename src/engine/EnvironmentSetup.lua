@@ -1,7 +1,7 @@
 local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
-local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
+local _SPDict = require(game.ReplicatedStorage.Shared.SPDict)
 local AssertType = require(game.ReplicatedStorage.Shared.AssertType)
-local Skins = require(game.ReplicatedStorage.Skins)
+local _Skins = require(game.ReplicatedStorage.Skins)
 local Config = require(game.ReplicatedStorage.RobeatsGameCore.Types.Config)
 
 local EnvironmentSetup = {}
@@ -139,3 +139,4 @@ function EnvironmentSetup:get_robeats_game_stage()
 end
 
 return EnvironmentSetup
+

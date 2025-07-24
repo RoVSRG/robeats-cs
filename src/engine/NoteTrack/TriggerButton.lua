@@ -47,3 +47,4 @@ function TriggerButton:new(_game, _parent_note_track, _position)
 end
 
 return TriggerButton
+

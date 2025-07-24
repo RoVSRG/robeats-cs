@@ -82,3 +82,4 @@ function HoldingNoteEffect:new(
 end
 
 return HoldingNoteEffect
+

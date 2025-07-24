@@ -121,3 +121,4 @@ function NoteTrackSystem2D:new(_game, _game_slot)
 end
 
 return NoteTrackSystem2D
+

@@ -1,4 +1,4 @@
-local SongDatabase = require(game.ReplicatedStorage.RobeatsGameCore.SongDatabase)
+local SongDatabase = require(game.ReplicatedStorage.Shared.SongDatabase)
 local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
 
 local Replay = {}
@@ -108,3 +108,4 @@ function Replay.perfect(hash, rate)
 end
 
 return Replay
+

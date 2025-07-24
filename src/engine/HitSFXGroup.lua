@@ -84,3 +84,4 @@ function HitSFXGroup:new(_local_services,sfxg_id)
 end
 
 return HitSFXGroup
+

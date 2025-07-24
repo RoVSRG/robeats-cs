@@ -57,3 +57,4 @@ function HoldingNoteEffect2D:new(_game, _track_index)
 end
 
 return HoldingNoteEffect2D
+

@@ -8,6 +8,8 @@ local HeldNote = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.HeldNo
 local SingleNote2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.SingleNote2D)
 local HeldNote2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTypes.HeldNote2D)
 local Config = require(game.ReplicatedStorage.RobeatsGameCore.Types.Config)
+local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
+local Mods = require(game.ReplicatedStorage.RobeatsGameCore.Enums.Mods)
 
 local AudioManager = {}
 AudioManager.Mode = {
@@ -108,23 +110,30 @@ function AudioManager:new(_game)
 		_song_key = song_key
 		_current_mode = AudioManager.Mode.Loading
 		_audio_data_index = 1
-		_current_audio_data = SongDatabase:get_data_for_key(_song_key)
+		_current_audio_data = SongDatabase:GetSongByKey(_song_key)
 		
 		local sfxg_id = _current_audio_data.AudioHitSFXGroup
 		_hit_sfx_group = HitSFXGroup:new(_game,sfxg_id)
 		_hit_sfx_group:preload()
 		
 		--Apply audio offset
-		_audio_time_offset = _config.AudioOffset
+		_audio_time_offset = _config.AudioOffset or 0
 		_audio_time_offset = _audio_time_offset + _current_audio_data.AudioTimeOffset
 
 		--Apply song rate
-		self:set_rate(_config.SongRate / 100)
+		self:set_rate((_config.SongRate or 100) / 100)
 
 		_hitsounds = _config.Hitsounds
 
 		--Add hit objects and perform note count calculations
-		_hit_objects = SongDatabase:get_hit_objects_for_key(_song_key, _rate, _game:is_mod_active(Mods.Mirror))
+		-- For now, using the folder name method - this should be enhanced to handle song keys properly
+		local songData = SongDatabase:GetSongByKey(_song_key)
+		if songData and songData.Name then
+			_hit_objects = SongDatabase:GetHitObjectsForFolderName(songData.Name) or {}
+		else
+			_hit_objects = {}
+		end
+		-- TODO: Apply rate scaling and mirror mod transformations to _hit_objects here
 		
 		for i = 1, #_hit_objects do
 			local itr = _hit_objects[i]
@@ -148,7 +157,7 @@ function AudioManager:new(_game)
 		end
 		
 		--Apply note speed multiplier
-		_note_prebuffer_time = 13720 / math.clamp(_config.NoteSpeed, 1, 100)
+		_note_prebuffer_time = 13720 / math.clamp(_config.NoteSpeed or 50, 1, 100)
 		
 		--Apply timing windows
 		if (not _config.UseCustomJudgements) then
@@ -164,16 +173,16 @@ function AudioManager:new(_game)
 			_note_good_min = _timing_preset.NoteGoodMinMS
 			_note_bad_min = _timing_preset.NoteBadMinMS
 		else
-			_note_bad_max = _config.CustomBadPreset
-			_note_good_max = _config.CustomGoodPreset
-			_note_great_max = _config.CustomGreatPreset
-			_note_perfect_max =_config.CustomPerfectPreset
-			_note_marvelous_max =_config.CustomMarvelousPreset
-			_note_marvelous_min = -_config.CustomMarvelousPreset
-			_note_perfect_min = -_config.CustomPerfectPreset
-			_note_great_min = -_config.CustomGreatPreset
-			_note_good_min = -_config.CustomGoodPreset
-			_note_bad_min = -_config.CustomBadPreset
+			_note_bad_max = _config.CustomBadPreset or 300
+			_note_good_max = _config.CustomGoodPreset or 260
+			_note_great_max = _config.CustomGreatPreset or 140
+			_note_perfect_max = _config.CustomPerfectPreset or 40
+			_note_marvelous_max = _config.CustomMarvelousPreset or 20
+			_note_marvelous_min = -(_config.CustomMarvelousPreset or 20)
+			_note_perfect_min = -(_config.CustomPerfectPreset or 40)
+			_note_great_min = -(_config.CustomGreatPreset or 140)
+			_note_good_min = -(_config.CustomGoodPreset or 260)
+			_note_bad_min = -(_config.CustomBadPreset or 300)
 		end
 		
 	end
@@ -200,22 +209,27 @@ function AudioManager:new(_game)
 		AssertType:is_int(track_number)
 
 		for _,tracksystem in _game:tracksystems_itr() do
-			local NoteProto
 			if _game:get_2d_mode() then
-				NoteProto = SingleNote2D
-			else
-				NoteProto = SingleNote
-			end
-
-			tracksystem:get_notes():push_back(
-				NoteProto:new(
-					_game,
-					track_number,
-					tracksystem:get_game_slot(),
-					current_time_ms,
-					hit_time
+				tracksystem:get_notes():push_back(
+					SingleNote2D:new(
+						_game,
+						tostring(track_number),
+						tracksystem:get_game_slot(),
+						current_time_ms,
+						hit_time
+					)
 				)
-			)
+			else
+				tracksystem:get_notes():push_back(
+					SingleNote:new(
+						_game,
+						track_number,
+						tracksystem:get_game_slot(),
+						current_time_ms,
+						hit_time
+					)
+				)
+			end
 		end
 	end
 
@@ -230,23 +244,29 @@ function AudioManager:new(_game)
 		AssertType:is_int(track_number)
 
 		for _,tracksystem in _game:tracksystems_itr() do
-			local NoteProto
 			if _game:get_2d_mode() then
-				NoteProto = HeldNote2D
-			else
-				NoteProto = HeldNote
-			end
-
-			tracksystem:get_notes():push_back(
-				NoteProto:new(
-					_game,
-					track_number,
-					tracksystem:get_game_slot(),
-					current_time_ms,
-					hit_time,
-					duration
+				tracksystem:get_notes():push_back(
+					HeldNote2D:new(
+						_game,
+						tostring(track_number),
+						tracksystem:get_game_slot(),
+						current_time_ms,
+						hit_time,
+						duration
+					)
 				)
-			)
+			else
+				tracksystem:get_notes():push_back(
+					HeldNote:new(
+						_game,
+						track_number,
+						tracksystem:get_game_slot(),
+						current_time_ms,
+						hit_time,
+						duration
+					)
+				)
+			end
 		end
 	end
 
@@ -282,7 +302,7 @@ function AudioManager:new(_game)
 	local _sync_timer = 0
 	local _raise_ended_trigger = false
 	local _raise_just_finished = false
-	local _ended_connection = nil
+	local _ended_connection: RBXScriptConnection? = nil
 
 	function self:update(dt_scale)
 		_note_prebuffer_time = 13720 / math.clamp(_game._config.NoteSpeed, 1, 100)
@@ -327,7 +347,9 @@ function AudioManager:new(_game)
 				-- _bgm_time_position = 0
 				_ended_connection = _bgm.Ended:Connect(function()
 					_raise_ended_trigger = true
-					_ended_connection:Disconnect()
+					if _ended_connection then
+						_ended_connection:Disconnect()
+					end
 					_ended_connection = nil
 				end)
 
@@ -374,8 +396,8 @@ function AudioManager:new(_game)
 	end
 
 	function self:update_spawn_notes()
-		local current_time_ms = self:get_current_time_ms()
-		local note_prebuffer_time_ms = self:get_note_prebuffer_time_ms()
+		local current_time_ms: number = self:get_current_time_ms()
+		local note_prebuffer_time_ms: number = self:get_note_prebuffer_time_ms()
 
 		local test_time = current_time_ms + note_prebuffer_time_ms - _pre_countdown_time_ms
 

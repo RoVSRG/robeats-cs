@@ -144,3 +144,4 @@ function SingleNote2D:new(_game, _track_index, _slot_index, _creation_time_ms, _
 end
 
 return SingleNote2D
+

@@ -26,7 +26,7 @@ function HitParams:new()
 		return self 
 	end
 	
-	function self:set_play_hold_effect(val, position) 
+	function self:set_play_hold_effect(val, position: Vector3?) 
 		self.PlayHoldEffect = val
 		if position ~= nil then
 			self.HoldEffectPosition = position
