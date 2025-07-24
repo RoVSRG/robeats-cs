@@ -35,6 +35,10 @@
       "Plugins": {
         "$className": "Folder",
         "$path": "src/plugins"
+      },
+      "Songs": {
+        "$className": "Folder",
+        "$path": "build"
       }
     },
 

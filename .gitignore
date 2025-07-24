@@ -23,5 +23,5 @@
 *.tmp
 *.temp
 
-# GUI files are now tracked (source of truth)
-# src/gui/ - DO NOT IGNORE, these are our canonical GUI files
+# Built songs
+/build

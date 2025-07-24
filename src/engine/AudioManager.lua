@@ -112,7 +112,7 @@ function AudioManager:new(_game)
 		_audio_data_index = 1
 		_current_audio_data = SongDatabase:GetSongByKey(_song_key)
 		
-		local sfxg_id = _current_audio_data.AudioHitSFXGroup
+		local sfxg_id = _current_audio_data.AudioHitSFXGroup or 0 -- Default to 0 if not specified
 		_hit_sfx_group = HitSFXGroup:new(_game,sfxg_id)
 		_hit_sfx_group:preload()
 		
