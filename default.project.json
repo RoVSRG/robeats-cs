@@ -34,7 +34,7 @@
       "$ignoreUnknownInstances": true,
       "Plugins": {
         "$className": "Folder",
-        "$path": "src/plugins"
+        "$path": "plugins"
       },
       "Songs": {
         "$className": "Folder",
