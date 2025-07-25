@@ -448,9 +448,7 @@ function AudioManager:new(_game)
 	end
 
 	function self:get_song_length_ms(): number
-		local _time_length = if _bgm.TimeLength ~= 0 then _bgm.TimeLength else 0 / 1000
-
-		return _time_length * 1000 / _rate + _pre_countdown_time_ms
+		return _current_audio_data.Length * 1000 / _rate + _audio_time_offset + _pre_start_time_ms
 	end
 
 	return self

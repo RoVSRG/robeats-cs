@@ -18,6 +18,8 @@ local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
 local Replay = require(game.ReplicatedStorage.RobeatsGameCore.Replay)
 local FlashEvery = require(game.ReplicatedStorage.Shared.FlashEvery)
 
+local Options = require(game.ReplicatedStorage.State.Options)
+
 -- local Flipper = require(game.ReplicatedStorage.Packages.Flipper)
 
 local Mods = require(game.ReplicatedStorage.RobeatsGameCore.Enums.Mods)
@@ -334,7 +336,12 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 		-- replay = Replay.perfect(SongDatabase:get_hash_for_key(_song_key), _config.SongRate)
 		replay = _replay or Replay:new({ viewing = false })
 
-		self._input:set_keybinds({ Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.Semicolon, Enum.KeyCode.Quote })
+		self._input:set_keybinds({
+			Enum.KeyCode[Options.keybinds[1]],
+			Enum.KeyCode[Options.keybinds[2]],
+			Enum.KeyCode[Options.keybinds[3]],
+			Enum.KeyCode[Options.keybinds[4]],
+		})
 
 		self:set_mods(_config.Mods)
 
