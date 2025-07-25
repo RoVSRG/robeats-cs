@@ -23,6 +23,9 @@
       },
       "RobeatsGameCore": {
         "$path": "src/engine"
+      },
+      "State": {
+        "$path": "src/state"
       }
     },
 

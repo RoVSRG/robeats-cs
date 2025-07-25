@@ -25,6 +25,7 @@ local Options = require(game.ReplicatedStorage.State.Options)
 local Mods = require(game.ReplicatedStorage.RobeatsGameCore.Enums.Mods)
 
 local ContentProvider = game:GetService("ContentProvider")
+local StarterGui = game:GetService("StarterGui")
 
 local RobeatsGame = {}
 RobeatsGame.Mode = {
@@ -33,7 +34,7 @@ RobeatsGame.Mode = {
 	GameEnded = 3;
 }
 
-function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
+function RobeatsGame.new(_game_environment_center_position: Vector3)
 	local self = {
 		_tracksystems = SPDict:new();
 		_audio_manager = nil;
@@ -54,7 +55,6 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 	self.target_2d_playfield_pos = 0;
 
 	self.keybind_pressed = Instance.new("BindableEvent")
-	self._config = _config
 
 	self.SPRING_CONSTANTS = { frequency = 3.5, dampingRatio = 0.5 }
 	self._2D_SPRING_CONSTANTS = { frequency = 2, dampingRatio = 1 }
@@ -64,7 +64,7 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 	local _get_2d_mode = false
 	local _is_upscroll = false
 	local _ln_transparent = false
-	local _show_hit_lighting = false
+	local _show_hit_lighting = true
 	local _hide_ln_tails = false
 	local _judgement_visibility = {
 		[NoteResult.Marvelous] = true,
@@ -76,12 +76,53 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 	}
 	local _note_color = Color3.fromRGB(255, 175, 0)
 	local _mods = {}
-	local _note_color_affects_2d
+	local _note_color_affects_2d = true
+
+	-- Initialize settings from Options
+	_note_color = Options.NoteColor:get()
+	_ln_transparent = Options.LnTransparency:get()
+	_show_hit_lighting = Options.ShowHitLighting:get()
+	_hide_ln_tails = Options.HideLnTails:get()
+	_is_upscroll = Options.Upscroll:get()
+	_get_2d_mode = Options.Use2DMode:get()
+	_note_color_affects_2d = Options.NoteColorAffects2D:get()
 
 	local replay
 	local send_replay_data = FlashEvery:new(1.8)
 
 	local skin_loaded = true
+
+	-- Helper function to build config from Options state
+	local function _build_config_from_options()
+		return {
+			-- Gameplay settings
+			SongRate = Options.SongRate:get(),
+			AudioOffset = Options.AudioOffset:get(),
+			NoteSpeed = Options.ScrollSpeed:get(),
+			TimingPreset = Options.TimingPreset:get(),
+			Mods = Options.Mods:get(),
+			
+			-- 2D Mode settings
+			Use2DLane = Options.Use2DMode:get(),
+			Skin2D = Options.Skin2D:get(),
+			NoteColorAffects2D = Options.NoteColorAffects2D:get(),
+			
+			-- Audio settings
+			Hitsounds = Options.Hitsounds:get(),
+			HitsoundVolume = Options.HitsoundVolume:get(),
+			MusicVolume = Options.MusicVolume:get(),
+			
+			-- Judgement visibility
+			JudgementVisibility = {
+				[NoteResult.Marvelous] = Options.ShowMarvelous:get(),
+				[NoteResult.Perfect] = Options.ShowPerfect:get(),
+				[NoteResult.Great] = Options.ShowGreat:get(),
+				[NoteResult.Good] = Options.ShowGood:get(),
+				[NoteResult.Bad] = Options.ShowBad:get(),
+				[NoteResult.Miss] = Options.ShowMiss:get(),
+			}
+		}
+	end
 
 	function self:get_skin_loaded()
 		return skin_loaded
@@ -105,12 +146,12 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 		self._mode_changed:Fire(_current_mode)
 
 		if val == RobeatsGame.Mode.GameEnded then
-            if game.StarterGui:GetCoreGuiEnabled("PlayerList") == false then
-                game.StarterGui:SetCoreGuiEnabled("PlayerList", true)
+            if StarterGui:GetCoreGuiEnabled("PlayerList") == false then
+                StarterGui:SetCoreGuiEnabled("PlayerList", true)
 			end
 			
-			if game.StarterGui:GetCoreGuiEnabled("Chat") == false then
-                game.StarterGui:SetCoreGuiEnabled("Chat", true)
+			if StarterGui:GetCoreGuiEnabled("Chat") == false then
+                StarterGui:SetCoreGuiEnabled("Chat", true)
             end
 		end
 	end
@@ -237,9 +278,9 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 			self._audio_manager:update(dt_scale)
 
 			-- if self._input:control_just_pressed(InputUtil.KEY_SPEEDUP) then
-			-- 	self._config.NoteSpeed += 1
+			-- 	Options.ScrollSpeed:set(Options.ScrollSpeed:get() + 1)
 			-- elseif self._input:control_just_pressed(InputUtil.KEY_SPEEDDOWN) then
-			-- 	self._config.NoteSpeed -= 1
+			-- 	Options.ScrollSpeed:set(Options.ScrollSpeed:get() - 1)
 			-- end
 
 			if replay.viewing then
@@ -332,26 +373,29 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 		end
 	end
 
-	function self:load(_song_key, _local_player_slot, _config, _replay: any?)
-		-- replay = Replay.perfect(SongDatabase:get_hash_for_key(_song_key), _config.SongRate)
+	function self:load(_song_key, _local_player_slot, _replay: any?)
+		-- replay = Replay.perfect(SongDatabase:get_hash_for_key(_song_key), Options.SongRate:get())
 		replay = _replay or Replay:new({ viewing = false })
 
+		-- Set up keybinds from Options
 		self._input:set_keybinds({
-			Enum.KeyCode[Options.keybinds[1]],
-			Enum.KeyCode[Options.keybinds[2]],
-			Enum.KeyCode[Options.keybinds[3]],
-			Enum.KeyCode[Options.keybinds[4]],
+			Enum.KeyCode[Options.Keybind1:get()],
+			Enum.KeyCode[Options.Keybind2:get()],
+			Enum.KeyCode[Options.Keybind3:get()],
+			Enum.KeyCode[Options.Keybind4:get()],
 		})
 
-		self:set_mods(_config.Mods)
+		-- Set mods from Options
+		self:set_mods(Options.Mods:get())
 
 		EnvironmentSetup:set_mode(EnvironmentSetup.Mode.Game)
 
-		if _config.Use2DLane then
+		-- Set up 2D mode if enabled
+		if Options.Use2DMode:get() then
 			skin_loaded = false
 
-			local skin_name = _config.Skin2D
-			local skin = Skins:get_skin(_config.Skin2D)
+			local skin_name = Options.Skin2D:get()
+			local skin = Skins:get_skin(skin_name)
 
 			if not skin then
 				DebugOut:puts("No skin specified, defaulting to first usable skin...")
@@ -361,21 +405,26 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 			end
 
 			self:set_skin(skin)
-			self:set_note_color_affects_2d(_config.NoteColorAffects2D)
+			self:set_note_color_affects_2d(Options.NoteColorAffects2D:get())
 
 			task.spawn(function()
 				ContentProvider:PreloadAsync({ skin })
 				skin_loaded = true
 			end)
 
-			EnvironmentSetup:setup_2d_environment(_skin, _config)
+			-- Build config for 2D environment setup
+			local config = _build_config_from_options()
+			EnvironmentSetup:setup_2d_environment(_skin, config)
 			self._gameplay_frame = EnvironmentSetup:get_player_gui_root():WaitForChild("GameplayFrame")
 			self.original_2d_playfield_pos = self._gameplay_frame.Position
-
 		end
 
-		self._audio_manager:load_song(_song_key, _config)
+		-- Load song with config from Options
+		local config = _build_config_from_options()
+		self._audio_manager:load_song(_song_key, config)
 		self:setup_world(_local_player_slot)
+
+		self._config = config
 	end
 	
 	function self:is_viewing_replay()

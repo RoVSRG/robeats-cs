@@ -8,8 +8,8 @@ local Replay = require(game.ReplicatedStorage.RobeatsGameCore.Replay)
 local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
 local Signal = require(game.ReplicatedStorage.Libraries.LemonSignal)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameSlot)
 local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
+local Options = require(game.ReplicatedStorage.State.Options)
 
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
@@ -18,42 +18,6 @@ local StarterGui = game:GetService("StarterGui")
 export type GameConfig = {
 	-- Song Settings
 	songKey: string | number,
-	songRate: number?,
-	audioOffset: number?,
-	
-	-- Gameplay Settings
-	noteSpeed: number?,
-	timingPreset: string,
-	mods: {string}?,
-	
-	-- Visual Settings
-	use2DMode: boolean?,
-	skin2D: string?,
-	upscroll: boolean?,
-	noteColor: Color3?,
-	noteColorAffects2D: boolean?,
-	
-	-- Effects Settings
-	hideReceptorGlow: boolean?,
-	receptorTransparency: number?,
-	lnTransparency: boolean?,
-	hideLnTails: boolean?,
-	showHitLighting: boolean?,
-	
-	-- Judgement Visibility
-	judgementVisibility: {
-		marvelous: boolean?,
-		perfect: boolean?,
-		great: boolean?,
-		good: boolean?,
-		bad: boolean?,
-		miss: boolean?,
-	}?,
-	
-	-- Audio Settings
-	hitsounds: boolean?,
-	hitsoundVolume: number?,
-	musicVolume: number?,
 	
 	-- Advanced Settings
 	startTimeMs: number?,
@@ -81,39 +45,6 @@ export type GameStats = {
 }
 
 export type GameState = "idle" | "loading" | "ready" | "playing" | "paused" | "finished"
-
--- Default configuration values
-local DEFAULT_CONFIG = {
-	songRate = 100,
-	audioOffset = 0,
-	noteSpeed = 20,
-	timingPreset = "Default",
-	mods = {},
-	use2DMode = false,
-	upscroll = false,
-	noteColor = Color3.fromRGB(255, 175, 0),
-	noteColorAffects2D = true,
-	hideReceptorGlow = false,
-	receptorTransparency = 0,
-	lnTransparency = false,
-	hideLnTails = false,
-	showHitLighting = true,
-	judgementVisibility = {
-		marvelous = true,
-		perfect = true,
-		great = true,
-		good = true,
-		bad = true,
-		miss = true,
-	},
-	hitsounds = true,
-	hitsoundVolume = 0.5,
-	musicVolume = 0.5,
-	startTimeMs = 0,
-	gameSlot = 0,
-	environmentPosition = Vector3.new(0, 0, 0),
-	recordReplay = false,
-}
 
 local RobeatsGameWrapper = {}
 RobeatsGameWrapper.__index = RobeatsGameWrapper
@@ -165,61 +96,6 @@ function RobeatsGameWrapper:_setState(newState: GameState)
 		self._state = newState
 		self.stateChanged:Fire(newState, oldState)
 	end
-end
-
-function RobeatsGameWrapper:_mergeConfig(userConfig: GameConfig): GameConfig
-	local config = table.clone(DEFAULT_CONFIG)
-	
-	-- Merge user config
-	for key, value in pairs(userConfig) do
-		if key == "judgementVisibility" and type(value) == "table" then
-			config.judgementVisibility = table.clone(DEFAULT_CONFIG.judgementVisibility)
-			for judge, visible in pairs(value) do
-				config.judgementVisibility[judge] = visible
-			end
-		else
-			config[key] = value
-		end
-	end
-	
-	return config
-end
-
-function RobeatsGameWrapper:_buildRobeatsConfig(config: GameConfig)
-	-- Convert our clean config to RobeatsGame's expected format
-	local visibility = config.judgementVisibility or DEFAULT_CONFIG.judgementVisibility
-	local judgementMap = {
-		[NoteResult.Marvelous] = visibility.marvelous,
-		[NoteResult.Perfect] = visibility.perfect,
-		[NoteResult.Great] = visibility.great,
-		[NoteResult.Good] = visibility.good,
-		[NoteResult.Bad] = visibility.bad,
-		[NoteResult.Miss] = visibility.miss,
-	}
-	
-	return {
-		-- Song settings
-		SongRate = config.songRate,
-		AudioOffset = config.audioOffset,
-		
-		-- Gameplay settings
-		NoteSpeed = config.noteSpeed,
-		TimingPreset = config.timingPreset,
-		Mods = config.mods,
-		
-		-- Visual settings
-		Use2DLane = config.use2DMode,
-		Skin2D = config.skin2D,
-		NoteColorAffects2D = config.noteColorAffects2D,
-		
-		-- Audio settings
-		Hitsounds = config.hitsounds,
-		HitsoundVolume = config.hitsoundVolume,
-		MusicVolume = config.musicVolume,
-		
-		-- Other internal settings
-		JudgementVisibility = judgementMap,
-	}
 end
 
 function RobeatsGameWrapper:_setupEventListeners()
@@ -324,37 +200,23 @@ function RobeatsGameWrapper:loadSong(config: GameConfig)
 	self:_setState("loading")
 	self:_resetStats()
 	
-	-- Merge with defaults
-	local finalConfig = self:_mergeConfig(config)
-	self._config = finalConfig
+	-- Store minimal config
+	self._config = config
 	
-	-- Create game instance
-	self._game = RobeatsGame:new(
-		EnvironmentSetup:get_game_environment_center_position(),
-		self:_buildRobeatsConfig(finalConfig)
+	-- Create game instance - no config needed, it reads from Options
+	self._game = RobeatsGame.new(
+		EnvironmentSetup:get_game_environment_center_position()
 	)
 	
-	-- Setup visual settings
-	if finalConfig.use2DMode then
-		self._game:set_2d_mode(true)
-		self._game:set_upscroll_mode(finalConfig.upscroll)
-	end
-	
-	self._game:set_note_color(finalConfig.noteColor)
-	self._game:set_ln_transparent(finalConfig.lnTransparency)
-	self._game:set_hit_lighting(finalConfig.showHitLighting)
-	self._game:set_ln_tails(finalConfig.hideLnTails)
-	
-	-- Load the song
-	local replay = finalConfig.replay
-	if not replay and finalConfig.recordReplay then
+	-- Load the song - reduced parameters
+	local replay = config.replay
+	if not replay and config.recordReplay then
 		replay = Replay:new({ viewing = false })
 	end
 	
 	self._game:load(
-		finalConfig.songKey,
-		finalConfig.gameSlot,
-		self:_buildRobeatsConfig(finalConfig),
+		config.songKey,
+		config.gameSlot or 0,
 		replay
 	)
 	
@@ -362,7 +224,7 @@ function RobeatsGameWrapper:loadSong(config: GameConfig)
 	self:_setupEventListeners()
 	
 	-- Count total notes
-	local songData = SongDatabase:GetSongByKey(finalConfig.songKey)
+	local songData = SongDatabase:GetSongByKey(config.songKey)
     local folderName = songData.FolderName
 
     local hitObjects = SongDatabase:GetHitObjectsForFolderName(folderName)
@@ -504,14 +366,15 @@ end
 
 -- Settings updates (only work during gameplay)
 
-function RobeatsGameWrapper:setNoteSpeed(speed: number)
-	if self._game then
-		self._config.noteSpeed = speed
-		-- This would need to be implemented in RobeatsGame
-	end
-end
-
 function RobeatsGameWrapper:setVolume(musicVolume: number?, hitsoundVolume: number?)
+	if musicVolume then
+		Options.MusicVolume:set(musicVolume)
+	end
+	if hitsoundVolume then
+		Options.HitsoundVolume:set(hitsoundVolume)
+	end
+	
+	-- Update the audio manager if game is running
 	if self._game and self._game._audio_manager then
 		if musicVolume then
 			self._game._audio_manager:set_music_volume(musicVolume)
