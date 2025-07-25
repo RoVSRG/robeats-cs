@@ -304,19 +304,4 @@ function SPUtil:attach_sound(guiObject: any, sound: string)
 	end)
 end
 
-function SPUtil:IsInputDown(inputObject: (Enum.KeyCode | Enum.UserInputType)): boolean
-	assert(inputObject, "Expected a valid InputObject to be passed", debug.traceback())
-	if ( inputObject.EnumType == Enum.KeyCode ) then
-		assert(inputObject.KeyCode ~= Enum.KeyCode.Unknown, "InputObject.KeyCode was of type Unknown")
-		return UserInputService:IsKeyDown(inputObject) or false
-	elseif ( inputObject.EnumType == Enum.UserInputType ) then
-		-- Ask UserInputService if this object is down?
-		local IsAMouseButton = (string.find(inputObject.Name, "Mouse"))
-		if IsAMouseButton then
-			return UserInputService:IsMouseButtonPressed(inputObject) or false
-		end
-	end
-	return false
-end
-
 return SPUtil

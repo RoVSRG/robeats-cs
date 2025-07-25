@@ -15,14 +15,24 @@ SongDatabase.SongAdded = Instance.new("BindableEvent")
 --[[ 
     SongData structure example:
     {
-        Name = "[1035] Petit Rabbits - Daydream Cafe",
-        SongName = "Daydream Cafe",
-        ArtistName = "Petit Rabbits",
-        Difficulty = 45.72,
-        Length = 89407,
-        Color = Color3.new(r,g,b),
-        ID = 1035
-    }
+		Name = folder.Name,
+		SongName = folder:GetAttribute("SongName"),
+		ArtistName = folder:GetAttribute("ArtistName"),
+		CharterName = folder:GetAttribute("CharterName"),
+		Description = folder:GetAttribute("Description"),
+		Difficulty = folder:GetAttribute("Difficulty"),
+		Length = folder:GetAttribute("Length"),
+		ObjectCount = folder:GetAttribute("ObjectCount"),
+		AudioID = folder:GetAttribute("AudioID"),
+		CoverImageAssetId = folder:GetAttribute("CoverImageAssetId"),
+		Volume = folder:GetAttribute("Volume"),
+		HitSFXGroup = folder:GetAttribute("HitSFXGroup"),
+		TimeOffset = folder:GetAttribute("TimeOffset"),
+		MD5Hash = folder:GetAttribute("MD5Hash"),
+		Color = colorKeys[tostring(i)],
+		ID = i,
+		FolderName = folder.Name
+	}
 ]]
 
 -- Adds a single song to the database
@@ -52,6 +62,37 @@ end
 
 function SongDatabase:GetPropertyByKey(key, property)
 	return SongDatabase:GetSongByKey(key)[property]
+end
+
+-- Search for songs by artist name, file name, or charter name
+function SongDatabase:Search(searchTerm)
+	if not searchTerm or searchTerm == "" then
+		return {}
+	end
+	
+	local results = {}
+	local lowerSearchTerm = string.lower(searchTerm)
+
+	local words = string.split(lowerSearchTerm, " ")
+	
+	for _, songData in ipairs(self.songs) do
+		local searchString = string.lower(songData.SongName .. " " .. songData.ArtistName .. " " .. songData.CharterName)
+
+		local allWordsFound = true
+
+		for _, word in ipairs(words) do
+			if not string.find(searchString, word, 1, true) then
+				allWordsFound = false
+				break
+			end
+		end
+
+		if allWordsFound then
+			table.insert(results, songData.ID)
+		end
+	end
+	
+	return results
 end
 
 local CompressMachine = require(game.ReplicatedStorage.Libraries.CompressMachine)
