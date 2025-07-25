@@ -69,6 +69,62 @@ local function sanitizeDirtyYaml(input: string): string
     return table.concat(output)
 end
 
+local function generateHitObjectData(hitObjects)
+    local singles = 0
+    local holds = 0
+
+    local length = hitObjects[#hitObjects].Time
+
+    local npsGraph = {}
+    local CHUNKS = 20
+    
+    -- Initialize chunks with note counts
+    local chunkNotes = {}
+    for i = 1, CHUNKS do
+        chunkNotes[i] = 0
+    end
+    
+    -- Calculate chunk duration
+    local chunkDuration = length / CHUNKS
+
+    for _, hitObject in ipairs(hitObjects) do
+        if hitObject.Duration ~= nil then
+            holds += 1
+        else
+            singles += 1
+        end
+
+        local time = hitObject.Time
+        
+        -- Determine which chunk this note belongs to
+        local chunkIndex = math.min(math.ceil(time / chunkDuration), CHUNKS)
+        if chunkIndex < 1 then chunkIndex = 1 end
+        
+        chunkNotes[chunkIndex] = chunkNotes[chunkIndex] + 1
+    end
+    
+    -- Convert note counts to NPS (notes per second)
+    local chunkDurationSeconds = chunkDuration / 1000 -- Convert from milliseconds to seconds
+    for i = 1, CHUNKS do
+        npsGraph[i] = chunkNotes[i] / chunkDurationSeconds
+    end
+
+    local maxNPS = 0
+    for _, count in ipairs(npsGraph) do
+        if count > maxNPS then
+            maxNPS = count
+        end
+    end
+
+    local averageNPS = 0
+    for _, count in ipairs(npsGraph) do
+        averageNPS += count
+    end
+    averageNPS = averageNPS / #npsGraph
+
+    return npsGraph, maxNPS, averageNPS, singles, holds
+end
+
 for index, song in pairs(song_listing) do
     local suc, err = pcall(function()
         local metadata = serde.decode("yaml", 
@@ -101,37 +157,44 @@ for index, song in pairs(song_listing) do
 
         stdio.write(string.format("Converting songs (%d/%d)\n", index, #song_listing))
 
-        song_folder = roblox.Instance.new("Folder")
-        song_folder.Name = string.format("[%s] %s - %s", index, metadata.Artist or "Unknown", metadata.Filename or "Unknown")
+        local songFolder = roblox.Instance.new("Folder")
+        songFolder.Name = string.format("[%s] %s - %s", index, metadata.Artist or "Unknown", metadata.Filename or "Unknown")
         
         -- Basic song information
-        song_folder:SetAttribute("ArtistName", metadata.Artist or "Unknown")
-        song_folder:SetAttribute("SongName", metadata.Filename or "Unknown")
-        song_folder:SetAttribute("CharterName", metadata.Mapper or "Unknown")
-        song_folder:SetAttribute("Description", metadata.Description or "")
+        songFolder:SetAttribute("ArtistName", metadata.Artist or "Unknown")
+        songFolder:SetAttribute("SongName", metadata.Filename or "Unknown")
+        songFolder:SetAttribute("CharterName", metadata.Mapper or "Unknown")
+        songFolder:SetAttribute("Description", metadata.Description or "")
         
         -- Audio and visual assets
-        song_folder:SetAttribute("AudioID", metadata.AssetId or "rbxassetid://0")
-        song_folder:SetAttribute("CoverImageAssetId", metadata.CoverImageAssetId or "rbxassetid://0")
+        songFolder:SetAttribute("AudioID", metadata.AssetId or "rbxassetid://0")
+        songFolder:SetAttribute("CoverImageAssetId", metadata.CoverImageAssetId or "rbxassetid://0")
         
         -- Audio settings
-        song_folder:SetAttribute("Volume", metadata.Volume or 1)
-        song_folder:SetAttribute("HitSFXGroup", metadata.HitSFXGroup or 0)
-        song_folder:SetAttribute("TimeOffset", metadata.TimeOffset or 0)
+        songFolder:SetAttribute("Volume", metadata.Volume or 1)
+        songFolder:SetAttribute("HitSFXGroup", metadata.HitSFXGroup or 0)
+        songFolder:SetAttribute("TimeOffset", metadata.TimeOffset or 0)
         
         -- Chart information
-        song_folder:SetAttribute("Difficulty", difficulty or 0)
-        song_folder:SetAttribute("Length", length or 0)
-        song_folder:SetAttribute("ObjectCount", #hitObjects)
-        song_folder:SetAttribute("MD5Hash", metadata.MD5Hash or "")
+        songFolder:SetAttribute("Difficulty", difficulty or 0)
+        songFolder:SetAttribute("Length", length or 0)
+        songFolder:SetAttribute("ObjectCount", #hitObjects)
+        songFolder:SetAttribute("MD5Hash", metadata.MD5Hash or "")
+
+        local nps, maxNPS, averageNPS, singles, holds = generateHitObjectData(hitObjects)
+        songFolder:SetAttribute("NPSGraph", table.concat(nps, ","))
+        songFolder:SetAttribute("MaxNPS", maxNPS)
+        songFolder:SetAttribute("AverageNPS", averageNPS)
+        songFolder:SetAttribute("TotalSingleNotes", singles)
+        songFolder:SetAttribute("TotalHoldNotes", holds)
 
         local encodedNotes = serde.encode("json", hitObjects)
 
-        local chart_stringval = roblox.Instance.new("StringValue")
-        chart_stringval.Name = "ChartString"
-        chart_stringval.Value = to_base64(compression.Compress(encodedNotes))
-        chart_stringval.Parent = song_folder
-        song_folder.Parent = songs
+        local chartString = roblox.Instance.new("StringValue")
+        chartString.Name = "ChartString"
+        chartString.Value = to_base64(compression.Compress(encodedNotes))
+        chartString.Parent = songFolder
+        songFolder.Parent = songs
     end)
 
     if not suc then

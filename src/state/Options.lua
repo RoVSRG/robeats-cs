@@ -8,7 +8,7 @@ local Options = Val.scope {
     Keybind4 = Val.new("U"),
 
     -- Gameplay Settings
-    ScrollSpeed = Val.new(25), -- Note speed (1.0 is normal speed)
+    ScrollSpeed = Val.new(23), -- Note speed (1.0 is normal speed)
     SongRate = Val.new(100), -- Song playback rate (100 = 1.0x speed)
     AudioOffset = Val.new(0), -- Audio offset in milliseconds
     TimingPreset = Val.new("Standard"), -- Timing window preset
