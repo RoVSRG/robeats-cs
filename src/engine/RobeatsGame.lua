@@ -31,7 +31,9 @@ RobeatsGame.Mode = {
 	GameEnded = 3;
 }
 
-function RobeatsGame:new(_game_environment_center_position, _config)
+function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
+	print(typeof(_game_environment_center_position))
+
 	local self = {
 		_tracksystems = SPDict:new();
 		_audio_manager = nil;
@@ -177,10 +179,16 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 
 	function self:setup_world(game_slot)
 		_local_game_slot = game_slot
-		workspace.CurrentCamera.CFrame = GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) + CFrame.new(self:get_game_environment_center_position())
+
+		workspace.CurrentCamera.CFrame =
+			GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) +
+			self:get_game_environment_center_position()
+			
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 		workspace.CurrentCamera.CameraSubject = nil
+
 		self.original_cam_cf = workspace.CurrentCamera.CFrame -- find a way to implement this honestly
+
 		self:set_target_cam_orientation(self.original_cam_cf.Rotation.Z)
 		self:set_target_2d_playfield_pos(if self:get_2d_mode() then self.original_2d_playfield_pos.X.Scale else 0) -- this might not work
 
@@ -205,7 +213,7 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 		end
 
 		self._audio_manager:start_play(_start_time_ms)
-		_current_mode = RobeatsGame.Mode.Game
+		self:set_mode(RobeatsGame.Mode.Game)
 	end
 
 	function self:get_tracksystem(index)
@@ -316,6 +324,11 @@ function RobeatsGame:new(_game_environment_center_position, _config)
 			self._effects:update(dt_scale)
 
 			self._input:post_update()
+			
+			-- Check if the game should end
+			if self._audio_manager:get_just_finished() then
+				self:set_mode(RobeatsGame.Mode.GameEnded)
+			end
 		end
 	end
 

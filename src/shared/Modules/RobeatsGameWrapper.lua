@@ -7,6 +7,9 @@ local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 local Replay = require(game.ReplicatedStorage.RobeatsGameCore.Replay)
 local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResult)
 local Signal = require(game.ReplicatedStorage.Libraries.LemonSignal)
+local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+local GameSlot = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameSlot)
+local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
 
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
@@ -20,7 +23,7 @@ export type GameConfig = {
 	
 	-- Gameplay Settings
 	noteSpeed: number?,
-	timingPreset: string?,
+	timingPreset: string,
 	mods: {string}?,
 	
 	-- Visual Settings
@@ -55,7 +58,6 @@ export type GameConfig = {
 	-- Advanced Settings
 	startTimeMs: number?,
 	gameSlot: number?,
-	environmentPosition: Vector3?,
 	
 	-- Replay Settings
 	replay: any?,
@@ -82,9 +84,9 @@ export type GameState = "idle" | "loading" | "ready" | "playing" | "paused" | "f
 
 -- Default configuration values
 local DEFAULT_CONFIG = {
-	songRate = 1,
+	songRate = 100,
 	audioOffset = 0,
-	noteSpeed = 2000,
+	noteSpeed = 30,
 	timingPreset = "Default",
 	mods = {},
 	use2DMode = false,
@@ -226,47 +228,37 @@ function RobeatsGameWrapper:_setupEventListeners()
 	-- Connect to score manager events
 	local scoreManager = self._game._score_manager
 	if scoreManager then
-		-- Listen for score changes
-		scoreManager.score_changed:Connect(function(score: number)
+		-- Listen for score manager changes
+		-- Parameters: marvelous_count, perfect_count, great_count, good_count, bad_count, miss_count, max_chain, chain, score, renderable_hit
+		scoreManager:get_on_change():Connect(function(marvelous: number, perfect: number, great: number, good: number, bad: number, miss: number, maxChain: number, chain: number, score: number, renderableHit: any)
+			-- Update all stats from ScoreManager
+			self._stats.marvelous = marvelous
+			self._stats.perfect = perfect
+			self._stats.great = great
+			self._stats.good = good
+			self._stats.bad = bad
+			self._stats.miss = miss
 			self._stats.score = score
+			self._stats.maxCombo = maxChain
+			self._stats.combo = chain
+			self._stats.notesHit = marvelous + perfect + great + good + bad
+			
+			-- Update accuracy using ScoreManager's method
+			self._stats.accuracy = (scoreManager:get_accuracy() :: number) * 100 -- Convert to percentage
+			
+			-- Fire events
 			self.scoreChanged:Fire(score)
-		end)
-		
-		-- Listen for combo changes
-		scoreManager.combo_changed:Connect(function(combo: number)
-			self._stats.combo = combo
-			if combo > self._stats.maxCombo then
-				self._stats.maxCombo = combo
-			end
-			self.comboChanged:Fire(combo)
-		end)
-		
-		-- Listen for note hits
-		scoreManager.note_hit:Connect(function(noteResult)
-			self._stats.notesHit = (self._stats.notesHit :: number) + 1
+			self.comboChanged:Fire(chain)
 			
-			-- Update judgement counts
-			if noteResult == NoteResult.Marvelous then
-				self._stats.marvelous = (self._stats.marvelous :: number) + 1
-			elseif noteResult == NoteResult.Perfect then
-				self._stats.perfect = (self._stats.perfect :: number) + 1
-			elseif noteResult == NoteResult.Great then
-				self._stats.great = (self._stats.great :: number) + 1
-			elseif noteResult == NoteResult.Good then
-				self._stats.good = (self._stats.good :: number) + 1
-			elseif noteResult == NoteResult.Bad then
-				self._stats.bad = (self._stats.bad :: number) + 1
-			elseif noteResult == NoteResult.Miss then
-				self._stats.miss = (self._stats.miss :: number) + 1
-				self.noteMissed:Fire()
+			-- Fire note hit/miss events based on renderable hit
+			if renderableHit then
+				local judgement = renderableHit.judgement
+				if judgement == NoteResult.Miss then
+					self.noteMissed:Fire()
+				else
+					self.noteHit:Fire(judgement)
+				end
 			end
-			
-			if noteResult ~= NoteResult.Miss then
-				self.noteHit:Fire(noteResult)
-			end
-			
-			-- Update accuracy
-			self:_updateAccuracy()
 		end)
 	end
 	
@@ -281,25 +273,6 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self.songFinished:Fire(self:getStats())
 		end
 	end)
-end
-
-function RobeatsGameWrapper:_updateAccuracy()
-    local stats = self._stats :: any
-
-	local totalWeight = (stats.marvelous * 100) +
-		(stats.perfect * 99) +
-		(stats.great * 70) +
-		(stats.good * 30) +
-		(stats.bad * 5) +
-		(stats.miss * 0)
-
-	local maxWeight = stats.totalNotes * 100
-
-	if maxWeight > 0 then
-		stats.accuracy = (totalWeight / maxWeight) * 100
-	else
-		stats.accuracy = 100
-	end
 end
 
 function RobeatsGameWrapper:_calculateGrade(): string
@@ -357,7 +330,7 @@ function RobeatsGameWrapper:loadSong(config: GameConfig)
 	
 	-- Create game instance
 	self._game = RobeatsGame:new(
-		finalConfig.environmentPosition,
+		EnvironmentSetup:get_game_environment_center_position(),
 		self:_buildRobeatsConfig(finalConfig)
 	)
 	
@@ -424,7 +397,8 @@ function RobeatsGameWrapper:start()
 	-- Setup update loop
 	self._updateConnection = RunService.Heartbeat:Connect(function(dt: number)
 		if self._game and (self._state :: string) == "playing" then
-			self._game:update(dt * 60) -- Convert to dt_scale
+			local dt_scale = CurveUtil:DeltaTimeToTimescale(dt)
+			self._game:update(dt_scale)
 		end
 	end)
 	

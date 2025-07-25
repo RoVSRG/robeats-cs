@@ -117,8 +117,8 @@ function AudioManager:new(_game)
 		_hit_sfx_group:preload()
 		
 		--Apply audio offset
-		_audio_time_offset = _config.AudioOffset or 0
-		_audio_time_offset = _audio_time_offset + _current_audio_data.AudioTimeOffset
+		_audio_time_offset = _config.GlobalAudioOffset or 0
+		_audio_time_offset = _audio_time_offset + _current_audio_data.TimeOffset
 
 		--Apply song rate
 		self:set_rate((_config.SongRate or 100) / 100)
@@ -128,11 +128,14 @@ function AudioManager:new(_game)
 		--Add hit objects and perform note count calculations
 		-- For now, using the folder name method - this should be enhanced to handle song keys properly
 		local songData = SongDatabase:GetSongByKey(_song_key)
-		if songData and songData.Name then
-			_hit_objects = SongDatabase:GetHitObjectsForFolderName(songData.Name) or {}
+		if songData and songData.FolderName then
+			_hit_objects = SongDatabase:GetHitObjectsForFolderName(songData.FolderName) or {}
 		else
 			_hit_objects = {}
 		end
+
+		print(#_hit_objects, "hit objects loaded for song key:", _song_key)
+
 		-- TODO: Apply rate scaling and mirror mod transformations to _hit_objects here
 		
 		for i = 1, #_hit_objects do
@@ -145,7 +148,7 @@ function AudioManager:new(_game)
 		end
 		
 		--Load background music
-		_bgm.SoundId = _current_audio_data.AudioAssetId
+		_bgm.SoundId = _current_audio_data.AudioID
 		_bgm.Playing = true
 		_bgm.Volume = 0
 		_bgm.PlaybackSpeed = 0
@@ -275,9 +278,7 @@ function AudioManager:new(_game)
 		_pre_start_time_ms = 0
 
 		if _start_time_ms then
-			_bgm_time_position = _start_time_ms
-
-			print("AudioManager:start_play(): Starting at time " .. _bgm_time_position)
+			_bgm_time_position = _start_time_ms / 1000
 
 			_bgm.TimePosition = _bgm_time_position - (_audio_time_offset / 1000)
 
@@ -344,6 +345,8 @@ function AudioManager:new(_game)
 				-- _bgm.TimePosition = 0
 				_bgm.Volume = _audio_volume
 				_bgm.PlaybackSpeed = _rate
+
+				print("AudioManager:update(): Starting audio playback at time " .. _bgm_time_position)
 				-- _bgm_time_position = 0
 				_ended_connection = _bgm.Ended:Connect(function()
 					_raise_ended_trigger = true
@@ -404,8 +407,10 @@ function AudioManager:new(_game)
 		for i=_audio_data_index,#_hit_objects do
 			local itr_hitobj = _hit_objects[i]
 
+			local hitObjectType = itr_hitobj.Duration ~= nil and 2 or 1
+
 			if test_time >= itr_hitobj.Time then
-				if itr_hitobj.Type == 1 then
+				if hitObjectType == 1 then
 					push_back_single_note(
 						i,
 						itr_hitobj,
@@ -413,7 +418,7 @@ function AudioManager:new(_game)
 						itr_hitobj.Time + _pre_countdown_time_ms
 					)
 
-				elseif itr_hitobj.Type == 2 then
+				elseif hitObjectType == 2 then
 					if itr_hitobj.Duration > 0 then
 						push_back_heldnote(
 							i,

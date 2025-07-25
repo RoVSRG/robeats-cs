@@ -71,10 +71,10 @@ function Replay:new(config: Config)
         return actions
     end
 
-    -- function self:send_last_hits()
-    --     SpectatingService:DisemminateHits(hitsSinceLastSend)
-    --     table.clear(hitsSinceLastSend)
-    -- end
+    function self:send_last_hits()
+        -- SpectatingService:DisemminateHits(hitsSinceLastSend)
+        table.clear(hitsSinceLastSend)
+    end
 
     return self
 end

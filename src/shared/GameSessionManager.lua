@@ -116,8 +116,7 @@ function GameSessionManager:loadSong(songData, laneMode, config)
 	end
 
 	-- Create RobeatsGame instance
-	local centerPos = Vector3.new(0, 0, 0)
-	self._game = RobeatsGame.new(centerPos, config)
+	self._game = RobeatsGame:new(EnvironmentSetup:get_game_environment_center_position(), config)
 
 	-- Directly pass chart data (NO SongDatabase lookup)
 	self._game:load(songData.hitObjects, songData.metadata, config)
@@ -146,7 +145,11 @@ function GameSessionManager:start()
 end
 
 function GameSessionManager:_update(dt)
+	print(self._game, self.state.isRunning:get())
+
 	if not self._game or not self.state.isRunning:get() then return end
+
+	print(dt)
 
 	self._game:update(dt)
 

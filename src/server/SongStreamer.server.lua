@@ -1,5 +1,5 @@
 local ServerStorage = game:GetService("ServerStorage")
-local Songs = ServerStorage:WaitForChild("Songs")
+local Songs = ServerStorage:WaitForChild("Songs"):WaitForChild("bin")
 
 local PAGE_SIZE = 100
 
@@ -28,8 +28,17 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 				Name = folder.Name,
 				SongName = folder:GetAttribute("SongName"),
 				ArtistName = folder:GetAttribute("ArtistName"),
+				CharterName = folder:GetAttribute("CharterName"),
+				Description = folder:GetAttribute("Description"),
 				Difficulty = folder:GetAttribute("Difficulty"),
 				Length = folder:GetAttribute("Length"),
+				ObjectCount = folder:GetAttribute("ObjectCount"),
+				AudioID = folder:GetAttribute("AudioID"),
+				CoverImageAssetId = folder:GetAttribute("CoverImageAssetId"),
+				Volume = folder:GetAttribute("Volume"),
+				HitSFXGroup = folder:GetAttribute("HitSFXGroup"),
+				TimeOffset = folder:GetAttribute("TimeOffset"),
+				MD5Hash = folder:GetAttribute("MD5Hash"),
 				Color = colorKeys[tostring(i)],
 				ID = i,
 				FolderName = folder.Name

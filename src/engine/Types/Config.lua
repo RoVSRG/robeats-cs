@@ -17,14 +17,14 @@ export type GameConfig = {
 	HideReceptorGlow: boolean?,
 	
 	-- Audio Settings
-	AudioOffset: number?,
+	GlobalAudioOffset: number?,
 	SongRate: number?,
 	Hitsounds: boolean?,
 	NoteSpeed: number?,
 	
 	-- Timing Settings
 	UseCustomJudgements: boolean?,
-	TimingPreset: string?,
+	TimingPreset: string,
 	
 	-- Custom Timing Presets (used when UseCustomJudgements is true)
 	CustomMarvelousPreset: number?,

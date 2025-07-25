@@ -232,13 +232,13 @@ function InputUtil:new()
 
 	function self:post_update()
 		local cursor = game.Players.LocalPlayer:GetMouse()
-		if (SPUtil:is_mobile() == false) then
-			if self:control_pressed(InputUtil.KEY_TRACK1) or self:control_pressed(InputUtil.KEY_TRACK2) or self:control_pressed(InputUtil.KEY_TRACK3) or self:control_pressed(InputUtil.KEY_TRACK4) then
-				self:set_mouse_visible(false)
-			elseif cursor.X ~= _last_cursor._x or cursor.Y ~= _last_cursor._y then
-				self:set_mouse_visible(true)
-			end
-		end
+		-- if (SPUtil:is_mobile() == false) then
+		-- 	if self:control_pressed(InputUtil.KEY_TRACK1) or self:control_pressed(InputUtil.KEY_TRACK2) or self:control_pressed(InputUtil.KEY_TRACK3) or self:control_pressed(InputUtil.KEY_TRACK4) then
+		-- 		self:set_mouse_visible(false)
+		-- 	elseif cursor.X ~= _last_cursor._x or cursor.Y ~= _last_cursor._y then
+		-- 		self:set_mouse_visible(true)
+		-- 	end
+		-- end
 		_last_cursor:set(cursor.X,cursor.Y)
 
 		_just_pressed_keys:clear()

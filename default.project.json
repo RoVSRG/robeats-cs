@@ -44,7 +44,10 @@
 
     "Workspace": {
       "$ignoreUnknownInstances": true,
-      "$path": "src/workspace"
+      "$path": "src/workspace",
+      "$properties": {
+        "StreamingEnabled": false
+      }
     },
 
     "StarterPlayer": {
