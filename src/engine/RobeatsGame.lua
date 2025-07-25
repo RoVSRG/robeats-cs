@@ -336,6 +336,8 @@ function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
 		-- replay = Replay.perfect(SongDatabase:get_hash_for_key(_song_key), _config.SongRate)
 		replay = _replay or Replay:new({ viewing = false })
 
+		self._input:set_keybinds({ Enum.KeyCode.A, Enum.KeyCode.S, Enum.KeyCode.Semicolon, Enum.KeyCode.Quote })
+
 		self:set_mods(_config.Mods)
 
 		EnvironmentSetup:set_mode(EnvironmentSetup.Mode.Game)
