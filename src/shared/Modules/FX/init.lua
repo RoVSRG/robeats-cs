@@ -195,7 +195,9 @@ function SoundManager.PlaySound(soundName, options)
 	}
 	
 	-- Play the sound
+    sound.Name = soundName -- Set name for easier debugging
 	sound:Play()
+
 	
 	return sound
 end

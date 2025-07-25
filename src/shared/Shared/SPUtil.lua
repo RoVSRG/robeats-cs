@@ -2,6 +2,8 @@ local UserInputService = game:GetService("UserInputService")
 
 local RunService = game:GetService("RunService")
 
+local FX = require(game.ReplicatedStorage.Modules.FX)
+
 local function noop() end
 
 local SPUtil = {}
@@ -294,6 +296,12 @@ function SPUtil:switch(val)
 	end
 
 	return switchInstance
+end
+
+function SPUtil:attach_sound(guiObject: any, sound: string)
+	return guiObject.Activated:Connect(function()
+		FX.PlaySound(sound)
+	end)
 end
 
 function SPUtil:IsInputDown(inputObject: (Enum.KeyCode | Enum.UserInputType)): boolean

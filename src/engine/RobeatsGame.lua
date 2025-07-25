@@ -32,8 +32,6 @@ RobeatsGame.Mode = {
 }
 
 function RobeatsGame:new(_game_environment_center_position: Vector3, _config)
-	print(typeof(_game_environment_center_position))
-
 	local self = {
 		_tracksystems = SPDict:new();
 		_audio_manager = nil;
