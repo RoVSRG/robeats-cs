@@ -67,7 +67,6 @@ function RobeatsGameWrapper.new()
 	self.songFinished = Signal.new() :: any
 	self.noteHit = Signal.new() :: any
 	self.noteMissed = Signal.new() :: any
-	self.comboChanged = Signal.new() :: any
 	self.scoreChanged = Signal.new() :: any
 	
 	-- Statistics tracking
@@ -123,8 +122,7 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self._stats.accuracy = (scoreManager:get_accuracy() :: number) * 100 -- Convert to percentage
 			
 			-- Fire events
-			self.scoreChanged:Fire(score)
-			self.comboChanged:Fire(chain)
+			self.scoreChanged:Fire(self._stats)
 			
 			-- Fire note hit/miss events based on renderable hit
 			if renderableHit then
@@ -402,7 +400,6 @@ function RobeatsGameWrapper:destroy()
 	self.songFinished:DisconnectAll()
 	self.noteHit:DisconnectAll()
 	self.noteMissed:DisconnectAll()
-	self.comboChanged:DisconnectAll()
 	self.scoreChanged:DisconnectAll()
 end
 

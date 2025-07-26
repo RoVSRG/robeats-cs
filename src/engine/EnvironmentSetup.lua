@@ -33,8 +33,6 @@ function EnvironmentSetup:initial_setup()
 	_game_environment = environment:WaitForChild("GameEnvironment")
 	_game_environment.Parent = nil
 
-	print(_game_environment:GetChildren())
-
 	_element_protos_folder = environment:WaitForChild("ElementProtos")
 	_element_protos_folder.Parent = game.ReplicatedStorage
 

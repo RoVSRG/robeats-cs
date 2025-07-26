@@ -18,16 +18,16 @@ local Options = Val.scope {
     Use2DMode = Val.new(false), -- Use 2D lane instead of 3D
     Skin2D = Val.new(nil), -- 2D skin name (nil = auto-select)
     Upscroll = Val.new(false), -- Upscroll mode for 2D
-    NoteColor = Val.new(Color3.fromRGB(255, 175, 0)), -- Note color
+    NoteColor = Val.new(Color3.fromRGB(246, 253, 139)), -- Note color
     NoteColorAffects2D = Val.new(true), -- Whether note color affects 2D notes
     
     -- Visual Settings - Effects
     HideReceptorGlow = Val.new(false), -- Hide receptor glow effect
     ReceptorTransparency = Val.new(0), -- Receptor transparency (0-1)
     LnTransparency = Val.new(false), -- Long note transparency
-    HideLnTails = Val.new(false), -- Hide long note tails
-    ShowHitLighting = Val.new(true), -- Show hit lighting effects
-    
+    HideLnTails = Val.new(true), -- Hide long note tails
+    ShowHitLighting = Val.new(false), -- Show hit lighting effects
+
     -- Judgement Visibility
     ShowMarvelous = Val.new(true),
     ShowPerfect = Val.new(true),
