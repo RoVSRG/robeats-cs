@@ -121,7 +121,7 @@ function AudioManager:new(_game)
 		_audio_time_offset = _audio_time_offset + _current_audio_data.TimeOffset
 
 		--Apply song rate
-		self:set_rate((_config.SongRate or 100) / 100)
+		self:set_rate(_config.SongRate / 100)
 
 		_hitsounds = _config.Hitsounds
 
@@ -144,6 +144,13 @@ function AudioManager:new(_game)
 				_note_count = _note_count + 1
 			else
 				_note_count = _note_count + 2
+			end
+
+			-- Apply rate scaling
+			itr.Time = itr.Time / _rate
+
+			if itr.Duration then
+				itr.Duration = itr.Duration / _rate
 			end
 		end
 		
@@ -346,6 +353,8 @@ function AudioManager:new(_game)
 				_bgm.Volume = _audio_volume
 				_bgm.PlaybackSpeed = _rate
 
+				print(_rate)
+
 				print("AudioManager:update(): Starting audio playback at time " .. _bgm_time_position)
 				-- _bgm_time_position = 0
 				_ended_connection = _bgm.Ended:Connect(function()
@@ -365,7 +374,7 @@ function AudioManager:new(_game)
 			self:update_spawn_notes(dt_scale)
 			_bgm_time_position = math.min(
 				_bgm_time_position + CurveUtil:TimescaleToDeltaTime(dt_scale),
-				self:get_song_length_ms() / _rate
+				self:get_song_length_ms()
 			)
 
 			--[[
@@ -448,7 +457,9 @@ function AudioManager:new(_game)
 	end
 
 	function self:get_song_length_ms(): number
-		return _current_audio_data.Length * 1000 / _rate + _audio_time_offset + _pre_start_time_ms
+		return _hit_objects[#_hit_objects].Time +
+			(_hit_objects[#_hit_objects].Duration or 0) +
+			_audio_time_offset
 	end
 
 	return self

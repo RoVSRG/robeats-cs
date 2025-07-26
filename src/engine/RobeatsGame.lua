@@ -19,6 +19,7 @@ local Replay = require(game.ReplicatedStorage.RobeatsGameCore.Replay)
 local FlashEvery = require(game.ReplicatedStorage.Shared.FlashEvery)
 
 local Options = require(game.ReplicatedStorage.State.Options)
+local Transient = require(game.ReplicatedStorage.State.Transient)
 
 -- local Flipper = require(game.ReplicatedStorage.Packages.Flipper)
 
@@ -96,7 +97,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	local function _build_config_from_options()
 		return {
 			-- Gameplay settings
-			SongRate = Options.SongRate:get(),
+			SongRate = Transient.song.rate:get(),
 			AudioOffset = Options.AudioOffset:get(),
 			NoteSpeed = Options.ScrollSpeed:get(),
 			TimingPreset = Options.TimingPreset:get(),

@@ -18,7 +18,7 @@ export type GameConfig = {
 	
 	-- Audio Settings
 	GlobalAudioOffset: number?,
-	SongRate: number?,
+	SongRate: number,
 	Hitsounds: boolean?,
 	NoteSpeed: number?,
 	
