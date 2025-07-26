@@ -39,6 +39,12 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 				HitSFXGroup = folder:GetAttribute("HitSFXGroup"),
 				TimeOffset = folder:GetAttribute("TimeOffset"),
 				MD5Hash = folder:GetAttribute("MD5Hash"),
+				-- New chart analysis properties
+				NPSGraph = folder:GetAttribute("NPSGraph"),
+				MaxNPS = folder:GetAttribute("MaxNPS"),
+				AverageNPS = folder:GetAttribute("AverageNPS"),
+				TotalSingleNotes = folder:GetAttribute("TotalSingleNotes"),
+				TotalHoldNotes = folder:GetAttribute("TotalHoldNotes"),
 				Color = colorKeys[tostring(i)],
 				ID = i,
 				FolderName = folder.Name
