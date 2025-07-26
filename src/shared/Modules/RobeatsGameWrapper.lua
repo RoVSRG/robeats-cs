@@ -68,6 +68,7 @@ function RobeatsGameWrapper.new()
 	self.noteHit = Signal.new() :: any
 	self.noteMissed = Signal.new() :: any
 	self.scoreChanged = Signal.new() :: any
+	self.updated = Signal.new() :: any
 	
 	-- Statistics tracking
 	self._stats = {
@@ -259,6 +260,8 @@ function RobeatsGameWrapper:start()
 		if self._game and (self._state :: string) == "playing" then
 			local dt_scale = CurveUtil:DeltaTimeToTimescale(dt)
 			self._game:update(dt_scale)
+
+			self.updated:Fire(dt_scale, self:getCurrentTime(), self:getSongLength(), self:getProgress())
 		end
 	end)
 	
@@ -401,6 +404,7 @@ function RobeatsGameWrapper:destroy()
 	self.noteHit:DisconnectAll()
 	self.noteMissed:DisconnectAll()
 	self.scoreChanged:DisconnectAll()
+	self.updated:DisconnectAll()
 end
 
 return RobeatsGameWrapper
