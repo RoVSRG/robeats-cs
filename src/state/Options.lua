@@ -10,6 +10,7 @@ local Options = Val.scope {
     -- Gameplay Settings
     ScrollSpeed = Val.new(23), -- Note speed (1.0 is normal speed)
     AudioOffset = Val.new(0), -- Audio offset in milliseconds
+    HitOffset = Val.new(0), -- Hit offset in milliseconds
     TimingPreset = Val.new("Standard"), -- Timing window preset
     Mods = Val.new({}), -- Array of active mods
     

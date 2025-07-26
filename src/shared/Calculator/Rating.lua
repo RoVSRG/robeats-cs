@@ -1,20 +1,28 @@
 local Rating = {}
 
+local function getDifficultyMultiplier(rate)
+	if not rate then
+		return 1
+	end
+	
+	local multiplier = 1
+	
+	if rate >= 1 then
+		multiplier = 1 + (rate - 1) * 1.1
+	else
+		multiplier = 1 + (rate - 1) * 2
+	end
+	
+	return multiplier
+end
+
 local function calculateRating(rate: number, accuracy: number, difficulty: number)
     local BASE_ACCURACY = 97 -- Base accuracy for rating calculation
-	local rateMult = 1
 
-	if rate then
-		if rate >= 1 then
-			rateMult = 1 + (rate-1) * 0.6
-		else
-			rateMult = 1 + (rate-1) * 2
-		end
-	end
-
-	return rateMult * ((accuracy/BASE_ACCURACY)^4) * difficulty
+	return getDifficultyMultiplier(rate) * ((accuracy/BASE_ACCURACY)^4) * difficulty
 end
 
 Rating.calculateRating = calculateRating
+Rating.getDifficultyMultiplier = getDifficultyMultiplier
 
 return Rating
