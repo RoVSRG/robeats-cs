@@ -7,12 +7,35 @@ local function getDifficulty(songId)
     return songData and songData.Difficulty or 0
 end
 
+local function getSongId(button)
+    return button.SongID.Value
+end
+
+local function getDataKey(button, key)
+    return SongDatabase:GetPropertyByKey(getSongId(button), key)
+end
+
 local sortMap = {
+    ["Default"] = function(a, b)
+        return a.OriginalLayoutOrder.Value < b.OriginalLayoutOrder.Value
+    end,
     ["Difficulty (Asc)"] = function(a, b)
-        return getDifficulty(a.SongID.Value) < getDifficulty(b.SongID.Value)
+        return getDifficulty(getSongId(a)) < getDifficulty(getSongId(b))
     end,
     ["Difficulty (Desc)"] = function(a, b)
-        return getDifficulty(a.SongID.Value) > getDifficulty(b.SongID.Value)
+        return getDifficulty(getSongId(a)) > getDifficulty(getSongId(b))
+    end,
+    ["Title (Asc)"] = function(a, b)
+        return getDataKey(a, "SongName") < getDataKey(b, "SongName")
+    end,
+    ["Title (Desc)"] = function(a, b)
+        return getDataKey(a, "SongName") > getDataKey(b, "SongName")
+    end,
+    ["Artist (Asc)"] = function(a, b)
+        return getDataKey(a, "ArtistName") < getDataKey(b, "ArtistName")
+    end,
+    ["Artist (Desc)"] = function(a, b)
+        return getDataKey(a, "ArtistName") > getDataKey(b, "ArtistName")
     end,
 }
 
@@ -79,3 +102,13 @@ script.Parent.ColorButton.MouseButton1Click:Connect(function()
         end
     end
 end)
+
+if not SongDatabase.IsLoaded then
+    SongDatabase.Loaded.Event:Wait()
+end
+
+for _, button in ipairs(script.Parent.SongButtonContainer:GetChildren()) do
+    if button:IsA("TextButton") then
+        button.OriginalLayoutOrder.Value = button.LayoutOrder
+    end
+end

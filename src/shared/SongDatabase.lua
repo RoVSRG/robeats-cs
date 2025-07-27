@@ -9,8 +9,11 @@ SongDatabase.songs = {}          -- Table of all songs loaded client-side
 SongDatabase.songByKey = {} :: {[any]: any}      -- Quick lookup by Name or ID
 SongDatabase.pageSize = 100      -- Should match server PAGE_SIZE
 
+SongDatabase.IsLoaded = false
+
 -- This BindableEvent fires every time a new song is added.
 SongDatabase.SongAdded = Instance.new("BindableEvent")
+SongDatabase.Loaded = Instance.new("BindableEvent")
 
 --[[ 
     SongData structure example:
@@ -157,6 +160,9 @@ function SongDatabase:LoadAllSongs()
 		-- Next page
 		pageIndex += 1
 	end
+
+	SongDatabase.IsLoaded = true
+	SongDatabase.Loaded:Fire()
 
 	print(("[SongDatabase] Loaded %d songs total!"):format(#self.songs))
 end

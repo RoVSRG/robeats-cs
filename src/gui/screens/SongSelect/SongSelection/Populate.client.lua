@@ -1,5 +1,8 @@
 local TextService = game:GetService("TextService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local CurveUtil = require(ReplicatedStorage.Shared.CurveUtil)
+local FlashEvery = require(ReplicatedStorage.Shared.FlashEvery)
 
 local container = script.Parent:WaitForChild("SongButtonContainer")
 local listLayout = container:WaitForChild("List")
@@ -35,6 +38,22 @@ local function hookButton(button, id)
 	SPUtil:attach_sound(button, "Select")
 end
 
+local flash = FlashEvery:new(0.1)
+local visibleCount = nil
+
+RunService.Heartbeat:Connect(function(dt)
+	flash:update(CurveUtil:DeltaTimeToTimescale(dt))
+
+	if flash:do_flash() then
+		local count = visibleCount or #container:GetChildren()
+		container.CanvasSize = UDim2.fromOffset(0, (songTemplate.Size.Y.Offset + listLayout.Padding.Offset) * (count - 1))
+	end
+end)
+
+script.Parent.SearchUpdated.Event:Connect(function(count)
+	visibleCount = count
+end)
+
 -- Creates a single UI button for a song
 local function createSongButton(songData)
 	local button = songTemplate:Clone()
@@ -45,7 +64,7 @@ local function createSongButton(songData)
 
 	-- Build text
 	local text = string.format(
-		"[%s] %s - %s",
+		"[%d] %s - %s",
 		math.floor(songData.Difficulty + 0.5),
 		songData.ArtistName or "Unknown",
 		songData.SongName or "Unknown"
@@ -61,9 +80,6 @@ local function createSongButton(songData)
 		button.Text = text
 		button.MaxVisibleGraphemes = maxGraphemes
 	end)
-
-	-- Expand container scroll area
-	container.CanvasSize += UDim2.fromOffset(0, button.Size.Y.Offset)
 end
 
 -- When SongDatabase adds a song, make a button for it
