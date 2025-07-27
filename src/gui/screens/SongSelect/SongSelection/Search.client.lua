@@ -32,3 +32,7 @@ script.Parent.SearchField:GetPropertyChangedSignal("Text"):Connect(function()
 		end
 	end
 end)
+
+script.Parent.ClearSearchButton.Activated:Connect(function()
+	script.Parent.SearchField.Text = ""
+end)

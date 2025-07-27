@@ -318,16 +318,25 @@ local function exportInstance(instance, targetDir: string)
 	for _, child in ipairs(instance:GetChildren()) do
 		if child:IsA("LocalScript") then
 			-- LocalScript becomes .client.lua
-			local scriptContent = child.Source or ""
-			fs.writeFile(instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".client.lua", scriptContent)
+			local scriptPath = instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".client.lua"
+			if not fs.isFile(scriptPath) then
+				local scriptContent = child.Source or ""
+				fs.writeFile(scriptPath, scriptContent)
+			end
 		elseif child:IsA("ModuleScript") then
 			-- ModuleScript becomes .lua
-			local scriptContent = child.Source or ""
-			fs.writeFile(instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".lua", scriptContent)
+			local scriptPath = instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".lua"
+			if not fs.isFile(scriptPath) then
+				local scriptContent = child.Source or ""
+				fs.writeFile(scriptPath, scriptContent)
+			end
 		elseif child:IsA("Script") then
 			-- Script becomes .server.lua
-			local scriptContent = child.Source or ""
-			fs.writeFile(instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".server.lua", scriptContent)
+			local scriptPath = instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".server.lua"
+			if not fs.isFile(scriptPath) then
+				local scriptContent = child.Source or ""
+				fs.writeFile(scriptPath, scriptContent)
+			end
 		else
 			-- All other instances become folders with init.meta.json (recursive)
 			exportInstance(child, instanceDir)
