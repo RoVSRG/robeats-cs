@@ -22,7 +22,17 @@ local function calculateRating(rate: number, accuracy: number, difficulty: numbe
 	return getDifficultyMultiplier(rate) * ((accuracy/BASE_ACCURACY)^4) * difficulty
 end
 
+local function getRainbowRating()
+	return 60
+end
+
+local function isRainbow(rating: number)
+	return rating >= getRainbowRating()
+end
+
 Rating.calculateRating = calculateRating
 Rating.getDifficultyMultiplier = getDifficultyMultiplier
+Rating.isRainbow = isRainbow
+Rating.getRainbowRating = getRainbowRating
 
 return Rating

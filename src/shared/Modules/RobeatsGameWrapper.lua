@@ -10,6 +10,9 @@ local Signal = require(game.ReplicatedStorage.Libraries.LemonSignal)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
 local Options = require(game.ReplicatedStorage.State.Options)
+local Rating = require(game.ReplicatedStorage.Calculator.Rating)
+
+local Transient = require(game.ReplicatedStorage.State.Transient)
 
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
@@ -29,6 +32,7 @@ export type GameConfig = {
 }
 
 export type GameStats = {
+	rating: number,
 	score: number,
 	accuracy: number,
 	combo: number,
@@ -72,6 +76,7 @@ function RobeatsGameWrapper.new()
 	
 	-- Statistics tracking
 	self._stats = {
+		rating = 0, -- Placeholder for future rating system
 		score = 0,
 		accuracy = 0,
 		combo = 0,
@@ -100,6 +105,10 @@ end
 
 function RobeatsGameWrapper:_setupEventListeners()
 	if not self._game then return end
+
+	local key = Transient.song.selected:get()
+	local rate = Transient.song.rate:get()
+	local song = SongDatabase:GetSongByKey(key)
 	
 	-- Connect to score manager events
 	local scoreManager = self._game._score_manager
@@ -118,9 +127,11 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self._stats.maxCombo = maxChain
 			self._stats.combo = chain
 			self._stats.notesHit = marvelous + perfect + great + good + bad
-			
-			-- Update accuracy using ScoreManager's method
+
 			self._stats.accuracy = (scoreManager:get_accuracy() :: number) * 100 -- Convert to percentage
+			self._stats.rating = Rating.calculateRating(rate / 100, self._stats.accuracy, song.Difficulty)
+
+			-- Update accuracy using ScoreManager's method
 			
 			-- Fire events
 			self.scoreChanged:Fire(self._stats)
@@ -185,6 +196,7 @@ function RobeatsGameWrapper:_resetStats()
 		totalNotes = 0,
 		notesHit = 0,
 		grade = "F",
+		rating = 0,
 	}
 end
 

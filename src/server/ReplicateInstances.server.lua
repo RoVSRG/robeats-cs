@@ -28,7 +28,7 @@ Players.PlayerAdded:Connect(function(player)
 		element.Parent = playerGui
 	end
 	
-	local screens = playerGui:FindFirstChild("Screens")
+	local screens = playerGui:WaitForChild("Screens")
 	
 	for _, screen in screens:GetChildren() do
 		local wrapperFrame = Instance.new("Frame")
