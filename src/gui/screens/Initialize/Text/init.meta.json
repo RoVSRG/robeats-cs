@@ -1,0 +1,62 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      1,
+      1,
+      1
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Regular"
+    },
+    "Position": {
+      "UDim2": [
+        [
+          0.06228133663535118,
+          0
+        ],
+        [
+          0.13922755420207977,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0,
+          200
+        ],
+        [
+          0,
+          50
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "Loading songs...",
+    "TextColor3": [
+      1,
+      1,
+      0.007843137718737125
+    ],
+    "TextSize": 25
+  }
+}

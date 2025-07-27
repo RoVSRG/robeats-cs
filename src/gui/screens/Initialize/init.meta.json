@@ -1,0 +1,49 @@
+{
+  "className": "Frame",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.07058823853731155,
+      0.07058823853731155,
+      0.07058823853731155
+    ],
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "Position": {
+      "UDim2": [
+        [
+          0.4368131756782532,
+          0
+        ],
+        [
+          0.4527427852153778,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0,
+          230
+        ],
+        [
+          0,
+          72
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    }
+  }
+}
