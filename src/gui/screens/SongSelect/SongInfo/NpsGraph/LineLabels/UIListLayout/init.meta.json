@@ -1,0 +1,11 @@
+{
+  "className": "UIListLayout",
+  "properties": {
+    "ItemLineAlignment": {
+      "Enum": 2
+    },
+    "VerticalFlex": {
+      "Enum": 4
+    }
+  }
+}

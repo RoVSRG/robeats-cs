@@ -1,0 +1,70 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      1,
+      1,
+      1
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Medium"
+    },
+    "Position": {
+      "UDim2": [
+        [
+          0.22857142984867096,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.7570000290870667,
+          0
+        ],
+        [
+          0.44999998807907104,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "ArcadeSona123",
+    "TextColor3": [
+      1,
+      1,
+      1
+    ],
+    "TextScaled": true,
+    "TextSize": 10,
+    "TextStrokeTransparency": 0,
+    "TextWrapped": true,
+    "TextXAlignment": {
+      "Enum": 0
+    },
+    "TextYAlignment": {
+      "Enum": 2
+    }
+  }
+}

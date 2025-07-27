@@ -1,0 +1,45 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0,
+      0,
+      0
+    ],
+    "BackgroundTransparency": 0.4000000059604645,
+    "BorderColor3": [
+      1,
+      1,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/SourceSansPro.json",
+      "style": "Normal",
+      "weight": "Regular"
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0,
+          258
+        ],
+        [
+          0,
+          180
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "",
+    "TextSize": 14
+  }
+}

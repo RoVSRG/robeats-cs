@@ -1,0 +1,63 @@
+{
+  "className": "ScrollingFrame",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0,
+      0,
+      0
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "CanvasSize": {
+      "UDim2": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1050
+        ]
+      ]
+    },
+    "Position": {
+      "UDim2": [
+        [
+          0.01875000074505806,
+          0
+        ],
+        [
+          0.0350000336766243,
+          0
+        ]
+      ]
+    },
+    "ScrollBarThickness": 7,
+    "Size": {
+      "UDim2": [
+        [
+          0.96875,
+          0
+        ],
+        [
+          0.9049999117851257,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    }
+  }
+}

@@ -17,7 +17,7 @@ local DEBOUNCE_TIME = 2.0
 
 local BASE_DIR = "src"
 local GUI_DIR = BASE_DIR .. "/gui"
-local SCREENS_DIR = GUI_DIR .. "/screens/_test"
+local SCREENS_DIR = GUI_DIR .. "/screens"
 
 -- === Reflection database ===
 local reflectionDB = roblox.getReflectionDatabase()
@@ -53,21 +53,29 @@ end
 local function extractAssetUriFromImageContent(imageContent: any): string?
     local raw = tostring(imageContent)
 
-    -- Grab the LAST Uri=... match in the entire string
-    local lastUri
+    -- Grab ALL Uri=... matches
+    local matches = {}
     for uri in raw:gmatch("Uri=([%w%p]+)") do
-        lastUri = uri
+        table.insert(matches, uri)
     end
 
-    if lastUri then
-        -- Remove any trailing ) or > or Content( wrappers
-        lastUri = lastUri:gsub("[)>]+$", "")
+    -- No matches? return nil
+    if #matches == 0 then return nil end
+
+    -- Take the last match (deepest)
+    local lastUri = matches[#matches]
+
+    -- Remove any leftover Content(Uri= wrappers
+    while lastUri:match("^Content%(Uri=") do
         lastUri = lastUri:gsub("^Content%(Uri=", "")
-        return lastUri
     end
 
-    return nil
+    -- Remove trailing ) or >
+    lastUri = lastUri:gsub("[)>]+$", "")
+
+    return lastUri
 end
+
 
 
 -- === Rojo-compatible value serializer ===
@@ -239,10 +247,6 @@ local function getInstanceProperties(instance: any): { [string]: any }
 
 			serializedProps[prop.Name] = serializeValue(value, prop.Datatype)
 		end
-	end
-
-	if className == "ImageLabel" then
-		print(instance.Image)
 	end
 
 	if className == "ScreenGui" then

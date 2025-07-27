@@ -1,0 +1,52 @@
+{
+  "className": "ImageButton",
+  "properties": {
+    "Active": false,
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.9725490808486938,
+      0.9725490808486938,
+      0.9725490808486938
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "ImageContent": "rbxassetid://2849458409",
+    "Position": {
+      "UDim2": [
+        [
+          0.1905404031276703,
+          0
+        ],
+        [
+          6.41049879845923e-8,
+          0
+        ]
+      ]
+    },
+    "Selectable": false,
+    "Size": {
+      "UDim2": [
+        [
+          0.7874343395233154,
+          0
+        ],
+        [
+          0.800000011920929,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 2
+    }
+  }
+}

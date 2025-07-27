@@ -1,0 +1,51 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      1,
+      1,
+      1
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "ImageContent": "http://www.roblox.com/asset/?id=1401941043",
+    "Position": {
+      "UDim2": [
+        [
+          0.8153223991394043,
+          0
+        ],
+        [
+          0.02500000037252903,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.20000000298023224,
+          0
+        ],
+        [
+          0.2750000059604645,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    }
+  }
+}

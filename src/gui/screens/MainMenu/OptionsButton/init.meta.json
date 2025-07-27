@@ -1,0 +1,50 @@
+{
+  "className": "ImageButton",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.06666667014360428,
+      0.06666667014360428,
+      0.06666667014360428
+    ],
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "ImageTransparency": 1,
+    "Position": {
+      "UDim2": [
+        [
+          0.02500000037252903,
+          0
+        ],
+        [
+          0.5249999761581421,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.30000001192092896,
+          0
+        ],
+        [
+          0.07500000298023224,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    }
+  }
+}

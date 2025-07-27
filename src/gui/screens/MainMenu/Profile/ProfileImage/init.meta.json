@@ -1,0 +1,56 @@
+{
+  "className": "ImageLabel",
+  "properties": {
+    "AnchorPoint": [
+      0,
+      0.5
+    ],
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.04313725605607033,
+      0.04313725605607033,
+      0.04313725605607033
+    ],
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "Position": {
+      "UDim2": [
+        [
+          0.014999999664723873,
+          0
+        ],
+        [
+          0.5,
+          0
+        ]
+      ]
+    },
+    "ScaleType": {
+      "Enum": 4
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.6000000238418579,
+          0
+        ],
+        [
+          0.8999999761581421,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      1,
+      1,
+      1
+    ],
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "ClipsDescendants": true,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Medium"
+    },
+    "MaxVisibleGraphemes": 50,
+    "Size": {
+      "UDim2": [
+        [
+          1,
+          -15
+        ],
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "Flow - Go!!! [30]",
+    "TextColor3": [
+      1,
+      1,
+      1
+    ],
+    "TextSize": 15,
+    "TextStrokeTransparency": 0,
+    "TextXAlignment": {
+      "Enum": 0
+    }
+  }
+}
