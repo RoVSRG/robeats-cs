@@ -15,54 +15,85 @@ local function getDataKey(button, key)
     return SongDatabase:GetPropertyByKey(getSongId(button), key)
 end
 
-local sortMap = {
-    ["Default"] = function(a, b)
-        return a.OriginalLayoutOrder.Value < b.OriginalLayoutOrder.Value
-    end,
-    ["Difficulty (Asc)"] = function(a, b)
-        return getDifficulty(getSongId(a)) < getDifficulty(getSongId(b))
-    end,
-    ["Difficulty (Desc)"] = function(a, b)
-        return getDifficulty(getSongId(a)) > getDifficulty(getSongId(b))
-    end,
-    ["Title (Asc)"] = function(a, b)
-        return getDataKey(a, "SongName") < getDataKey(b, "SongName")
-    end,
-    ["Title (Desc)"] = function(a, b)
-        return getDataKey(a, "SongName") > getDataKey(b, "SongName")
-    end,
-    ["Artist (Asc)"] = function(a, b)
-        return getDataKey(a, "ArtistName") < getDataKey(b, "ArtistName")
-    end,
-    ["Artist (Desc)"] = function(a, b)
-        return getDataKey(a, "ArtistName") > getDataKey(b, "ArtistName")
-    end,
+local sortOptions = {
+    {
+        name = "Default",
+        func = nil
+    },
+    {
+        name = "Difficulty (Asc)",
+        func = function(a, b)
+            return getDifficulty(getSongId(a)) < getDifficulty(getSongId(b))
+        end
+    },
+    {
+        name = "Difficulty (Desc)",
+        func = function(a, b)
+            return getDifficulty(getSongId(a)) > getDifficulty(getSongId(b))
+        end
+    },
+    {
+        name = "Title (Asc)",
+        func = function(a, b)
+            return getDataKey(a, "SongName") < getDataKey(b, "SongName")
+        end
+    },
+    {
+        name = "Title (Desc)",
+        func = function(a, b)
+            return getDataKey(a, "SongName") > getDataKey(b, "SongName")
+        end
+    },
+    {
+        name = "Artist (Asc)",
+        func = function(a, b)
+            return getDataKey(a, "ArtistName") < getDataKey(b, "ArtistName")
+        end
+    },
+    {
+        name = "Artist (Desc)",
+        func = function(a, b)
+            return getDataKey(a, "ArtistName") > getDataKey(b, "ArtistName")
+        end
+    },
 }
 
 local function sortSongs(songButtons, mode)
-    local sortFunction = sortMap[mode]
-    if not sortFunction then
+    local sortOption = nil
+    for _, option in ipairs(sortOptions) do
+        if option.name == mode then
+            sortOption = option
+            break
+        end
+    end
+    
+    if not sortOption then
         error("Invalid sort mode: " .. tostring(mode))
     end
-    table.sort(songButtons, sortFunction)
+    
+    table.sort(songButtons, sortOption.func)
 
     for i, button in ipairs(songButtons) do
         button.LayoutOrder = i
     end
 end
 
-local keys = {}
+local selectedSort = 0
 
-for name, _ in pairs(sortMap) do
-    table.insert(keys, name)
-end
-
-local selectedSort = 1
-
-script.Parent.SortByButton.MouseButton1Click:Connect(function()
-    selectedSort = selectedSort % #keys + 1
-    local sortMode = keys[selectedSort]
+local function cycle()
+    selectedSort = selectedSort % #sortOptions + 1
+    local sortMode = sortOptions[selectedSort].name
     script.Parent.SortByButton.Text = "Sort: " .. sortMode
+
+    if sortMode == "Default" then
+        for _, button in ipairs(script.Parent.SongButtonContainer:GetChildren()) do
+            if button:IsA("TextButton") then
+                button.LayoutOrder = button.OriginalLayoutOrder.Value
+            end
+        end
+        
+        return
+    end
 
     local songButtons = {}
     for _, button in ipairs(script.Parent.SongButtonContainer:GetChildren()) do
@@ -72,7 +103,9 @@ script.Parent.SortByButton.MouseButton1Click:Connect(function()
     end
 
     sortSongs(songButtons, sortMode)
-end)
+end
+
+script.Parent.SortByButton.MouseButton1Click:Connect(cycle)
 
 local selectedColor = 1
 
@@ -112,3 +145,5 @@ for _, button in ipairs(script.Parent.SongButtonContainer:GetChildren()) do
         button.OriginalLayoutOrder.Value = button.LayoutOrder
     end
 end
+
+cycle()
