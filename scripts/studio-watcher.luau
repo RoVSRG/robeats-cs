@@ -195,35 +195,35 @@ local function serializeValue(value: any, datatype: string): any
 	end
 end
 
-local function indexReflection()
-
-end
-
 -- === Rojo-compatible property serializer ===
 local function getInstanceProperties(instance: any): { [string]: any }
 	local className = instance.ClassName
-	local ext = reflectionDB:GetClass(className)
+	local extended = reflectionDB:GetClass(className)
 	local base = reflectionDB:GetClass("GuiObject")
 
 	local class = {
 		Properties = {},
 		DefaultProperties = {}
 	}
-	for name, prop in ext.Properties do
+	for name, prop in extended.Properties do
 		class.Properties[name] = prop
-		class.DefaultProperties[name] = ext.DefaultProperties[name]
+	end
+
+	for name, prop in extended.DefaultProperties do
+		class.DefaultProperties[name] = prop
 	end
 
 	for name, prop in base.Properties do
 		if class.Properties[name] == nil then
 			class.Properties[name] = prop
 		end
-
-		if class.DefaultProperties[name] == nil then
-			class.DefaultProperties[name] = base.DefaultProperties[name]
-		end
 	end
 
+	for name, prop in base.DefaultProperties do
+		if class.DefaultProperties[name] == nil then
+			class.DefaultProperties[name] = prop
+		end
+	end
 
 	local serializedProps = {}
 
@@ -242,7 +242,7 @@ local function getInstanceProperties(instance: any): { [string]: any }
 	end
 
 	if className == "ImageLabel" then
-		print(serializedProps)
+		print(instance.Image)
 	end
 
 	if className == "ScreenGui" then
