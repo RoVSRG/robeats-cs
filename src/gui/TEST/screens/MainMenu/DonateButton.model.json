@@ -1,0 +1,53 @@
+{
+  "$className": "ImageButton",
+  "$properties": {
+    "HoverImageContent": "Content(None)",
+    "ImageColor3": [
+      1,
+      1,
+      1
+    ],
+    "ImageContent": "Content(Uri=rbxassetid://5779931881)",
+    "ImageRectOffset": [
+      0,
+      0
+    ],
+    "ImageRectSize": [
+      0,
+      0
+    ],
+    "ImageTransparency": 1,
+    "PressedImageContent": "Content(None)",
+    "ResampleMode": {
+      "Enum": 0
+    },
+    "ScaleType": {
+      "Enum": 3
+    },
+    "SliceCenter": {
+      "Rect": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "SliceScale": 1,
+    "TileSize": {
+      "UDim2": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "$className": "ImageLabel",
+  "$properties": {
+    "ImageColor3": [
+      1,
+      1,
+      1
+    ],
+    "ImageContent": "Content(None)",
+    "ImageRectOffset": [
+      0,
+      0
+    ],
+    "ImageRectSize": [
+      0,
+      0
+    ],
+    "ImageTransparency": 0,
+    "ResampleMode": {
+      "Enum": 0
+    },
+    "ScaleType": {
+      "Enum": 0
+    },
+    "SliceCenter": {
+      "Rect": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "SliceScale": 1,
+    "TileSize": {
+      "UDim2": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    }
+  }
+}

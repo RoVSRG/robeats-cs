@@ -1,0 +1,50 @@
+{
+  "$className": "ScrollingFrame",
+  "$properties": {
+    "AutomaticCanvasSize": {
+      "Enum": 2
+    },
+    "BottomImage": "rbxasset://textures/ui/Scroll/scroll-bottom.png",
+    "CanvasPosition": [
+      0,
+      0
+    ],
+    "CanvasSize": {
+      "UDim2": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    "ElasticBehavior": {
+      "Enum": 0
+    },
+    "HorizontalScrollBarInset": {
+      "Enum": 0
+    },
+    "MidImage": "rbxasset://textures/ui/Scroll/scroll-middle.png",
+    "ScrollBarImageColor3": [
+      1,
+      1,
+      1
+    ],
+    "ScrollBarImageTransparency": 0,
+    "ScrollBarThickness": 5,
+    "ScrollingDirection": {
+      "Enum": 4
+    },
+    "ScrollingEnabled": true,
+    "TopImage": "rbxasset://textures/ui/Scroll/scroll-top.png",
+    "VerticalScrollBarInset": {
+      "Enum": 0
+    },
+    "VerticalScrollBarPosition": {
+      "Enum": 0
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "$className": "ImageLabel",
+  "$properties": {
+    "ImageColor3": [
+      0.10196079313755035,
+      0.10196079313755035,
+      0.10196079313755035
+    ],
+    "ImageContent": "Content(Uri=http://www.roblox.com/asset/?id=3205782398)",
+    "ImageRectOffset": [
+      0,
+      0
+    ],
+    "ImageRectSize": [
+      0,
+      0
+    ],
+    "ImageTransparency": 0.20000000298023224,
+    "ResampleMode": {
+      "Enum": 0
+    },
+    "ScaleType": {
+      "Enum": 4
+    },
+    "SliceCenter": {
+      "Rect": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "SliceScale": 1,
+    "TileSize": {
+      "UDim2": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    }
+  }
+}

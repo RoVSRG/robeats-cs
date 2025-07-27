@@ -1,0 +1,21 @@
+{
+  "$className": "UIListLayout",
+  "$properties": {
+    "HorizontalFlex": {
+      "Enum": 0
+    },
+    "ItemLineAlignment": {
+      "Enum": 0
+    },
+    "Padding": {
+      "UDim": [
+        0,
+        0
+      ]
+    },
+    "VerticalFlex": {
+      "Enum": 0
+    },
+    "Wraps": false
+  }
+}
