@@ -76,7 +76,7 @@ local function generateHitObjectData(hitObjects)
     local length = hitObjects[#hitObjects].Time
 
     local npsGraph = {}
-    local CHUNKS = 20
+    local CHUNKS = 50
     
     -- Initialize chunks with note counts
     local chunkNotes = {}

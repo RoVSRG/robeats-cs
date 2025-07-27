@@ -29,22 +29,21 @@ local function refreshSongPanel()
 	local maxRating = Rating.calculateRating(rate / 100, 100, data.Difficulty)
 	node.MaxRating.Text = string.format("Max Rating: %.2f", maxRating)
 	node.SongDiffInfo.Text = string.format("Difficulty: %0.2f", difficulty)
-	
-	node.SongDiffInfo.Rainbow.Value = difficulty >= RAINBOW_MIN
-	node.MaxRating.Rainbow.Value = maxRating >= RAINBOW_MIN
-	
-	if difficulty < RAINBOW_MIN then
+	node.SongDiffInfo.Rainbow.Value = Rating.isRainbow(difficulty)
+	node.MaxRating.Rainbow.Value = Rating.isRainbow(maxRating)
+
+	if not Rating.isRainbow(difficulty) then
 		node.SongDiffInfo.TextColor3 = Color.calculateDifficultyColor(difficulty / RAINBOW_MIN)
 	end
 	
-	if maxRating < RAINBOW_MIN then
+	if not Rating.isRainbow(maxRating) then
 		node.MaxRating.TextColor3 = Color.calculateDifficultyColor(maxRating / RAINBOW_MIN)
 	end
 
 	-- Map Length
 	node.SongLengthInfo.Text = "Map Length: unknown"
 	if data.Length then
-		node.SongLengthInfo.Text = string.format("Map Length: %s", Time.formatDuration(data.Length))
+		node.SongLengthInfo.Text = string.format("Map Length: %s", Time.formatDuration(data.Length / (rate / 100)))
 	end
 end
 
