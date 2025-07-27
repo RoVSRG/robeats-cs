@@ -98,6 +98,8 @@ function SingleNote2D:new(_game, _track_index, _slot_index, _creation_time_ms, _
 	end
 
 	--[[Override--]] function self:test_hit()
+		print("[SingleNote2D] Testing hit for note at position:", _position)
+
 		local time_to_end = self:get_time_to_end()
 		local did_hit, note_result = NoteResult:timedelta_to_result(time_to_end, _game)
 

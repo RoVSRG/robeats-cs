@@ -223,7 +223,7 @@ function AudioManager:new(_game)
 				tracksystem:get_notes():push_back(
 					SingleNote2D:new(
 						_game,
-						tostring(track_number),
+						track_number,
 						tracksystem:get_game_slot(),
 						current_time_ms,
 						hit_time
@@ -258,7 +258,7 @@ function AudioManager:new(_game)
 				tracksystem:get_notes():push_back(
 					HeldNote2D:new(
 						_game,
-						tostring(track_number),
+						track_number,
 						tracksystem:get_game_slot(),
 						current_time_ms,
 						hit_time,

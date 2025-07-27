@@ -58,10 +58,10 @@ function EnvironmentSetup:setup_2d_environment(skin: Instance, config: Config.Ga
 	
 	local _gameplay_frame = gameplayFrame:Clone() :: GuiObject
 	_gameplay_frame.Position = UDim2.fromScale(0.5, 1)
-	_gameplay_frame.Size = UDim2.fromScale((config.playfieldWidth or 100) / 100, 1.1)
+	_gameplay_frame.Size = UDim2.new(0, 300, 1.2, 0)
 	_gameplay_frame.ZIndex = 0;
 
-	local hit_pos = config.playfieldHitPos or 50
+	local hit_pos = 10
 	local upscroll = config.upscroll or false
 
 	local tracks = (_gameplay_frame :: any).Tracks

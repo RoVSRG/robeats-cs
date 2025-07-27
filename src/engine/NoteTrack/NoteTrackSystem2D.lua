@@ -60,25 +60,29 @@ function NoteTrackSystem2D:new(_game, _game_slot)
 		end
 	end
 	
-	function self:get_game_slot()
-		return _game_slot
-	end
 	function self:get_track(index)
 		return _tracks:get(index)
 	end
 
 	function self:press_track_index(track_index, judgement)
+		-- print("[NoteTrackSystem2D] Pressing track index:", track_index)
+
 		self:get_track(track_index):press()
 		local hit_found = false
 
 		for i=1,_notes:count() do
 			local itr_note = _notes:get(i)
+
+			print(typeof(itr_note:get_track_index()), typeof(track_index))
+
 			if itr_note:get_track_index() == track_index then
 				local did_hit, note_result, renderable_hit = itr_note:test_hit()
 
 				note_result = if judgement then judgement else note_result
 
 				if did_hit then
+					print("[NoteTrackSystem2D] Hit found on track index:", track_index, "Note result:", note_result)
+
 					itr_note:on_hit(note_result,i,renderable_hit)
 					hit_found = true
 					
@@ -92,9 +96,12 @@ function NoteTrackSystem2D:new(_game, _game_slot)
 				NoteResult.Miss,
 				_game_slot,
 				track_index,
-				HitParams:new():set_play_hold_effect(false):set_whiff_miss(true):set_ghost_tap(true)
+				HitParams:new():set_play_hold_effect(false):set_whiff_miss(true):set_ghost_tap(true),
+				nil
 			)
 		end
+		
+		return nil -- No note result when no hit found
 	end
 
 	function self:release_track_index(track_index, judgement)
@@ -114,6 +121,8 @@ function NoteTrackSystem2D:new(_game, _game_slot)
 				end
 			end
 		end
+		
+		return nil -- No note result when no release found
 	end
 
 	self:cons()

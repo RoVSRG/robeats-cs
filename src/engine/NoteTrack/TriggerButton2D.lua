@@ -1,4 +1,3 @@
-local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
 local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 
@@ -12,8 +11,21 @@ function TriggerButton2D:new(_game, _parent_note_track, _position)
 
 	function self:cons()
 		local _player_ui = EnvironmentSetup:get_player_gui_root()
-		local _buttons = _player_ui.GameplayFrame.TriggerButtons
-		_triggerbutton_obj = _buttons['Button'.._position]
+		local _gameplay_frame = _player_ui:FindFirstChild("GameplayFrame")
+		if not _gameplay_frame then
+			error("GameplayFrame not found in player GUI. Make sure 2D environment is set up first.")
+		end
+		
+		local _buttons = _gameplay_frame:FindFirstChild("TriggerButtons")
+		if not _buttons then
+			error("TriggerButtons not found in GameplayFrame")
+		end
+		
+		_triggerbutton_obj = _buttons:FindFirstChild('Button'.._position)
+		if not _triggerbutton_obj then
+			error("Button".._position.." not found in TriggerButtons")
+		end
+		
 		_triggerbutton_obj.ZIndex = 2
 	end
 
