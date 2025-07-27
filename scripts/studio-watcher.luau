@@ -17,7 +17,7 @@ local DEBOUNCE_TIME = 2.0
 
 local BASE_DIR = "src"
 local GUI_DIR = BASE_DIR .. "/gui"
-local SCREENS_DIR = GUI_DIR .. "/screens/test"
+local SCREENS_DIR = GUI_DIR .. "/screens/_test"
 
 -- === Reflection database ===
 local reflectionDB = roblox.getReflectionDatabase()
@@ -146,6 +146,8 @@ local function serializeValue(value: any, datatype: string): any
 		end
 		return { ColorSequence = { keypoints = keypoints } }
 	elseif datatype == "NumberSequence" then
+		print("Serializing NumberSequence with keypoints")
+
 		-- Rojo explicit format
 		local keypoints = {}
 		for _, keypoint in value.Keypoints do
@@ -179,13 +181,13 @@ local function getInstanceProperties(instance: any): { [string]: any }
 
 	local class = {
 		Properties = {}
+	
 	}
-
-	for name, prop in ext.Properties do
+	for name, prop in base.Properties do
 		class.Properties[name] = prop
 	end
 
-	for name, prop in base.Properties do
+	for name, prop in ext.Properties do
 		class.Properties[name] = prop
 	end
 
@@ -199,11 +201,6 @@ local function getInstanceProperties(instance: any): { [string]: any }
 		if readSuccess and value ~= nil then
 			serializedProps[prop.Name] = serializeValue(value, prop.Datatype)
 		end
-	end
-
-	local propCount = 0
-	for _ in pairs(serializedProps) do
-		propCount = propCount + 1
 	end
 
 	return serializedProps
@@ -320,8 +317,7 @@ local function pullGuiFromPlace(path: string)
 
 	if dev then
 		for _, child in dev:GetChildren() do
-			local devDir = SCREENS_DIR .. "/Dev"
-			exportInstance(child, devDir)
+			exportInstance(child, SCREENS_DIR)
 		end
 	end
 
