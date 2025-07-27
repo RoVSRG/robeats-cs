@@ -50,6 +50,26 @@ local function getModificationTime(path: string): number
 	return #fs.readFile(path)
 end
 
+local function extractAssetUriFromImageContent(imageContent: any): string?
+    local raw = tostring(imageContent)
+
+    -- Grab the LAST Uri=... match in the entire string
+    local lastUri
+    for uri in raw:gmatch("Uri=([%w%p]+)") do
+        lastUri = uri
+    end
+
+    if lastUri then
+        -- Remove any trailing ) or > or Content( wrappers
+        lastUri = lastUri:gsub("[)>]+$", "")
+        lastUri = lastUri:gsub("^Content%(Uri=", "")
+        return lastUri
+    end
+
+    return nil
+end
+
+
 -- === Rojo-compatible value serializer ===
 local function serializeValue(value: any, datatype: string): any
 	if value == nil then
@@ -135,6 +155,8 @@ local function serializeValue(value: any, datatype: string): any
 				}
 			}
 		end
+	elseif datatype == "Content" then
+		return extractAssetUriFromImageContent(value)
 	elseif datatype == "ColorSequence" then
 		-- Rojo explicit format
 		local keypoints = {}
@@ -173,6 +195,10 @@ local function serializeValue(value: any, datatype: string): any
 	end
 end
 
+local function indexReflection()
+
+end
+
 -- === Rojo-compatible property serializer ===
 local function getInstanceProperties(instance: any): { [string]: any }
 	local className = instance.ClassName
@@ -180,16 +206,24 @@ local function getInstanceProperties(instance: any): { [string]: any }
 	local base = reflectionDB:GetClass("GuiObject")
 
 	local class = {
-		Properties = {}
-	
+		Properties = {},
+		DefaultProperties = {}
 	}
-	for name, prop in base.Properties do
-		class.Properties[name] = prop
-	end
-
 	for name, prop in ext.Properties do
 		class.Properties[name] = prop
+		class.DefaultProperties[name] = ext.DefaultProperties[name]
 	end
+
+	for name, prop in base.Properties do
+		if class.Properties[name] == nil then
+			class.Properties[name] = prop
+		end
+
+		if class.DefaultProperties[name] == nil then
+			class.DefaultProperties[name] = base.DefaultProperties[name]
+		end
+	end
+
 
 	local serializedProps = {}
 
@@ -199,8 +233,20 @@ local function getInstanceProperties(instance: any): { [string]: any }
 		end)
 
 		if readSuccess and value ~= nil then
+			if tostring(class.DefaultProperties[prop.Name]) == tostring(value) then
+				continue
+			end
+
 			serializedProps[prop.Name] = serializeValue(value, prop.Datatype)
 		end
+	end
+
+	if className == "ImageLabel" then
+		print(serializedProps)
+	end
+
+	if className == "ScreenGui" then
+		serializedProps["Enabled"] = false
 	end
 
 	return serializedProps
@@ -312,6 +358,10 @@ local function pullGuiFromPlace(path: string)
 	print("📦 Pulling GUI changes from place file...")
 
 	for _, screen in screens:GetChildren() do
+		if screen.Name == "_test" then
+			continue
+		end
+
 		exportInstance(screen, SCREENS_DIR)
 	end
 
