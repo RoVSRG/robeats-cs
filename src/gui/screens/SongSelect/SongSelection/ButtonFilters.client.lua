@@ -1,4 +1,6 @@
 local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
+local Color = require(game.ReplicatedStorage.Shared.Color)
+local Rating = require(game.ReplicatedStorage.Calculator.Rating)
 
 local function getDifficulty(songId)
     local songData = SongDatabase:GetSongByKey(songId)
@@ -47,4 +49,33 @@ script.Parent.SortByButton.MouseButton1Click:Connect(function()
     end
 
     sortSongs(songButtons, sortMode)
+end)
+
+local selectedColor = 1
+
+local colorKeys = {"Default", "Difficulty"}
+
+script.Parent.ColorButton.MouseButton1Click:Connect(function()
+    selectedColor = selectedColor % #colorKeys + 1
+    local colorMode = colorKeys[selectedColor]
+
+    script.Parent.ColorButton.Text = "Color: " .. colorMode
+
+    local songButtons = script.Parent.SongButtonContainer:GetChildren()
+    
+    for _, button in ipairs(songButtons) do
+        if not button:IsA("TextButton") then
+            continue
+        end
+
+        local song = button.SongID.Value
+
+        if colorMode == "Default" then
+            local getColor = SongDatabase:GetPropertyByKey(song, "Color")
+            button.BackgroundColor3 = getColor
+        elseif colorMode == "Difficulty" then
+            local difficulty = getDifficulty(song)
+            button.BackgroundColor3 = Color.calculateDifficultyColor(difficulty / Rating.getRainbowRating())
+        end
+    end
 end)
