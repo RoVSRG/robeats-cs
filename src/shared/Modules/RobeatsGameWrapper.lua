@@ -12,6 +12,8 @@ local CurveUtil = require(game.ReplicatedStorage.Shared.CurveUtil)
 local Options = require(game.ReplicatedStorage.State.Options)
 local Rating = require(game.ReplicatedStorage.Calculator.Rating)
 
+local Remotes = game.ReplicatedStorage.Remotes
+
 local Transient = require(game.ReplicatedStorage.State.Transient)
 
 local RunService = game:GetService("RunService")
@@ -157,6 +159,8 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self:_setState("finished")
 			self._stats.grade = self:_calculateGrade()
 			self.songFinished:Fire(self:getStats())
+
+			Remotes.Functions.SubmitScore:InvokeServer(self:getStats())
 		end
 	end)
 end

@@ -15,7 +15,7 @@ local Options = Val.scope {
     Mods = Val.new({}), -- Array of active mods
     
     -- Visual Settings - 2D Mode
-    Use2DMode = Val.new(true), -- Use 2D lane instead of 3D
+    Use2DMode = Val.new(false), -- Use 2D lane instead of 3D
     Skin2D = Val.new(nil), -- 2D skin name (nil = auto-select)
     Upscroll = Val.new(false), -- Upscroll mode for 2D
     NoteColor = Val.new(Color3.fromRGB(246, 253, 139)), -- Note color
