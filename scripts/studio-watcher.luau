@@ -16,8 +16,8 @@ local CHECK_INTERVAL = 1.0
 local DEBOUNCE_TIME = 2.0
 
 local BASE_DIR = "src"
-local GUI_DIR = BASE_DIR .. "/gui/TEST"
-local SCREENS_DIR = GUI_DIR .. "/screens"
+local GUI_DIR = BASE_DIR .. "/gui"
+local SCREENS_DIR = GUI_DIR .. "/screens/test"
 
 -- === Reflection database ===
 local reflectionDB = roblox.getReflectionDatabase()
@@ -155,7 +155,7 @@ local function serializeValue(value: any, datatype: string): any
 				envelope = keypoint.Envelope
 			})
 		end
-		return { NumberSequence = { keypoints = keypoints } }
+		return { NumberSequence = { keypoints = keypoints or {} } }
 	elseif type(value) == "string" then
 		-- Rojo implicit format for strings
 		return value
@@ -174,25 +174,36 @@ end
 -- === Rojo-compatible property serializer ===
 local function getInstanceProperties(instance: any): { [string]: any }
 	local className = instance.ClassName
-	local class = reflectionDB:GetClass(className)
+	local ext = reflectionDB:GetClass(className)
+	local base = reflectionDB:GetClass("GuiObject")
 
-	if not class then
-		warn("[Serializer] No reflection info for class:", className)
-		return {}
+	local class = {
+		Properties = {}
+	}
+
+	for name, prop in ext.Properties do
+		class.Properties[name] = prop
+	end
+
+	for name, prop in base.Properties do
+		class.Properties[name] = prop
 	end
 
 	local serializedProps = {}
 
 	for _, prop in class.Properties do
-		-- Filter: must be readable and not deprecated
-		local success, value = pcall(function()
+		local readSuccess, value = pcall(function()
 			return instance[prop.Name]
 		end)
 
-		if success and value ~= nil then
-			-- Use Rojo's property format - direct value assignment
+		if readSuccess and value ~= nil then
 			serializedProps[prop.Name] = serializeValue(value, prop.Datatype)
 		end
+	end
+
+	local propCount = 0
+	for _ in pairs(serializedProps) do
+		propCount = propCount + 1
 	end
 
 	return serializedProps
@@ -201,46 +212,78 @@ end
 -- === Rojo-compatible instance serialization ===
 local function serializeInstanceToJson(instance: any): any
 	return {
-		["$className"] = instance.ClassName,
-		["$properties"] = getInstanceProperties(instance),
+		["className"] = instance.ClassName,
+		["properties"] = getInstanceProperties(instance),
 	}
 end
 
--- === Recursive export ===
-local function exportInstance(instance: any, targetDir: string)
-	fs.writeDir(targetDir)
+-- === Filename sanitization for Windows ===
+local function sanitizeFilename(name: string): string
+	-- Replace invalid Windows filename characters with underscores
+	-- Invalid chars: < > : " | ? * and control characters (0-31)
+	local sanitized = name:gsub('[<>:"|?*]', '_')
+	
+	-- Replace control characters (ASCII 0-31)
+	sanitized = sanitized:gsub('[\0-\31]', '_')
+	
+	-- Remove leading/trailing spaces and dots (Windows restriction)
+	sanitized = sanitized:gsub('^[%s%.]+', ''):gsub('[%s%.]+$', '')
+	
+	-- Ensure it's not empty
+	if sanitized == '' then
+		sanitized = 'unnamed'
+	end
+	
+	-- Handle reserved Windows names
+	local reservedNames = {
+		'CON', 'PRN', 'AUX', 'NUL',
+		'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
+		'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+	}
+	
+	local upperName = sanitized:upper()
+	for _, reserved in reservedNames do
+		if upperName == reserved or upperName:match('^' .. reserved .. '%.') then
+			sanitized = '_' .. sanitized
+			break
+		end
+	end
+	
+	return sanitized
+end
 
-	-- If it's a script, dump its source
-	if instance:IsA("LocalScript") then
-		local scriptPath = targetDir .. "/" .. instance.Name .. ".client.lua"
-		fs.writeFile(scriptPath, instance.Source)
-		print("💾 Saved script:", scriptPath)
-		return
-	elseif instance:IsA("ModuleScript") then
-		local scriptPath = targetDir .. "/" .. instance.Name .. ".lua"
-		fs.writeFile(scriptPath, instance.Source)
-		print("💾 Saved module:", scriptPath)
-		return
-	elseif instance:IsA("Script") then
-		local scriptPath = targetDir .. "/" .. instance.Name .. ".server.lua"
-		fs.writeFile(scriptPath, instance.Source)
-		print("💾 Saved server script:", scriptPath)
-		return
+-- === Recursive export ===
+local function exportInstance(instance, targetDir: string)
+	local name = sanitizeFilename(instance.Name)
+	local instanceDir = targetDir .. "/" .. name
+	
+	-- Ensure the target directory exists
+	if not fs.isDir(instanceDir) then
+		fs.writeDir(instanceDir)
 	end
 
-	-- Otherwise, dump as model.json
-	local modelPath = targetDir .. "/" .. instance.Name .. ".model.json"
+	-- Write init.meta.json for the parent itself
 	local jsonData = serializeInstanceToJson(instance)
-	fs.writeFile(modelPath, encodeJson(jsonData))
-	print("💾 Saved UI model:", modelPath)
+	fs.writeFile(instanceDir .. "/init.meta.json", encodeJson(jsonData))
 
-	-- Subfolder for children
-	local childDir = targetDir .. "/" .. instance.Name
-	fs.writeDir(childDir)
-
-	-- Recurse children
+	-- Process all children
 	for _, child in ipairs(instance:GetChildren()) do
-		exportInstance(child, childDir)
+		if child:IsA("LocalScript") then
+			-- LocalScript becomes .client.lua
+			local scriptContent = child.Source or ""
+			fs.writeFile(instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".client.lua", scriptContent)
+		elseif child:IsA("ModuleScript") then
+			-- ModuleScript becomes .lua
+			local scriptContent = child.Source or ""
+			fs.writeFile(instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".lua", scriptContent)
+		elseif child:IsA("Script") then
+			-- Script becomes .server.lua
+			local scriptContent = child.Source or ""
+			fs.writeFile(instanceDir .. "/" .. sanitizeFilename(child.Name) .. ".server.lua", scriptContent)
+		else
+			-- All other instances become folders with init.meta.json (recursive)
+			exportInstance(child, instanceDir)
+		end
 	end
 end
 
@@ -250,13 +293,13 @@ local function pullGuiFromPlace(path: string)
 
 	local file = fs.readFile(path)
 	if not file then
-		error("[StudioWatcher] Failed to read place file:", path)
+		error("[StudioWatcher] Failed to read place file: " .. path)
 		return
 	end
 
 	local game = roblox.deserializePlace(file)
 	if not game then
-		error("[StudioWatcher] Failed to deserialize place file:", path)
+		error("[StudioWatcher] Failed to deserialize place file: " .. path)
 		return
 	end
 
