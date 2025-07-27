@@ -3,6 +3,7 @@
 local fs = require("@lune/fs")
 local roblox = require("@lune/roblox")
 local serde = require("@lune/serde")
+local process = require("@lune/process")
 
 local function encodeJson(data: any): string
 	return serde.encode("json", data, { pretty = true })
@@ -334,6 +335,25 @@ local function exportInstance(instance, targetDir: string)
 	end
 end
 
+-- === Git diff checking ===
+local function displayGitDiffAfterSync()
+	print("🔍 Checking git diff after sync...")
+	
+	-- Show which files were modified
+	local gitStatus = process.exec("git", {"status", "--porcelain", "--", SCREENS_DIR})
+	if gitStatus.ok and #gitStatus.stdout > 0 then
+		print("📄 Modified files in screens directory:")
+		print(gitStatus.stdout)
+	end
+	
+	-- Show detailed diff statistics
+	local gitDiffStat = process.exec("git", {"diff", "--stat", "HEAD", "--", SCREENS_DIR})
+	if gitDiffStat.ok and #gitDiffStat.stdout > 0 then
+		print("📊 Changes summary:")
+		print(gitDiffStat.stdout)
+	end
+end
+
 -- === Pull GUI from place file ===
 local function pullGuiFromPlace(path: string)
 	print("🎯 Studio save detected! Pulling GUI changes...")
@@ -359,26 +379,29 @@ local function pullGuiFromPlace(path: string)
 		return
 	end
 
-	print("📦 Pulling GUI changes from place file...")
-
-	for _, screen in screens:GetChildren() do
-		if screen.Name == "_test" then
-			continue
-		end
-
-		exportInstance(screen, SCREENS_DIR)
-	end
+	print("📦 Pulling GUI changes from Dev ScreenGui...")
 
 	if dev then
+		if #dev:GetChildren() == 0 then
+			print("⚠️ No GUI elements found in Dev ScreenGui. Please add some to start two-way sync!")
+			return
+		end
+
 		for _, child in dev:GetChildren() do
+			print("📦 Exporting screen:", child.Name)
 			exportInstance(child, SCREENS_DIR)
 		end
+	else
+		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
+		return
 	end
 
 	print("✅ GUI changes pulled successfully!")
-end
+	
+	-- Display git diff after sync
+	displayGitDiffAfterSync()
+end-- === Watcher loop ===
 
--- === Watcher loop ===
 local function startWatching()
 	print("👀 Starting Studio place file watcher...")
 	print("🎮 Watching for changes to .rbxl/.rbxlx files")

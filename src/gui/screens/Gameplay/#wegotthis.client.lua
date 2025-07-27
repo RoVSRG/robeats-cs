@@ -6,8 +6,6 @@ local Screen = script.Parent
 
 local _game = nil
 
-print(":3")
-
 Screen.MAWindow.BackButton.MouseButton1Click:Connect(function()
 	local game = Game.currentGame:get()
 	
