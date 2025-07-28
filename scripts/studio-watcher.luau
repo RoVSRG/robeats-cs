@@ -249,10 +249,6 @@ local function getInstanceProperties(instance: any): { [string]: any }
 		end)
 
 		if readSuccess and value ~= nil then
-			if className == "UIListLayout" then
-				print(prop.Name, value, classData.defaultProperties[prop.Name])
-			end
-
 			if tostring(classData.defaultProperties[prop.Name]) == tostring(value) then
 				continue
 			end
