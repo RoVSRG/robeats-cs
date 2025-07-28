@@ -204,45 +204,56 @@ local function serializeValue(value: any, datatype: string): any
 	end
 end
 
+local function getPropertySet(className: string)
+	local defaults = {}
+	local properties = {}
+
+	local currentClass = reflectionDB:GetClass(className)
+
+	while currentClass.Superclass do
+		if currentClass.Name == "Instance" then
+			break
+		end
+
+		for _, prop in currentClass.Properties do
+			if not properties[prop.Name] then
+				properties[prop.Name] = prop
+			end
+		end
+
+		for name, value in currentClass.DefaultProperties do
+			if not defaults[name] then
+				defaults[name] = value
+			end
+		end
+
+		currentClass = reflectionDB:GetClass(currentClass.Superclass)
+	end
+
+	return {
+		properties = properties,
+		defaultProperties = defaults
+	}
+end
+
 -- === Rojo-compatible property serializer ===
 local function getInstanceProperties(instance: any): { [string]: any }
 	local className = instance.ClassName
-	local extended = reflectionDB:GetClass(className)
-	local base = reflectionDB:GetClass("GuiObject")
-
-	local class = {
-		Properties = {},
-		DefaultProperties = {}
-	}
-	for name, prop in extended.Properties do
-		class.Properties[name] = prop
-	end
-
-	for name, prop in extended.DefaultProperties do
-		class.DefaultProperties[name] = prop
-	end
-
-	for name, prop in base.Properties do
-		if class.Properties[name] == nil then
-			class.Properties[name] = prop
-		end
-	end
-
-	for name, prop in base.DefaultProperties do
-		if class.DefaultProperties[name] == nil then
-			class.DefaultProperties[name] = prop
-		end
-	end
-
+	local classData = getPropertySet(className)
+	
 	local serializedProps = {}
 
-	for _, prop in class.Properties do
+	for _, prop in classData.properties do
 		local readSuccess, value = pcall(function()
 			return instance[prop.Name]
 		end)
 
 		if readSuccess and value ~= nil then
-			if tostring(class.DefaultProperties[prop.Name]) == tostring(value) then
+			if className == "UIListLayout" then
+				print(prop.Name, value, classData.defaultProperties[prop.Name])
+			end
+
+			if tostring(classData.defaultProperties[prop.Name]) == tostring(value) then
 				continue
 			end
 

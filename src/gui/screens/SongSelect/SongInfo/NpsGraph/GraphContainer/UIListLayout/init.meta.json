@@ -1,4 +1,17 @@
 {
   "className": "UIListLayout",
-  "properties": {}
+  "properties": {
+    "FillDirection": {
+      "Enum": 0
+    },
+    "HorizontalAlignment": {
+      "Enum": 1
+    },
+    "SortOrder": {
+      "Enum": 2
+    },
+    "VerticalAlignment": {
+      "Enum": 2
+    }
+  }
 }
