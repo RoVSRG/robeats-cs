@@ -5,6 +5,7 @@
       1,
       1
     ],
+    "AutoButtonColor": false,
     "AutomaticSize": {
       "Enum": 0
     },
@@ -25,6 +26,7 @@
     "BorderSizePixel": 0,
     "ImageContent": "rbxassetid://5779931881",
     "ImageTransparency": 1,
+    "Modal": true,
     "Position": {
       "UDim2": [
         [
@@ -40,6 +42,18 @@
     "ScaleType": {
       "Enum": 3
     },
+    "SelectionBehaviorDown": {
+      "Enum": 0
+    },
+    "SelectionBehaviorLeft": {
+      "Enum": 0
+    },
+    "SelectionBehaviorRight": {
+      "Enum": 0
+    },
+    "SelectionBehaviorUp": {
+      "Enum": 0
+    },
     "Size": {
       "UDim2": [
         [
@@ -53,6 +67,9 @@
       ]
     },
     "SizeConstraint": {
+      "Enum": 0
+    },
+    "Style": {
       "Enum": 0
     },
     "Visible": false
