@@ -60,16 +60,19 @@ function InputUtil:new()
 
 	local keybinds = {}
 	local _is_key_inverted = false;
+	
+	-- Store connections for cleanup
+	local _connections = {}
 
 	function self:cons()
-		userinput_service.TextBoxFocused:connect(function(textbox)
+		_connections.textbox_focused = userinput_service.TextBoxFocused:connect(function(textbox)
 			_textbox_focused = true
 		end)
-		userinput_service.TextBoxFocusReleased:connect(function(textbox)
+		_connections.textbox_focus_released = userinput_service.TextBoxFocusReleased:connect(function(textbox)
 			_do_textbox_unfocus = true
 		end)
 
-		userinput_service.InputBegan:connect(function(input, gameProcessed)
+		_connections.input_began = userinput_service.InputBegan:connect(function(input, gameProcessed)
 			if input.UserInputType == Enum.UserInputType.Keyboard or input.UserInputType == Enum.UserInputType.Gamepad1 then
 				self:input_began(input.KeyCode)
 
@@ -83,13 +86,13 @@ function InputUtil:new()
 			end
 		end)
 
-		userinput_service.InputChanged:connect(function(input, gameProcessed)
+		_connections.input_changed = userinput_service.InputChanged:connect(function(input, gameProcessed)
 			if input.UserInputType == Enum.UserInputType.Touch then
 				self:touch_changed(input.Position.X, input.Position.Y)
 			end
 		end)
 
-		userinput_service.InputEnded:connect(function(input, gameProcessed)
+		_connections.input_ended = userinput_service.InputEnded:connect(function(input, gameProcessed)
 			if input.UserInputType == Enum.UserInputType.Keyboard or input.UserInputType == Enum.UserInputType.Gamepad1 then
 				self:input_ended(input.KeyCode)
 
@@ -102,12 +105,32 @@ function InputUtil:new()
 				self:touch_ended(input.Position.X, input.Position.Y)
 			end
 		end)
-		game.Players.LocalPlayer:GetMouse().WheelForward:connect(function()
+		_connections.wheel_forward = game.Players.LocalPlayer:GetMouse().WheelForward:connect(function()
 			self:input_began(InputUtil.KEY_SCROLL_UP)
 		end)
-		game.Players.LocalPlayer:GetMouse().WheelBackward:connect(function()
+		_connections.wheel_backward = game.Players.LocalPlayer:GetMouse().WheelBackward:connect(function()
 			self:input_began(InputUtil.KEY_SCROLL_DOWN)
 		end)
+	end
+
+	function self:teardown()
+		-- Disconnect all UserInputService connections
+		for _, connection in pairs(_connections) do
+			if connection then
+				connection:disconnect()
+			end
+		end
+		_connections = {}
+		
+		-- Clean up BindableEvents
+		if self.InputBegan then
+			self.InputBegan:Destroy()
+			self.InputBegan = nil
+		end
+		if self.InputEnded then
+			self.InputEnded:Destroy()
+			self.InputEnded = nil
+		end
 	end
 
 	function self:set_keybinds(_keybinds)

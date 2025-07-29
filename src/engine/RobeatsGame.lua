@@ -446,8 +446,11 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 		for _, val in self:tracksystems_itr() do
 			val:teardown()
 		end
+
 		self._audio_manager:teardown()
 		self._effects:teardown()
+		self._sfx_manager:teardown()
+		self._input:teardown()
 
 		if self:get_2d_mode() then
 			EnvironmentSetup:teardown_2d_environment()
