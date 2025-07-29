@@ -1,6 +1,7 @@
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local Game = require(game.ReplicatedStorage.State.Game)
 local Time = require(game.ReplicatedStorage.Libraries.Time)
+local Pfp = require(game.ReplicatedStorage.Shared.Pfp)
 
 local Screen = script.Parent
 
@@ -16,6 +17,18 @@ end)
 
 local function onGameCreated()
 	local Counters = Screen.MAWindow.Counters
+	local CompeteScreen = Screen.CompeteScreen
+
+	CompeteScreen.Player1.Visible = true
+	CompeteScreen.Player1.Avatar.Image = Pfp.getPfp(game.Players.LocalPlayer.UserId)
+	CompeteScreen.Player1.PlayerName.Text = game.Players.LocalPlayer.Name
+
+	local function updateCompeteScreen(score, accuracy, combo)
+		CompeteScreen.Player1.Score.Text = string.format("%d | %0.2f%%", score, accuracy)
+		CompeteScreen.Player1.Combo.Text = combo .. "x"
+	end
+
+	updateCompeteScreen(0, 0, 0)
 	
 	_game.scoreChanged:Connect(function(score)
 		Counters.Accuracy.Text = string.format("%0.2f%%", score.accuracy)
@@ -25,6 +38,8 @@ local function onGameCreated()
 		Counters.Good.Text = score.good
 		Counters.Bad.Text = score.bad
 		Counters.Miss.Text = score.miss
+
+		updateCompeteScreen(score.score, score.accuracy, score.combo)
 	end)
 	
 	_game.updated:Connect(function(_, currentTime, songLength, progress)
