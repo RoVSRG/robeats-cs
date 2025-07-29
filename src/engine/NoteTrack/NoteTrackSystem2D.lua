@@ -73,16 +73,12 @@ function NoteTrackSystem2D:new(_game, _game_slot)
 		for i=1,_notes:count() do
 			local itr_note = _notes:get(i)
 
-			print(typeof(itr_note:get_track_index()), typeof(track_index))
-
 			if itr_note:get_track_index() == track_index then
 				local did_hit, note_result, renderable_hit = itr_note:test_hit()
 
 				note_result = if judgement then judgement else note_result
 
 				if did_hit then
-					print("[NoteTrackSystem2D] Hit found on track index:", track_index, "Note result:", note_result)
-
 					itr_note:on_hit(note_result,i,renderable_hit)
 					hit_found = true
 					

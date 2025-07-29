@@ -249,6 +249,11 @@ local function getInstanceProperties(instance: any): { [string]: any }
 		end)
 
 		if readSuccess and value ~= nil then
+			-- Handle NaN values by treating them as the default
+			if type(value) == "number" and value ~= value then -- NaN check
+				continue
+			end
+
 			if tostring(classData.defaultProperties[prop.Name]) == tostring(value) then
 				continue
 			end
