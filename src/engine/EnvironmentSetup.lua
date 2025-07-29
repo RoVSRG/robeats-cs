@@ -141,7 +141,7 @@ end
 function EnvironmentSetup:update_dynamic_floor_with_tracksystem(tracksystem, game_slot)
 	-- Update the floor with actual track information when tracksystem is available
 	if _game_environment and _game_environment.Parent == game.Workspace then
-		self:create_dynamic_floor(self:get_game_environment_center_position(), tracksystem, game_slot)
+		return self:create_dynamic_floor(self:get_game_environment_center_position(), tracksystem, game_slot)
 	end
 end
 
@@ -204,7 +204,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 
 	local floor_model = Instance.new("Model")
 	floor_model.Name = "DynamicFloor"
-	floor_model.Parent = _local_elements_folder
+	-- floor_model.Parent = _local_elements_folder
 
 	-- Create invisible primary part at the front edge (closest to player) for rotation pivot
 	local rotation_pivot = Instance.new("Part")
@@ -226,7 +226,6 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	local SHIFT_BACK = 4
 
 	local center_part = Instance.new("Part")
-	center_part.Transparency = 1
 	center_part.Name = "FloorCenter"
 	center_part.Size = Vector3.new(near_width, floor_thickness, floor_depth)
 	center_part.CFrame = CFrame.new(
@@ -244,7 +243,6 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	local wedge_size = Vector3.new(floor_thickness, floor_depth, wedge_width)
 
 	local left_wedge = Instance.new("WedgePart")
-	left_wedge.Transparency = 1
 	left_wedge.Name = "FloorLeft"
 	left_wedge.Size = wedge_size
 	left_wedge.CFrame = CFrame.new(
@@ -260,7 +258,6 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	left_wedge.Parent = floor_model
 	
 	local right_wedge = Instance.new("WedgePart")
-	right_wedge.Transparency = 1
 	right_wedge.Name = "FloorRight"
 	right_wedge.Size = wedge_size
 	right_wedge.CFrame = CFrame.new(
@@ -281,10 +278,6 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 			floor_model.PrimaryPart.CFrame * CFrame.Angles(0, floor_rotation, 0)
 		)
 	end
-
-	center_part.Transparency = 0
-	left_wedge.Transparency = 0
-	right_wedge.Transparency = 0
 
 	_dynamic_floor = floor_model
 	return _dynamic_floor

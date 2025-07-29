@@ -248,6 +248,8 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 
 	function self:start_game(_start_time_ms)
+		local floor
+
 		if self:get_2d_mode() then
 			self._tracksystems:add(self:get_local_game_slot(), NoteTrackSystem2D:new(self,self:get_local_game_slot()))
 		else
@@ -255,11 +257,15 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			self._tracksystems:add(self:get_local_game_slot(), tracksystem)
 			
 			-- Update the dynamic floor with actual track geometry for 3D mode
-			EnvironmentSetup:update_dynamic_floor_with_tracksystem(tracksystem, self:get_local_game_slot())
+			floor = EnvironmentSetup:update_dynamic_floor_with_tracksystem(tracksystem, self:get_local_game_slot())
 		end
 
 		self._audio_manager:start_play(_start_time_ms)
 		self:set_mode(RobeatsGame.Mode.Game)
+
+		if floor then
+			floor.Parent = EnvironmentSetup:get_local_elements_folder()
+		end
 	end
 
 	function self:get_tracksystem(index)
