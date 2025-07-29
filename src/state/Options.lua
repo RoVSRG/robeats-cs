@@ -4,8 +4,8 @@ local Options = Val.scope {
     -- Input Settings
     Keybind1 = Val.new("A"),
     Keybind2 = Val.new("S"),
-    Keybind3 = Val.new("Y"),
-    Keybind4 = Val.new("U"),
+    Keybind3 = Val.new("K"),
+    Keybind4 = Val.new("L"),
 
     -- Gameplay Settings
     ScrollSpeed = Val.new(23), -- Note speed (1.0 is normal speed)
@@ -47,10 +47,10 @@ local Options = Val.scope {
     RecordReplay = Val.new(false), -- Record replay data
 }
 
-type TimingPreset = "Standard" | "ROFAST GAMER" | "Strict" | "Lenient"
+type TimingPreset = "Standard" | "Strict" 
 
 Options.setTimingPreset = function(preset: TimingPreset)
-    if preset == "Standard" or preset == "ROFAST GAMER" or preset == "Strict" or preset == "Lenient" then
+    if preset == "Standard" or preset == "Strict" then
         Options.TimingPreset:set(preset)
     else
         error("Invalid timing preset: " .. tostring(preset))

@@ -1,0 +1,62 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.1568627506494522,
+      0.1568627506494522,
+      0.1568627506494522
+    ],
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Medium"
+    },
+    "Position": {
+      "UDim2": [
+        [
+          0,
+          0
+        ],
+        [
+          -1.485897627162558e-7,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          1,
+          0
+        ],
+        [
+          0.07370319962501526,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "General",
+    "TextColor3": [
+      1,
+      1,
+      1
+    ],
+    "TextScaled": true,
+    "TextSize": 30,
+    "TextWrapped": true
+  }
+}

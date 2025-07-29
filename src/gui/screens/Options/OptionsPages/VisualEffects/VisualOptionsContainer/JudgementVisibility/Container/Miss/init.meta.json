@@ -1,0 +1,65 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.32549020648002625,
+      1,
+      0.1725490242242813
+    ],
+    "BackgroundTransparency": 0.8999999761581421,
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Bold"
+    },
+    "LayoutOrder": 8,
+    "Position": {
+      "UDim2": [
+        [
+          0.8850985765457153,
+          0
+        ],
+        [
+          0.27768468856811523,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0,
+          110
+        ],
+        [
+          0,
+          91
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "MISS",
+    "TextColor3": [
+      1,
+      0,
+      0
+    ],
+    "TextScaled": true,
+    "TextSize": 14,
+    "TextWrapped": true
+  }
+}

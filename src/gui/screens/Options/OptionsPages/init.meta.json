@@ -1,38 +1,4 @@
 {
-  "className": "Frame",
-  "properties": {
-    "AutomaticSize": {
-      "Enum": 0
-    },
-    "BorderMode": {
-      "Enum": 0
-    },
-    "Position": {
-      "UDim2": [
-        [
-          0.0019898221362382174,
-          0
-        ],
-        [
-          1.37120693466386e-7,
-          0
-        ]
-      ]
-    },
-    "Size": {
-      "UDim2": [
-        [
-          0.188477024435997,
-          0
-        ],
-        [
-          0.9079638719558716,
-          0
-        ]
-      ]
-    },
-    "SizeConstraint": {
-      "Enum": 0
-    }
-  }
+  "className": "Folder",
+  "properties": {}
 }

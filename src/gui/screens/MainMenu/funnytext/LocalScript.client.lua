@@ -2,14 +2,14 @@ local label = script.Parent
 
 local Messages = {
 	"Welcome to a classic RCS 💖",
-	"Sponsored by kisperal and astral ✨",
+	"Sponsored by kisperal and astral/ary ✨",
 	"We're a commoonity ofd gamers",
 	"Robeats is require a lot of skill",
 	"go away and play some songs",
 	"STOP STARING AT ME",
 	"we listened?!?",
 	"kisperal is the best dev",
-	"no astral is"
+	"no astral is",
 }
 
 while true do
