@@ -183,25 +183,6 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	-- Default dimensions
 	local near_width = 5
 	local far_width = near_width + 2 * floor_depth * math.tan(track_angle)
-	
-	-- If tracksystem is available, get actual track positions for precise measurements
-	if tracksystem then
-		-- local track1 = tracksystem:get_track(1)
-		-- local track4 = tracksystem:get_track(4)
-		
-		-- if track1 and track4 then
-		-- 	local track1_start = track1:get_start_position()
-		-- 	local track1_end = track1:get_end_position()
-		-- 	local track4_start = track4:get_start_position()
-		-- 	local track4_end = track4:get_end_position()
-			
-		-- 	if track1_start and track1_end and track4_start and track4_end then
-		-- 		-- Calculate actual near and far widths from outer tracks
-		-- 		near_width = math.abs(track4_end.X - track1_end.X) -- Width at hit position (near player)
-		-- 		far_width = math.abs(track4_start.X - track1_start.X) -- Width at start position (far from player)
-		-- 	end
-		-- end
-	end
 
 	local half_near = near_width * 0.5
 	local half_depth = floor_depth * 0.5
@@ -245,6 +226,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	local SHIFT_BACK = 4
 
 	local center_part = Instance.new("Part")
+	center_part.Transparency = 1
 	center_part.Name = "FloorCenter"
 	center_part.Size = Vector3.new(near_width, floor_thickness, floor_depth)
 	center_part.CFrame = CFrame.new(
@@ -262,6 +244,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	local wedge_size = Vector3.new(floor_thickness, floor_depth, wedge_width)
 
 	local left_wedge = Instance.new("WedgePart")
+	left_wedge.Transparency = 1
 	left_wedge.Name = "FloorLeft"
 	left_wedge.Size = wedge_size
 	left_wedge.CFrame = CFrame.new(
@@ -275,8 +258,9 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	left_wedge.Anchored = true
 	left_wedge.CanCollide = true
 	left_wedge.Parent = floor_model
-
+	
 	local right_wedge = Instance.new("WedgePart")
+	right_wedge.Transparency = 1
 	right_wedge.Name = "FloorRight"
 	right_wedge.Size = wedge_size
 	right_wedge.CFrame = CFrame.new(
@@ -297,6 +281,10 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 			floor_model.PrimaryPart.CFrame * CFrame.Angles(0, floor_rotation, 0)
 		)
 	end
+
+	center_part.Transparency = 0
+	left_wedge.Transparency = 0
+	right_wedge.Transparency = 0
 
 	_dynamic_floor = floor_model
 	return _dynamic_floor
