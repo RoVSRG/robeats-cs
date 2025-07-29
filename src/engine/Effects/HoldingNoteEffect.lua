@@ -17,6 +17,8 @@ function HoldingNoteEffect:new(
 )
 	local self = EffectSystem:EffectBase()
 	self.ClassName = HoldingNoteEffect.Type
+
+	local proto = EnvironmentSetup:get_element_protos_folder().HoldingNoteEffectProto
 	
 	self._effect_obj = nil;
 	self._anim_t = 0
@@ -39,7 +41,7 @@ function HoldingNoteEffect:new(
 	function self:cons()
 		self._effect_obj = _game._object_pool:depool(self.ClassName)
 		if self._effect_obj == nil then
-			self._effect_obj = EnvironmentSetup:get_element_protos_folder().HoldingNoteEffectProto:Clone()
+			self._effect_obj = proto:Clone()
 		end
 		
 		self._effect_obj.PrimaryPart.Position = _position
@@ -56,7 +58,7 @@ function HoldingNoteEffect:new(
 			self._effect_obj.PrimaryPart.Color = Color3.fromRGB(235, 220, 13)
 		else
 			self._effect_obj.PrimaryPart.Color = Color3.fromRGB(255, 255, 255)
-		end	
+		end
 		
 		self._anim_t = 0
 		update_visual()

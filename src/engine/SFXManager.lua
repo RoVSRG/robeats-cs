@@ -133,6 +133,18 @@ function SFXManager:new()
 		end
 	end
 
+	function self:teardown()
+		if _sfx_pooled_parent then
+			_sfx_pooled_parent:Destroy()
+			_sfx_pooled_parent = nil
+		end
+
+		if _sfx_active_parent then
+			_sfx_active_parent:Destroy()
+			_sfx_active_parent = nil
+		end
+	end
+
 	self:cons()
 	return self;
 end

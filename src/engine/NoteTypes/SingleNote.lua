@@ -139,11 +139,6 @@ function SingleNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hi
 	end
 
 	--[[Override--]] function self:do_remove()
-		_game._effects:add_effect(HoldingNoteEffect:new(
-			_game,
-			_note_obj.PrimaryPart.Position,
-			NoteResult.Okay
-		))
 		_game._object_pool:repool(self.ClassName,_note_obj)
 	end
 

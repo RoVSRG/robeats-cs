@@ -14,6 +14,9 @@ function TriggerNoteEffect:new(_game, _position, _result)
 	local self = EffectSystem:EffectBase()
 	self.ClassName = TriggerNoteEffect.Type
 
+	local proto = EnvironmentSetup:get_element_protos_folder().TriggerHitEffectProto
+	proto.Parent = nil
+
 	local _effect_obj = nil
 	local _anim_t = 0
 
@@ -50,7 +53,7 @@ function TriggerNoteEffect:new(_game, _position, _result)
 	function self:cons()
 		_effect_obj = _game._object_pool:depool(self.ClassName)
 		if _effect_obj == nil then
-			_effect_obj = EnvironmentSetup:get_element_protos_folder().TriggerHitEffectProto:Clone()
+			_effect_obj = proto:Clone()
 		end
 
 		if _result == NoteResult.Marvelous then

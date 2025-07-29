@@ -248,14 +248,24 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 
 	function self:start_game(_start_time_ms)
+		local floor
+
 		if self:get_2d_mode() then
 			self._tracksystems:add(self:get_local_game_slot(), NoteTrackSystem2D:new(self,self:get_local_game_slot()))
 		else
-			self._tracksystems:add(self:get_local_game_slot(), NoteTrackSystem:new(self,self:get_local_game_slot()))
+			local tracksystem = NoteTrackSystem:new(self,self:get_local_game_slot())
+			self._tracksystems:add(self:get_local_game_slot(), tracksystem)
+			
+			-- Update the dynamic floor with actual track geometry for 3D mode
+			floor = EnvironmentSetup:update_dynamic_floor_with_tracksystem(tracksystem, self:get_local_game_slot())
 		end
 
 		self._audio_manager:start_play(_start_time_ms)
 		self:set_mode(RobeatsGame.Mode.Game)
+
+		if floor then
+			floor.Parent = EnvironmentSetup:get_local_elements_folder()
+		end
 	end
 
 	function self:get_tracksystem(index)
@@ -436,11 +446,19 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 		for _, val in self:tracksystems_itr() do
 			val:teardown()
 		end
+
+		-- Clear the tracksystems dictionary to prevent accumulation
+		self._tracksystems:clear()
+
 		self._audio_manager:teardown()
 		self._effects:teardown()
+		self._sfx_manager:teardown()
+		self._input:teardown()
 
 		if self:get_2d_mode() then
 			EnvironmentSetup:teardown_2d_environment()
+		else
+			EnvironmentSetup:teardown_3d_environment()
 		end
 
 		EnvironmentSetup:set_mode(EnvironmentSetup.Mode.Menu)

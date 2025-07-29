@@ -160,7 +160,10 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self._stats.grade = self:_calculateGrade()
 			self.songFinished:Fire(self:getStats())
 
-			Remotes.Functions.SubmitScore:InvokeServer(self:getStats())
+			Remotes.Functions.SubmitScore:InvokeServer(self:getStats(), {
+				rate = Transient.song.rate:get(),
+				hash = Transient.song.hash:get(),
+			})
 		end
 	end)
 end
@@ -269,7 +272,7 @@ function RobeatsGameWrapper:start()
 	
 	-- Start the game
 	self._startTime = tick()
-	self._game:start_game(self._config.startTimeMs or 0)
+	self._game:start_game()
 	
 	-- Setup update loop
 	self._updateConnection = RunService.Heartbeat:Connect(function(dt: number)
