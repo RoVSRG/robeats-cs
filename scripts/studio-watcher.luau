@@ -351,22 +351,83 @@ local function exportInstance(instance, targetDir: string)
 	end
 end
 
+-- === Recursive deletion of folders without corresponding instances ===
+local function scanDeleted(parentInstance, targetDir: string)
+	-- Check if target directory exists
+	if not fs.isDir(targetDir) or not fs.isFile(targetDir) then
+		return
+	end
+	
+	-- Safety check: only operate within the screens directory
+	if not targetDir:find("screens") then
+		print("⚠️ Safety check: skipping deletion outside screens directory")
+		return
+	end
+	
+	-- Get all directories in the target directory
+	local filesystemDirs = {}
+	for _, entry in fs.readDir(targetDir) do
+		local entryPath = targetDir .. "/" .. entry
+		if fs.isDir(entryPath) then
+			filesystemDirs[entry] = true
+		end
+	end
+	
+	-- Create a set of sanitized instance names that should exist
+	local validInstanceNames = {}
+	for _, child in parentInstance:GetChildren() do
+		local sanitizedName = sanitizeFilename(child.Name)
+		validInstanceNames[sanitizedName] = child
+	end
+	
+	-- Find directories that don't have corresponding instances
+	for dirName, _ in filesystemDirs do
+		if not validInstanceNames[dirName] then
+			local dirPath = targetDir .. "/" .. dirName
+			print("🗑️ Deleting orphaned directory:", dirPath)
+
+			if fs.isDir(dirPath) then
+				-- fs.removeDir(dirPath)
+			elseif fs.isFile(dirPath) then
+				-- fs.removeFile(dirPath)
+			else
+				print("⚠️ Warning: Expected directory or file but found neither at", dirPath)
+			end
+		else
+			-- Recursively check subdirectories
+			local correspondingInstance = validInstanceNames[dirName]
+			local subdirPath = targetDir .. "/" .. dirName
+			scanDeleted(correspondingInstance, subdirPath)
+		end
+	end
+end
+
 -- === Git diff checking ===
 local function displayGitDiffAfterSync()
 	print("🔍 Checking git diff after sync...")
-	
-	-- Show which files were modified
-	local gitStatus = process.exec("git", {"status", "--porcelain", "--", SCREENS_DIR})
-	if gitStatus.ok and #gitStatus.stdout > 0 then
-		print("📄 Modified files in screens directory:")
-		print(gitStatus.stdout)
-	end
 	
 	-- Show detailed diff statistics
 	local gitDiffStat = process.exec("git", {"diff", "--stat", "HEAD", "--", SCREENS_DIR})
 	if gitDiffStat.ok and #gitDiffStat.stdout > 0 then
 		print("📊 Changes summary:")
-		print(gitDiffStat.stdout)
+		
+		-- Split output into lines and count them
+		local lines = {}
+		for line in gitDiffStat.stdout:gmatch("[^\r\n]+") do
+			table.insert(lines, line)
+		end
+		
+		-- Show first 10 entries
+		local maxEntries = 10
+		for i = 1, math.min(maxEntries, #lines) do
+			print(lines[i])
+		end
+		
+		-- Show count of remaining entries if there are more
+		if #lines > maxEntries then
+			local remaining = #lines - maxEntries
+			print(string.format("... and %d more changes", remaining))
+		end
 	end
 end
 
@@ -403,10 +464,22 @@ local function pullGuiFromPlace(path: string)
 			return
 		end
 
+		-- Clean up orphaned directories for proper source of truth
+		print("🧹 Cleaning up orphaned directories...")
+
 		for _, child in dev:GetChildren() do
+			if screens:FindFirstChild(child.Name) then
+				screens:FindFirstChild(child.Name):Destroy()
+				child.Parent = screens
+			end
+
 			print("📦 Exporting screen:", child.Name)
 			exportInstance(child, SCREENS_DIR)
 		end
+
+		print(screens:GetChildren())
+
+		scanDeleted(screens, SCREENS_DIR)
 	else
 		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
 		return

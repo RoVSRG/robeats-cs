@@ -37,6 +37,18 @@
         ]
       ]
     },
+    "SelectionBehaviorDown": {
+      "Enum": 0
+    },
+    "SelectionBehaviorLeft": {
+      "Enum": 0
+    },
+    "SelectionBehaviorRight": {
+      "Enum": 0
+    },
+    "SelectionBehaviorUp": {
+      "Enum": 0
+    },
     "Size": {
       "UDim2": [
         [
@@ -50,6 +62,9 @@
       ]
     },
     "SizeConstraint": {
+      "Enum": 0
+    },
+    "Style": {
       "Enum": 0
     },
     "Text": "PERFECT",
