@@ -19,6 +19,7 @@ local _game_environment
 local _element_protos_folder
 local _local_elements_folder
 local _player_gui
+local _dynamic_floor
 
 function EnvironmentSetup:initial_setup()
 	game.StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
@@ -111,12 +112,36 @@ function EnvironmentSetup:teardown_2d_environment()
 	_gameplay_frame:Destroy()
 end
 
+function EnvironmentSetup:setup_3d_environment()
+	-- Create dynamic floor for 3D mode
+	if _game_environment and _game_environment.Parent == game.Workspace then
+		self:create_dynamic_floor(self:get_game_environment_center_position(), nil, nil)
+	end
+end
+
+function EnvironmentSetup:teardown_3d_environment()
+	-- Remove dynamic floor when tearing down 3D environment
+	self:remove_dynamic_floor()
+end
+
 function EnvironmentSetup:set_mode(mode)
 	AssertType:is_enum_member(mode, EnvironmentSetup.Mode)
 	if mode == EnvironmentSetup.Mode.Game then
 		_game_environment.Parent = game.Workspace
+		-- Create dynamic floor when entering game mode
+		-- Note: Tracksystem info might not be available yet, so we'll use defaults
+		self:create_dynamic_floor(self:get_game_environment_center_position(), nil, nil)
 	else
 		_game_environment.Parent = nil
+		-- Remove dynamic floor when leaving game mode
+		self:remove_dynamic_floor()
+	end
+end
+
+function EnvironmentSetup:update_dynamic_floor_with_tracksystem(tracksystem, game_slot)
+	-- Update the floor with actual track information when tracksystem is available
+	if _game_environment and _game_environment.Parent == game.Workspace then
+		self:create_dynamic_floor(self:get_game_environment_center_position(), tracksystem, game_slot)
 	end
 end
 
@@ -142,6 +167,150 @@ end
 
 function EnvironmentSetup:get_robeats_game_stage()
 	return EnvironmentSetup:get_element_protos_folder().NoteTrackSystemProto.TrackBG.Union
+end
+
+function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksystem, game_slot)
+	if _dynamic_floor then
+		_dynamic_floor:Destroy()
+		_dynamic_floor = nil
+	end
+
+	local track_angle = math.rad(6)
+	local floor_depth = 50
+	local floor_thickness = 0.5
+	local floor_y_offset = -2
+
+	-- Default dimensions
+	local near_width = 5
+	local far_width = near_width + 2 * floor_depth * math.tan(track_angle)
+	
+	-- If tracksystem is available, get actual track positions for precise measurements
+	if tracksystem then
+		-- local track1 = tracksystem:get_track(1)
+		-- local track4 = tracksystem:get_track(4)
+		
+		-- if track1 and track4 then
+		-- 	local track1_start = track1:get_start_position()
+		-- 	local track1_end = track1:get_end_position()
+		-- 	local track4_start = track4:get_start_position()
+		-- 	local track4_end = track4:get_end_position()
+			
+		-- 	if track1_start and track1_end and track4_start and track4_end then
+		-- 		-- Calculate actual near and far widths from outer tracks
+		-- 		near_width = math.abs(track4_end.X - track1_end.X) -- Width at hit position (near player)
+		-- 		far_width = math.abs(track4_start.X - track1_start.X) -- Width at start position (far from player)
+		-- 	end
+		-- end
+	end
+
+	local half_near = near_width * 0.5
+	local half_depth = floor_depth * 0.5
+	local wedge_width = (far_width - near_width) * 0.5
+
+	-- Calculate rotation based on game slot
+	local floor_rotation = 0
+	if game_slot then
+		if game_slot == 1 then -- SLOT_1: Looking towards (+Z, +X) - needs 45° rotation
+			floor_rotation = math.rad(45)
+		elseif game_slot == 2 then -- SLOT_2: Looking towards (-Z, +X) - needs 135° rotation
+			floor_rotation = math.rad(135)
+		elseif game_slot == 3 then -- SLOT_3: Looking towards (-Z, -X) - needs 225° rotation
+			floor_rotation = math.rad(225)
+		else -- SLOT_4: Looking towards (+Z, -X) - needs 315° rotation  
+			floor_rotation = math.rad(315 + 90)
+		end
+	end
+
+	local floor_model = Instance.new("Model")
+	floor_model.Name = "DynamicFloor"
+	floor_model.Parent = _local_elements_folder
+
+	-- Create invisible primary part at the front edge (closest to player) for rotation pivot
+	local rotation_pivot = Instance.new("Part")
+	rotation_pivot.Name = "RotationPivot"
+	rotation_pivot.Size = Vector3.new(0.1, 0.1, 0.1) -- Very small
+	rotation_pivot.CFrame = CFrame.new(
+		center_position.X,
+		center_position.Y + floor_y_offset,
+		center_position.Z -- At the front edge, not offset by half_depth
+	)
+	rotation_pivot.Transparency = 1 -- Invisible
+	rotation_pivot.CanCollide = false
+	rotation_pivot.Anchored = true
+	rotation_pivot.Parent = floor_model
+
+	-- Set invisible pivot as primary part
+	floor_model.PrimaryPart = rotation_pivot
+
+	local SHIFT_BACK = 4
+
+	local center_part = Instance.new("Part")
+	center_part.Name = "FloorCenter"
+	center_part.Size = Vector3.new(near_width, floor_thickness, floor_depth)
+	center_part.CFrame = CFrame.new(
+		center_position.X,
+		center_position.Y + floor_y_offset,
+		center_position.Z + half_depth - SHIFT_BACK
+	)
+	center_part.Material = Enum.Material.Neon
+	center_part.BrickColor = BrickColor.new("Black")
+	center_part.Anchored = true
+	center_part.CanCollide = true
+	center_part.Parent = floor_model
+
+	-- Wedges slope along +X by default, so we swap X/Z and rotate on Y
+	local wedge_size = Vector3.new(floor_thickness, floor_depth, wedge_width)
+
+	local left_wedge = Instance.new("WedgePart")
+	left_wedge.Name = "FloorLeft"
+	left_wedge.Size = wedge_size
+	left_wedge.CFrame = CFrame.new(
+		center_position.X - (half_near + wedge_width * 0.5),
+		center_position.Y + floor_y_offset,
+		center_position.Z + half_depth - SHIFT_BACK
+	) * CFrame.Angles(0, math.rad(90), math.rad(-90))
+	left_wedge.Material = center_part.Material
+	left_wedge.BrickColor = center_part.BrickColor
+	left_wedge.Transparency = center_part.Transparency
+	left_wedge.Anchored = true
+	left_wedge.CanCollide = true
+	left_wedge.Parent = floor_model
+
+	local right_wedge = Instance.new("WedgePart")
+	right_wedge.Name = "FloorRight"
+	right_wedge.Size = wedge_size
+	right_wedge.CFrame = CFrame.new(
+		center_position.X + (half_near + wedge_width * 0.5),
+		center_position.Y + floor_y_offset,
+		center_position.Z + half_depth - SHIFT_BACK
+	) * CFrame.Angles(0, math.rad(-90), math.rad(90))
+	right_wedge.Material = center_part.Material
+	right_wedge.BrickColor = center_part.BrickColor
+	right_wedge.Transparency = center_part.Transparency
+	right_wedge.Anchored = true
+	right_wedge.CanCollide = true
+	right_wedge.Parent = floor_model
+
+	-- Apply rotation to the entire model if game slot is specified
+	if game_slot and floor_rotation ~= 0 then
+		floor_model:SetPrimaryPartCFrame(
+			floor_model.PrimaryPart.CFrame * CFrame.Angles(0, floor_rotation, 0)
+		)
+	end
+
+	_dynamic_floor = floor_model
+	return _dynamic_floor
+end
+
+function EnvironmentSetup:remove_dynamic_floor()
+	if _dynamic_floor then
+		_dynamic_floor:Destroy()
+		_dynamic_floor = nil
+	end
+end
+
+function EnvironmentSetup:get_dynamic_floor()
+	return _dynamic_floor
 end
 
 return EnvironmentSetup

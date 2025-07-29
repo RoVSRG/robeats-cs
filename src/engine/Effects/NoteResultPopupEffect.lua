@@ -6,14 +6,14 @@ local DebugOut = require(game.ReplicatedStorage.Shared.DebugOut)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 
 local NoteResultPopupEffect = {}
-NoteResultPopupEffect.HitColor = {
-	[0] = Color3.fromRGB(255, 0, 0);
-	[1] = Color3.fromRGB(190, 10, 240);
-	[2] = Color3.fromRGB(56, 10, 240);
-	[3] = Color3.fromRGB(7, 232, 74);
-	[4] = Color3.fromRGB(252, 244, 5);
-	[5] = Color3.fromRGB(255, 255, 255);
-}
+-- NoteResultPopupEffect.HitColor = {
+-- 	[0] = Color3.fromRGB(255, 0, 0);
+-- 	[1] = Color3.fromRGB(190, 10, 240);
+-- 	[2] = Color3.fromRGB(56, 10, 240);
+-- 	[3] = Color3.fromRGB(7, 232, 74);
+-- 	[4] = Color3.fromRGB(252, 244, 5);
+-- 	[5] = Color3.fromRGB(255, 255, 255);
+-- }
 NoteResultPopupEffect.Type = "NoteResultPopupEffect"
 
 local INITIAL_FRAME_Y = 90
@@ -27,7 +27,7 @@ function NoteResultPopupEffect:new(_game, _position, _result)
 	local _anim_t = 0
 	
 	local _frame
-	local _text_label
+	local image
 	
 	function self:cons()
 		_anim_t = 0
@@ -37,28 +37,26 @@ function NoteResultPopupEffect:new(_game, _position, _result)
 			_effect_obj = EnvironmentSetup:get_element_protos_folder().PopupScoreEffectProto:Clone()
 		end
 		
-		_frame = _effect_obj.Panel.SurfaceGui.Frame
-		_text_label = _frame.TextLabel
+		_frame = _effect_obj.Panel.SurfaceGui.Judgement
+		image = _frame.JudgementImage
+
+		image.ScaleType = Enum.ScaleType.Crop
 
 		if _result == NoteResult.Miss then
-			_text_label.Text = "Miss"
+			image.Image = "rbxassetid://1401704555"
 		elseif _result == NoteResult.Bad then
-			_text_label.Text = "Bad"
+			image.Image = "rbxassetid://1401704690"
 		elseif _result == NoteResult.Good then
-			_text_label.Text = "Good"
+			image.Image = "rbxassetid://1401704848"
 		elseif _result == NoteResult.Great then
-			_text_label.Text = "Great"
+			image.Image = "rbxassetid://1401705001"
 		elseif _result == NoteResult.Perfect then
-			_text_label.Text = "Perfect"
+			image.Image = "rbxassetid://1401705141"
 		elseif _result == NoteResult.Marvelous then
-			_text_label.Text = "Marvelous"
+			image.Image = "rbxassetid://1401705244"
 		else
-			_text_label.Text = ""
+			image.Image = ""
 		end
-
-		_text_label.Font = Enum.Font.Gotham
-		_text_label.TextSize = 50
-		_text_label.TextColor3 = NoteResultPopupEffect.HitColor[_result]
 		
 		_effect_obj:SetPrimaryPartCFrame(
 			SPUtil:lookat_camera_cframe(_position)
@@ -81,7 +79,7 @@ function NoteResultPopupEffect:new(_game, _position, _result)
 			_anim_t
 		)
 		local transparency = SPUtil:tra(alpha)
-		_text_label.TextTransparency = transparency
+		image.ImageTransparency = transparency
 	end
 
 	--[[Override--]] function self:add_to_parent(parent)

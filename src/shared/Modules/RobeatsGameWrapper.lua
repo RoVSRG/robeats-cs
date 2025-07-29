@@ -160,7 +160,10 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self._stats.grade = self:_calculateGrade()
 			self.songFinished:Fire(self:getStats())
 
-			Remotes.Functions.SubmitScore:InvokeServer(self:getStats())
+			Remotes.Functions.SubmitScore:InvokeServer(self:getStats(), {
+				rate = Transient.song.rate:get(),
+				hash = Transient.song.hash:get(),
+			})
 		end
 	end)
 end
