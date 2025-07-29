@@ -272,7 +272,7 @@ function RobeatsGameWrapper:start()
 	
 	-- Start the game
 	self._startTime = tick()
-	self._game:start_game(self._config.startTimeMs or 0)
+	self._game:start_game()
 	
 	-- Setup update loop
 	self._updateConnection = RunService.Heartbeat:Connect(function(dt: number)

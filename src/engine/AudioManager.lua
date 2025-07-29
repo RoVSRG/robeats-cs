@@ -63,7 +63,7 @@ function AudioManager:new(_game)
 	local _pre_countdown_time_ms = 3000 --Default: 3000
 	
 	--Time in milliseconds to wait after game finishes to end
-	local _post_finish_wait_time_ms = 300 --Default:300
+	local _post_finish_wait_time_ms = 1000 --Default:300
 
 	--Audio offset is milliseconds
 	local _audio_time_offset = 0
@@ -284,16 +284,18 @@ function AudioManager:new(_game)
 		_current_mode = AudioManager.Mode.PreStart
 		_pre_start_time_ms = 0
 
-		if _start_time_ms then
-			_bgm_time_position = _start_time_ms / 1000
+		if not _start_time_ms then
+			_start_time_ms = math.max(0, _hit_objects[1].Time - _note_prebuffer_time - _pre_countdown_time_ms)
+		end
 
-			_bgm.TimePosition = _bgm_time_position - (_audio_time_offset / 1000)
+		_bgm_time_position = _start_time_ms / 1000
 
-			for _, hitObject in _hit_objects do
-				if _bgm_time_position * 1000 > hitObject.Time + _note_bad_max then
-					_audio_data_index = _audio_data_index + 1
-					continue
-				end
+		_bgm.TimePosition = _bgm_time_position - (_audio_time_offset / 1000)
+
+		for _, hitObject in _hit_objects do
+			if _bgm_time_position * 1000 > hitObject.Time + _note_bad_max then
+				_audio_data_index = _audio_data_index + 1
+				continue
 			end
 		end
 	end
@@ -388,7 +390,7 @@ function AudioManager:new(_game)
 				warn("[Audio] Force sync")
 			end]]
 
-			if _raise_ended_trigger == true or if _bgm.IsLoaded then false else self:get_current_time_ms() > self:get_song_length_ms() - _audio_time_offset then
+			if _raise_ended_trigger == true or self:get_current_time_ms() > self:get_song_length_ms() then
 				_current_mode = AudioManager.Mode.PostPlaying
 			end
 
@@ -457,9 +459,21 @@ function AudioManager:new(_game)
 	end
 
 	function self:get_song_length_ms(): number
+		if #_hit_objects == 0 then
+			-- If no hit objects, use BGM length as fallback
+			if _bgm.IsLoaded then
+				return _bgm.TimeLength * 1000 + _audio_time_offset + _pre_countdown_time_ms
+			else
+				return 30000 + _audio_time_offset + _pre_countdown_time_ms -- 30 second fallback
+			end
+		end
+		
+		-- Add the pre-countdown time to match how notes are scheduled
 		return _hit_objects[#_hit_objects].Time +
 			(_hit_objects[#_hit_objects].Duration or 0) +
-			_audio_time_offset
+			_audio_time_offset +
+			_pre_countdown_time_ms +
+			_post_finish_wait_time_ms
 	end
 
 	return self

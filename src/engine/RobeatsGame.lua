@@ -447,6 +447,9 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			val:teardown()
 		end
 
+		-- Clear the tracksystems dictionary to prevent accumulation
+		self._tracksystems:clear()
+
 		self._audio_manager:teardown()
 		self._effects:teardown()
 		self._sfx_manager:teardown()
