@@ -354,7 +354,7 @@ end
 -- === Recursive deletion of folders without corresponding instances ===
 local function scanDeleted(parentInstance, targetDir: string)
 	-- Check if target directory exists
-	if not fs.isDir(targetDir) or not fs.isFile(targetDir) then
+	if not fs.isDir(targetDir) then
 		return
 	end
 	
@@ -385,14 +385,7 @@ local function scanDeleted(parentInstance, targetDir: string)
 		if not validInstanceNames[dirName] then
 			local dirPath = targetDir .. "/" .. dirName
 			print("🗑️ Deleting orphaned directory:", dirPath)
-
-			if fs.isDir(dirPath) then
-				-- fs.removeDir(dirPath)
-			elseif fs.isFile(dirPath) then
-				-- fs.removeFile(dirPath)
-			else
-				print("⚠️ Warning: Expected directory or file but found neither at", dirPath)
-			end
+			fs.removeDir(dirPath)
 		else
 			-- Recursively check subdirectories
 			local correspondingInstance = validInstanceNames[dirName]
@@ -464,21 +457,19 @@ local function pullGuiFromPlace(path: string)
 			return
 		end
 
-		-- Clean up orphaned directories for proper source of truth
-		print("🧹 Cleaning up orphaned directories...")
-
 		for _, child in dev:GetChildren() do
+			-- Merge dev changes into the screens folder in memory
 			if screens:FindFirstChild(child.Name) then
 				screens:FindFirstChild(child.Name):Destroy()
-				child.Parent = screens
 			end
+			child.Parent = screens
 
 			print("📦 Exporting screen:", child.Name)
 			exportInstance(child, SCREENS_DIR)
 		end
-
-		print(screens:GetChildren())
-
+		
+		-- Clean up orphaned directories using the updated screens folder
+		print("🧹 Cleaning up orphaned directories...")
 		scanDeleted(screens, SCREENS_DIR)
 	else
 		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
