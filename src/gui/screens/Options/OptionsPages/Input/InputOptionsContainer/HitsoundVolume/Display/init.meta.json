@@ -1,0 +1,65 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      1,
+      1,
+      1
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Regular"
+    },
+    "LayoutOrder": 2,
+    "Position": {
+      "UDim2": [
+        [
+          0,
+          0
+        ],
+        [
+          -1.2611983493115986e-6,
+          0
+        ]
+      ]
+    },
+    "Size": {
+      "UDim2": [
+        [
+          -0.0595291368663311,
+          387
+        ],
+        [
+          1.0000001192092896,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "Hitsound Volume",
+    "TextColor3": [
+      1,
+      1,
+      1
+    ],
+    "TextScaled": true,
+    "TextSize": 14,
+    "TextWrapped": true
+  }
+}

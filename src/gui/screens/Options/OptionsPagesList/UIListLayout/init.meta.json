@@ -1,0 +1,17 @@
+{
+  "className": "UIListLayout",
+  "properties": {
+    "HorizontalFlex": {
+      "Enum": 2
+    },
+    "ItemLineAlignment": {
+      "Enum": 2
+    },
+    "Padding": {
+      "UDim": [
+        0.004999999888241291,
+        1
+      ]
+    }
+  }
+}
