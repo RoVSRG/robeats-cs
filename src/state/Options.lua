@@ -4,8 +4,8 @@ local Options = Val.scope {
     -- Input Settings
     Keybind1 = Val.new("A"),
     Keybind2 = Val.new("S"),
-    Keybind3 = Val.new("K"),
-    Keybind4 = Val.new("L"),
+    Keybind3 = Val.new("Y"),
+    Keybind4 = Val.new("U"),
 
     -- Gameplay Settings
     ScrollSpeed = Val.new(23), -- Note speed (1.0 is normal speed)
@@ -15,7 +15,7 @@ local Options = Val.scope {
     Mods = Val.new({}), -- Array of active mods
     
     -- Visual Settings - 2D Mode
-    Use2DMode = Val.new(true), -- Use 2D lane instead of 3D
+    Use2DMode = Val.new(false), -- Use 2D lane instead of 3D
     Skin2D = Val.new(nil), -- 2D skin name (nil = auto-select)
     Upscroll = Val.new(false), -- Upscroll mode for 2D
     NoteColor = Val.new(Color3.fromRGB(246, 253, 139)), -- Note color
