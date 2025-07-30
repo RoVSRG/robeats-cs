@@ -9,9 +9,9 @@ local function getDifficultyMultiplier(rate)
 	local offset = (rate - 1)
 
 	if rate >= 1 then
-		multiplier = 1 + offset * (1.8 * offset^offset)
+		multiplier = 1 + offset * (2.1 * offset^offset)
 	else
-		multiplier = 1 + offset * 2
+		multiplier = 1 + offset * 1.5
 	end
 	
 	return multiplier

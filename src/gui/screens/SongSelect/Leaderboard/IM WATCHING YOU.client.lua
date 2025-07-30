@@ -16,12 +16,6 @@ function updateLeaderboard(hash)
 
 	local slot = ScreenChief:GetTemplates("SongSelect"):FindFirstChild("Slot")
 
-	for _, child in Container:GetChildren() do
-		if child:IsA("Frame") then
-			child:Destroy()
-		end
-	end
-
 	local leaderboard = Remotes.Functions.GetLeaderboard:InvokeServer(hash)
 
 	if leaderboard.success then
@@ -62,6 +56,12 @@ end
 
 Transient.song.hash:on(function(hash)
 	Loading.Visible = true
+
+	for _, child in Container:GetChildren() do
+		if child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
 
 	task.delay(DEBOUNCE, function()
 		if hash ~= Transient.song.hash:get() then
