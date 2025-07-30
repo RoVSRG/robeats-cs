@@ -2,7 +2,7 @@ local Protect = {}
 
 function Protect.wrap(func: (...any) -> any, cooldown: number?)
     local callHistoryPerPlayer = {}
-    cooldown = cooldown or 1
+    cooldown = cooldown or 0.5
 
     return function(player, ...)
         local currentTime = tick()
