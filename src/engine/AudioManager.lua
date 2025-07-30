@@ -409,6 +409,44 @@ function AudioManager:new(_game)
 		return rtv
 	end
 
+	local inferred_song_length
+
+	function self:infer_song_length()
+		if inferred_song_length then
+			return inferred_song_length
+		end
+
+		if #_hit_objects == 0 then
+			return nil
+		end
+
+		local initialHitTime
+		local largestEndTime
+		
+		for i = #_hit_objects, 1, -1 do
+			local hitObject = _hit_objects[i]
+			local endTime = hitObject.Time + (hitObject.Duration or 0)
+
+			if not largestEndTime and not initialHitTime then
+				initialHitTime = hitObject.Time
+				largestEndTime = endTime
+				continue
+			end
+
+			if hitObject.Time ~= initialHitTime then
+				break
+			end
+
+			if endTime > largestEndTime then
+				largestEndTime = endTime
+			end
+		end
+
+		inferred_song_length = largestEndTime
+
+		return inferred_song_length
+	end
+
 	function self:update_spawn_notes()
 		local current_time_ms: number = self:get_current_time_ms()
 		local note_prebuffer_time_ms: number = self:get_note_prebuffer_time_ms()
@@ -469,8 +507,7 @@ function AudioManager:new(_game)
 		end
 		
 		-- Add the pre-countdown time to match how notes are scheduled
-		return _hit_objects[#_hit_objects].Time +
-			(_hit_objects[#_hit_objects].Duration or 0) +
+		return self:infer_song_length() +
 			_audio_time_offset +
 			_pre_countdown_time_ms +
 			_post_finish_wait_time_ms

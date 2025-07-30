@@ -57,7 +57,32 @@ local function submitScore(player, scoreData, settings)
 	return { success = true }
 end
 
+local function getLeaderboard(player, hash)
+	if not hash or type(hash) ~= "string" then
+		return { success = false, error = "Invalid song hash" }
+	end
+
+	local success, result = pcall(function()
+		return Http.get("/scores/leaderboard", {
+			params = { hash = hash },
+		})
+	end)
+
+	if not success then
+		warn("Failed to fetch leaderboard for " .. player.Name .. ": " .. tostring(result))
+		return { success = false, error = "Internal request failed" }
+	end
+
+	if not result.success then
+		warn("Backend returned error for leaderboard: " .. tostring(result.body))
+		return { success = false, error = result.body }
+	end
+
+	return { success = true, data = result.json() }
+end
+
 Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
+Remotes.Functions.GetLeaderboard.OnServerInvoke = Protect.wrap(getLeaderboard)
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
     Http.post("/players/join", {

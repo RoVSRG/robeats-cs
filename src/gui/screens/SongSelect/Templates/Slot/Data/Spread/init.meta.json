@@ -23,7 +23,7 @@
       "style": "Normal",
       "weight": "Medium"
     },
-    "LayoutOrder": 1,
+    "LayoutOrder": 2,
     "Position": {
       "UDim2": [
         [
@@ -63,13 +63,12 @@
     "SizeConstraint": {
       "Enum": 0
     },
-    "Text": "10000/0/0/0/0/o",
+    "Text": "0 / 0 / 0 / 0 / 0 / 0",
     "TextColor3": [
       1,
       1,
       1
     ],
-    "TextScaled": true,
     "TextSize": 10,
     "TextStrokeTransparency": 0,
     "TextWrapped": true,

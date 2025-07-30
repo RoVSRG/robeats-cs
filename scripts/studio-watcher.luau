@@ -247,7 +247,7 @@ local function getInstanceProperties(instance: any): { [string]: any }
 		local readSuccess, value = pcall(function()
 			return instance[prop.Name]
 		end)
-
+		
 		if readSuccess and value ~= nil then
 			-- Handle NaN values by treating them as the default
 			if type(value) == "number" and value ~= value then -- NaN check

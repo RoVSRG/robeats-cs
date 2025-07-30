@@ -1,36 +1,32 @@
 {
-  "className": "TextLabel",
+  "className": "ImageLabel",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      1,
-      1,
-      1
+      0.06666667014360428,
+      0.06666667014360428,
+      0.06666667014360428
     ],
-    "BackgroundTransparency": 1,
     "BorderColor3": [
-      0.10588236153125763,
-      0.16470588743686676,
-      0.20784315466880798
+      0,
+      0,
+      0
     ],
     "BorderMode": {
       "Enum": 0
     },
-    "FontFace": {
-      "family": "rbxasset://fonts/families/GothamSSm.json",
-      "style": "Normal",
-      "weight": "Medium"
-    },
+    "BorderSizePixel": 0,
+    "ImageContent": "rbxasset://textures/ui/GuiImagePlaceholder.png",
     "Position": {
       "UDim2": [
         [
-          0.02528720162808895,
+          0,
           0
         ],
         [
-          0.02857142873108387,
+          -0.6111111044883728,
           0
         ]
       ]
@@ -50,26 +46,16 @@
     "Size": {
       "UDim2": [
         [
-          0.5878232717514038,
-          0
+          0,
+          29
         ],
         [
-          0.014285714365541935,
-          35
+          0,
+          29
         ]
       ]
     },
     "SizeConstraint": {
-      "Enum": 0
-    },
-    "Text": "1. Regen_erate",
-    "TextColor3": [
-      1,
-      1,
-      1
-    ],
-    "TextSize": 19,
-    "TextXAlignment": {
       "Enum": 0
     }
   }

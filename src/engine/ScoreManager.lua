@@ -102,7 +102,7 @@ function ScoreManager:new(_game)
 	)
 		local track = _game:get_tracksystem(slot_index):get_track(track_index)
 
-		if (not params.GhostTap) and _game:get_judgement_visibility()[note_result + 1] then
+		if (not params.GhostTap) and _game:get_judgement_visibility()[note_result] then
 			if _game:get_2d_mode() then
 				_game._effects:add_effect(NoteResultPopupEffect2D:new(
 					_game,
