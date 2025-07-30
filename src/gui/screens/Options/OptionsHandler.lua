@@ -1,6 +1,7 @@
 local CollectionService = game:GetService("CollectionService")
+local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 
-local Templates = script.Parent.Templates
+local Templates = ScreenChief:GetTemplates("Options")
 
 local OptionsHandler = {}
 

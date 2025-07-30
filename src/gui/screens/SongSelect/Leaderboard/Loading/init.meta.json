@@ -15,14 +15,15 @@
     ],
     "BackgroundTransparency": 1,
     "BorderColor3": [
-      0.10588236153125763,
-      0.16470588743686676,
-      0.20784315466880798
+      0,
+      0,
+      0
     ],
     "BorderMode": {
       "Enum": 0
     },
-    "ImageContent": "http://www.roblox.com/asset/?id=5695672638",
+    "BorderSizePixel": 0,
+    "ImageContent": "rbxassetid://17687447043",
     "Position": {
       "UDim2": [
         [
@@ -50,18 +51,17 @@
     "Size": {
       "UDim2": [
         [
-          0.28936171531677246,
-          0
+          0,
+          72
         ],
         [
-          0.25660377740859985,
-          0
+          0,
+          72
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
-    },
-    "Visible": false
+    }
   }
 }

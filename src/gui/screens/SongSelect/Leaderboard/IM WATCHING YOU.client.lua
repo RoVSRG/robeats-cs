@@ -3,6 +3,7 @@ local Transient = require(game.ReplicatedStorage.State.Transient)
 local Pfp = require(game.ReplicatedStorage.Shared.Pfp)
 
 local Container = script.Parent.Players
+local Loading = script.Parent.Loading
 
 local Remotes = game.ReplicatedStorage.Remotes
 
@@ -11,6 +12,8 @@ print("Watching song hash changes...")
 local DEBOUNCE = 0.8
 
 function updateLeaderboard(hash)
+	Loading.Visible = false
+
 	local slot = ScreenChief:GetTemplates("SongSelect"):FindFirstChild("Slot")
 
 	for _, child in Container:GetChildren() do
@@ -55,7 +58,11 @@ function updateLeaderboard(hash)
 	end
 end
 
+
+
 Transient.song.hash:on(function(hash)
+	Loading.Visible = true
+
 	task.delay(DEBOUNCE, function()
 		if hash ~= Transient.song.hash:get() then
 			return
