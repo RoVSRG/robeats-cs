@@ -53,7 +53,16 @@
       }
     },
 
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": false
+      }
+    },
+
     "StarterPlayer": {
+      "$properties": {
+        "LoadCharacterAppearance": false
+      },
       "StarterPlayerScripts": {
         "$path": "src/client"
       }
@@ -63,7 +72,7 @@
       "$ignoreUnknownInstances": true,
       "Screens": {
         "$path": "src/gui/screens",
-        "$ignoreUnknownInstances": true
+        "$ignoreUnknownInstances": false
       }
     }
   }
