@@ -2,6 +2,8 @@ local Http = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
 local Remotes = game.ReplicatedStorage.Remotes
 
+local Queue = require(game.ServerScriptService:WaitForChild("Queue"))
+
 local function mergeTables(...)
     local result = {}
     for _, tbl in ipairs({...}) do
@@ -37,23 +39,11 @@ local function submitScore(player, scoreData, settings)
 		}),
 	}
 
-	local success, result = pcall(function()
-		return Http.post("/scores", {
-			json = payload,
-		})
-	end)
+	Queue.addToQueue(Http.post, "/scores", {
+		json = payload,
+	})
 
-	if not success then
-		warn("Failed to send score for " .. player.Name .. ": " .. tostring(result))
-		return { success = false, error = "Internal request failed" }
-	end
-
-	if not result.success then
-		warn("Backend rejected score for " .. player.Name .. ": " .. tostring(result.body))
-		return { success = false, error = result.body }
-	end
-
-	print(player.Name .. " submitted a score successfully!")
+	print(player.Name .. " submitted a score")
 	return { success = true }
 end
 
@@ -85,12 +75,14 @@ Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
 Remotes.Functions.GetLeaderboard.OnServerInvoke = Protect.wrap(getLeaderboard)
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
-    Http.post("/players/join", {
-        json = {
-            userId = player.UserId,
-            name = player.Name,
-        }
-    })
+	print("Player added: " .. player.Name)
+
+	Queue.addToQueue(Http.post, "/players/join", {
+		json = {
+			userId = player.UserId,
+			name = player.Name,
+		}
+	})
 
     print("Player " .. player.Name .. " has joined.")
 end)
