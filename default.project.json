@@ -62,8 +62,7 @@
     "StarterGui": {
       "$ignoreUnknownInstances": true,
       "Screens": {
-        "$path": "src/gui/screens",
-        "$ignoreUnknownInstances": true
+        "$path": "src/gui/screens"
       }
     }
   }
