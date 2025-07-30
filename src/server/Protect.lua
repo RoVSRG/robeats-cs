@@ -1,20 +1,22 @@
 local Protect = {}
 
 function Protect.wrap(func: (...any) -> any, cooldown: number?)
-    local lastCallTime = 0
+    local callHistoryPerPlayer = {}
     cooldown = cooldown or 1
 
-    return function(...)
+    return function(player, ...)
         local currentTime = tick()
+        callHistoryPerPlayer[player.UserId] = callHistoryPerPlayer[player.UserId] or 0
 
+        local lastCallTime = callHistoryPerPlayer[player.UserId]
         if currentTime - lastCallTime < cooldown then
             warn("Function call is being rate-limited")
             return nil
         end
 
-        lastCallTime = currentTime
+        callHistoryPerPlayer[player.UserId] = currentTime
 
-        return func(...)
+        return func(player, ...)
     end
 end
 
