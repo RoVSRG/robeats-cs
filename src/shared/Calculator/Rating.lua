@@ -24,7 +24,7 @@ local function calculateRating(rate: number, accuracy: number, difficulty: numbe
 end
 
 local function getRainbowRating()
-	return 60
+	return 57
 end
 
 local function isRainbow(rating: number)

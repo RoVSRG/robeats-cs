@@ -25,7 +25,7 @@ Game.results.score:on(function(score)
 	local song = SongDatabase:GetSongByKey(songKey)
 	
 	ScorePanel.PlayRating.Text = string.format("Rating: %0.2f", score.rating)
-	ScorePanel.PlayRating.TextColor3 = Color.calculateDifficultyColor(score.rating / Rating.getRainbowRating())
+	ScorePanel.PlayRating.TextColor3 = Color.calculateDifficultyColor(score.rating)
 	
 	ScorePanel.PlayRating.Rainbow.Value = Rating.isRainbow(score.rating)
 	

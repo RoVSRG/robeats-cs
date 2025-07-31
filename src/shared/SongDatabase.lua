@@ -63,8 +63,14 @@ function SongDatabase:GetSongByKey(key)
 	return self.songByKey[key]
 end
 
-function SongDatabase:GetPropertyByKey(key, property)
-	return SongDatabase:GetSongByKey(key)[property]
+function SongDatabase:GetPropertyByKey(key, property, tf)
+	local value = SongDatabase:GetSongByKey(key)[property]
+
+	if tf then
+		value = tf(value)
+	end
+
+	return value
 end
 
 -- Search for songs by artist name, file name, or charter name

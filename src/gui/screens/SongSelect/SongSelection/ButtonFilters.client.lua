@@ -3,8 +3,8 @@ local Color = require(game.ReplicatedStorage.Shared.Color)
 local Rating = require(game.ReplicatedStorage.Calculator.Rating)
 
 local function getDifficulty(songId)
-    local songData = SongDatabase:GetSongByKey(songId)
-    return songData and songData.Difficulty or 0
+    local difficulty = SongDatabase:GetPropertyByKey(songId, "Difficulty", tonumber)
+    return difficulty or 0
 end
 
 local function getSongId(button)
@@ -131,7 +131,7 @@ script.Parent.ColorButton.MouseButton1Click:Connect(function()
             button.BackgroundColor3 = getColor
         elseif colorMode == "Difficulty" then
             local difficulty = getDifficulty(song)
-            button.BackgroundColor3 = Color.calculateDifficultyColor(difficulty / Rating.getRainbowRating())
+            button.BackgroundColor3 = Color.calculateDifficultyColor(difficulty)
         end
     end
 end)
