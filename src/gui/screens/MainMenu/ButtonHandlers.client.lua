@@ -37,3 +37,7 @@ end)
 script.Parent.OptionsButton.MouseButton1Click:Connect(function()
 	ScreenChief:Switch("Options")
 end)
+
+script.Parent.RankingsButton.MouseButton1Click:Connect(function()
+	ScreenChief:Switch("YourScores")
+end)

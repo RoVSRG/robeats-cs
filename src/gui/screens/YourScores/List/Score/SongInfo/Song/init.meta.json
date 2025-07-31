@@ -1,10 +1,6 @@
 {
   "className": "TextLabel",
   "properties": {
-    "AnchorPoint": [
-      0.5,
-      0.5
-    ],
     "AutomaticSize": {
       "Enum": 0
     },
@@ -15,13 +11,14 @@
     ],
     "BackgroundTransparency": 1,
     "BorderColor3": [
-      0.10588236153125763,
-      0.16470588743686676,
-      0.20784315466880798
+      0,
+      0,
+      0
     ],
     "BorderMode": {
       "Enum": 0
     },
+    "BorderSizePixel": 0,
     "FontFace": {
       "family": "rbxasset://fonts/families/GothamSSm.json",
       "style": "Normal",
@@ -30,11 +27,11 @@
     "Position": {
       "UDim2": [
         [
-          0.5,
+          0,
           0
         ],
         [
-          0.5,
+          0.20588235557079315,
           0
         ]
       ]
@@ -54,27 +51,25 @@
     "Size": {
       "UDim2": [
         [
-          0.925000011920929,
-          0
+          0,
+          200
         ],
         [
-          0.4000000059604645,
-          0
+          0,
+          17
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "Text": "YOUR SCORES",
+    "Text": "1. babybel's lactose - ",
     "TextColor3": [
       1,
       1,
       1
     ],
-    "TextScaled": true,
-    "TextSize": 14,
-    "TextWrapped": true,
+    "TextSize": 17,
     "TextXAlignment": {
       "Enum": 0
     }

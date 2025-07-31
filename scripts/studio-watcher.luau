@@ -204,7 +204,7 @@ local function serializeValue(value: any, datatype: string): any
 	end
 end
 
-local function getPropertySet(className: string)
+local function getFullPropertySet(className: string)
 	local defaults = {}
 	local properties = {}
 
@@ -239,11 +239,11 @@ end
 -- === Rojo-compatible property serializer ===
 local function getInstanceProperties(instance: any): { [string]: any }
 	local className = instance.ClassName
-	local classData = getPropertySet(className)
+	local fullClassData = getFullPropertySet(className)
 	
 	local serializedProps = {}
 
-	for _, prop in classData.properties do
+	for _, prop in fullClassData.properties do
 		local readSuccess, value = pcall(function()
 			return instance[prop.Name]
 		end)
@@ -254,7 +254,9 @@ local function getInstanceProperties(instance: any): { [string]: any }
 				continue
 			end
 
-			if tostring(classData.defaultProperties[prop.Name]) == tostring(value) then
+			local isDefault = tostring(fullClassData.defaultProperties[prop.Name]) == tostring(value)
+
+			if isDefault and not instance:IsA("UIComponent") then
 				continue
 			end
 
