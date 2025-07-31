@@ -28,9 +28,7 @@ local function onGameCreated()
 		CompeteScreen.Player1.Combo.Text = combo .. "x"
 	end
 
-	updateCompeteScreen(0, 0, 0)
-	
-	_game.scoreChanged:Connect(function(score)
+	local function updateMAWindow(score)
 		Counters.Accuracy.Text = string.format("%0.2f%%", score.accuracy)
 		Counters.Marvelous.Text = score.marvelous
 		Counters.Perfect.Text = score.perfect
@@ -39,8 +37,33 @@ local function onGameCreated()
 		Counters.Bad.Text = score.bad
 		Counters.Miss.Text = score.miss
 
+		local total = score.notesHit + score.miss
+
+		Counters.Marvelous.graph.Size = UDim2.fromScale(score.marvelous / total, 1)
+		Counters.Perfect.graph.Size = UDim2.fromScale(score.perfect / total, 1)
+		Counters.Great.graph.Size = UDim2.fromScale(score.great / total, 1)
+		Counters.Good.graph.Size = UDim2.fromScale(score.good / total, 1)
+		Counters.Bad.graph.Size = UDim2.fromScale(score.bad / total, 1)
+		Counters.Miss.graph.Size = UDim2.fromScale(score.miss / total, 1)
+
 		updateCompeteScreen(score.score, score.accuracy, score.combo)
-	end)
+	end
+
+	updateCompeteScreen(0, 0, 0)
+	updateMAWindow({
+		accuracy = 0,
+		marvelous = 0,
+		perfect = 0,
+		great = 0,
+		good = 0,
+		bad = 0,
+		miss = 0,
+		score = 0,
+		combo = 0,
+		notesHit = 0
+	})
+	
+	_game.scoreChanged:Connect(updateMAWindow)
 	
 	_game.updated:Connect(function(_, currentTime, songLength, progress)
 		Screen.TimeBar.PosBar.Size = UDim2.fromScale(progress, 1)
