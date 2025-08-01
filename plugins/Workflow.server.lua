@@ -13,13 +13,28 @@ local function getCurrentSelection()
         return nil
     end
 
-    return selected
+    -- Check if the selected object is from StarterGui.Screens
+    local screens = game.StarterGui:FindFirstChild("Screens")
+    if not screens then
+        return nil
+    end
+
+    -- Check if the selected object is a child of StarterGui.Screens
+    local current = selected
+    while current do
+        if current == screens then
+            return selected
+        end
+        current = current.Parent
+    end
+
+    return nil
 end
 
 local function swap()
     local selected = getCurrentSelection()
     if not selected then
-        warn("No GUI object selected or the selection is not a GuiObject.")
+        warn("No GUI object selected, selection is not a GuiObject, or selection is not from StarterGui.Screens.")
         return
     end
 
@@ -42,8 +57,15 @@ local function swap()
     -- Create a copy of the selected GUI object
     local selectedClone = selected:Clone()
 
+    -- Add __BASEPATH attribute to the top-level instance
+    local basePath = selected:GetFullName()
+    selectedClone:SetAttribute("__BASEPATH", basePath)
+
     -- Set the parent of the cloned object to the ScreenGui
     selectedClone.Parent = dev
+    
+    -- Select the cloned object for further operations
+    Selection:Set({selectedClone})
 end
 
 Button.Click:Connect(swap)
