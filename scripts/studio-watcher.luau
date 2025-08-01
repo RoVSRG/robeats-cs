@@ -513,8 +513,14 @@ local function pullGuiFromPlace(path: string)
 			childClone.Name = targetName
 			childClone.Parent = screens
 
-			print("📦 Exporting screen:", targetName .. " (from " .. child.Name .. " via __BASEPATH)")
-			exportInstance(childClone, SCREENS_DIR)
+			-- Build the target directory from __BASEPATH: BASE_DIR + path after "Screens"
+			local targetPath = SCREENS_DIR
+			for i = 1, #pathParts - 1 do -- All parts except the last one (the instance name itself)
+				targetPath = targetPath .. "/" .. pathParts[i]
+			end
+
+			print("📦 Exporting screen:", targetName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
+			exportInstance(childClone, targetPath)
 		end
 		
 		-- Clean up orphaned directories, but preserve screens that weren't synced from Dev
