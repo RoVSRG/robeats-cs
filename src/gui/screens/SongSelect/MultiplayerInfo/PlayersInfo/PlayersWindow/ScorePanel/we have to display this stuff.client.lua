@@ -23,7 +23,7 @@ local function constructHitGraph(song, hits)
 			pix.Position = UDim2.fromScale(x, 0)
 			pix.BackgroundTransparency = 0.55 -- red lines gotta be a little dimmmmmmmmmmmmmmmmmmer
 		else
-			local y = SPUtil:inverse_lerp(-180, 180, hit.time_left)
+			local y = SPUtil:inverse_lerp(180, -180, hit.time_left)
 			pix.Size = UDim2.fromOffset(2, 2)
 			pix.Position = UDim2.fromScale(x, y)
 		end
@@ -57,15 +57,16 @@ Game.results.score:on(function(score)
 
 	ScorePanel.Accuracy.Text = string.format("Accuracy: %0.2f [%s]", score.accuracy, score.grade)
 	ScorePanel.GradeImage.Image = GradeIconMap[score.grade]
+	ScorePanel.Spread.RichText = true
 	ScorePanel.Score.Text = string.format("Score: %d", score.score)
 	ScorePanel.Spread.Text = string.format(
-		"Spread: %d / %d / %d / %d / %d / %d",
-		score.marvelous,
-		score.perfect,
-		score.great,
-		score.good,
-		score.bad,
-		score.miss
+		"Spread: <font color='rgb(255, 255, 255)'>%s</font> / <font color='rgb(235, 220, 13)'>%s</font> / <font color='rgb(57, 192, 16)'>%s</font> / <font color='rgb(12, 15, 151)'>%s</font> / <font color='rgb(174, 22, 194)'>%s</font> / <font color='rgb(190, 30, 30)'>%s</font>",
+		tostring(score.marvelous),
+		tostring(score.perfect),
+		tostring(score.great),
+		tostring(score.good),
+		tostring(score.bad),
+		tostring(score.miss)
 	)
 	ScorePanel.UnstableRate.Text = string.format("Unstable Rate: %0.2f", 0)
 	ScorePanel.MaxCombo.Text = string.format("Max Combo: %d", score.maxCombo)
