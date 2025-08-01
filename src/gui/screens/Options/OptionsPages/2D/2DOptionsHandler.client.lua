@@ -1,4 +1,4 @@
--- local Options = require(game.ReplicatedStorage.State.Options)
+local Options = require(game.ReplicatedStorage.State.Options)
 local OptionsHandler = require(script.Parent.Parent.Parent.OptionsHandler)
 
 local container = script.Parent:FindFirstChild("2DOptionsContainer")
