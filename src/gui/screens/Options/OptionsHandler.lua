@@ -62,7 +62,6 @@ function OptionsHandler:createIntOption(name, val, incrementVal)
 end
 
 function OptionsHandler:createBoolOption(name, val)
-    print("[OptionsHandler.lua] created bool optiokn...")
 	local clone = Templates:FindFirstChild("BoolOption"):Clone()
 	clone.Display.Text = name
 
