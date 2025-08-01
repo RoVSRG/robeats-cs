@@ -371,12 +371,15 @@ local function scanDeletedWithBasePath(parentInstance, targetDir: string, synced
 		return
 	end
 	
+	print("🔍 Scanning directory:", targetDir)
+	
 	-- Get all directories in the target directory
 	local filesystemDirs = {}
 	for _, entry in fs.readDir(targetDir) do
 		local entryPath = targetDir .. "/" .. entry
 		if fs.isDir(entryPath) then
 			filesystemDirs[entry] = true
+			print("📁 Found filesystem directory:", entry)
 		end
 	end
 	
@@ -385,6 +388,7 @@ local function scanDeletedWithBasePath(parentInstance, targetDir: string, synced
 	for _, child in parentInstance:GetChildren() do
 		local sanitizedName = sanitizeFilename(child.Name)
 		validInstanceNames[sanitizedName] = child
+		print("✅ Valid instance found:", child.Name, "->", sanitizedName)
 	end
 	
 	-- Find directories that don't have corresponding instances
@@ -396,11 +400,14 @@ local function scanDeletedWithBasePath(parentInstance, targetDir: string, synced
 			print("🗑️ Deleting orphaned directory:", dirPath)
 			fs.removeDir(dirPath)
 		elseif validInstanceNames[dirName] then
+			print("🔄 Recursively checking subdirectory:", dirName)
 			-- Recursively check subdirectories for valid instances
 			local correspondingInstance = validInstanceNames[dirName]
 			local subdirPath = targetDir .. "/" .. dirName
 			-- Recursive call for subdirectories (no syncedScreenNames needed for subdirs)
 			scanDeletedWithBasePath(correspondingInstance, subdirPath, {})
+		else
+			print("🛡️ Preserving synced directory:", dirName)
 		end
 	end
 end
@@ -513,20 +520,31 @@ local function pullGuiFromPlace(path: string)
 			local childClone = child:Clone()
 			childClone.Name = originalInstanceName
 			
-			-- Add to screens folder for cleanup tracking
-			if screens:FindFirstChild(topLevelScreenName) then
-				-- Find or create the nested structure in screens
-				local currentParent = screens:FindFirstChild(topLevelScreenName)
-				if not currentParent then
-					local screenFolder = Instance.new("Folder")
-					screenFolder.Name = topLevelScreenName
-					screenFolder.Parent = screens
-					currentParent = screenFolder
+			-- Build the proper hierarchy in screens folder for cleanup tracking
+			local currentParent = screens
+			for i = 1, #pathParts do
+				local partName = pathParts[i]
+				local existingChild = currentParent:FindFirstChild(partName)
+				
+				if i == #pathParts then
+					-- This is the final instance, remove any existing one and add the new clone
+					if existingChild then
+						existingChild:Destroy()
+					end
+					childClone.Parent = currentParent
+					print("📝 Added to screens hierarchy:", childClone:GetFullName())
+				else
+					-- This is an intermediate folder, create if it doesn't exist
+					if not existingChild then
+						local folder = Instance.new("Folder")
+						folder.Name = partName
+						folder.Parent = currentParent
+						currentParent = folder
+						print("📁 Created intermediate folder:", folder:GetFullName())
+					else
+						currentParent = existingChild
+					end
 				end
-			else
-				local screenFolder = Instance.new("Folder")
-				screenFolder.Name = topLevelScreenName
-				screenFolder.Parent = screens
 			end
 
 			print("📦 Exporting instance:", originalInstanceName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")

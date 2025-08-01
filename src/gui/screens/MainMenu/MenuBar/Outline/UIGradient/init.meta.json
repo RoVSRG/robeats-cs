@@ -30,6 +30,28 @@
           }
         ]
       }
+    },
+    "Enabled": true,
+    "Offset": [
+      0,
+      0
+    ],
+    "Rotation": 0,
+    "Transparency": {
+      "NumberSequence": {
+        "keypoints": [
+          {
+            "envelope": 0,
+            "time": 0,
+            "value": 0
+          },
+          {
+            "envelope": 0,
+            "time": 1,
+            "value": 0
+          }
+        ]
+      }
     }
   }
 }
