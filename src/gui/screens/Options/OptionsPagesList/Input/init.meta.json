@@ -71,8 +71,10 @@
       1,
       1
     ],
-    "TextScaled": true,
-    "TextSize": 30,
-    "TextWrapped": true
+    "TextSize": 18,
+    "TextWrapped": true,
+    "TextXAlignment": {
+      "Enum": 0
+    }
   }
 }
