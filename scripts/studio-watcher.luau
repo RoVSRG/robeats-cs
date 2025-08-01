@@ -358,8 +358,8 @@ local function exportInstance(instance, targetDir: string)
 	end
 end
 
--- === Recursive deletion of folders without corresponding instances ===
-local function scanDeleted(parentInstance, targetDir: string)
+-- === Recursive deletion with __BASEPATH awareness ===
+local function scanDeletedWithBasePath(parentInstance, targetDir: string, syncedScreenNames: {[string]: boolean})
 	-- Check if target directory exists
 	if not fs.isDir(targetDir) then
 		return
@@ -389,15 +389,18 @@ local function scanDeleted(parentInstance, targetDir: string)
 	
 	-- Find directories that don't have corresponding instances
 	for dirName, _ in filesystemDirs do
-		if not validInstanceNames[dirName] then
+		-- Only delete if the directory doesn't have a corresponding instance
+		-- AND it wasn't one of the screens we just synced from Dev
+		if not validInstanceNames[dirName] and not syncedScreenNames[dirName] then
 			local dirPath = targetDir .. "/" .. dirName
 			print("🗑️ Deleting orphaned directory:", dirPath)
 			fs.removeDir(dirPath)
-		else
-			-- Recursively check subdirectories
+		elseif validInstanceNames[dirName] then
+			-- Recursively check subdirectories for valid instances
 			local correspondingInstance = validInstanceNames[dirName]
 			local subdirPath = targetDir .. "/" .. dirName
-			scanDeleted(correspondingInstance, subdirPath)
+			-- Recursive call for subdirectories (no syncedScreenNames needed for subdirs)
+			scanDeletedWithBasePath(correspondingInstance, subdirPath, {})
 		end
 	end
 end
@@ -464,20 +467,65 @@ local function pullGuiFromPlace(path: string)
 			return
 		end
 
-		for _, child in dev:GetChildren() do
-			-- Merge dev changes into the screens folder in memory
-			if screens:FindFirstChild(child.Name) then
-				screens:FindFirstChild(child.Name):Destroy()
-			end
-			child.Parent = screens
+		-- Track which screen names are being synced from Dev
+		local syncedScreenNames = {}
 
-			print("📦 Exporting screen:", child.Name)
-			exportInstance(child, SCREENS_DIR)
+		for _, child in dev:GetChildren() do
+			-- Check for __BASEPATH attribute
+			local basePath = child:GetAttribute("__BASEPATH")
+			if not basePath then
+				warn("⚠️ Skipping sync for '" .. child.Name .. "' - missing __BASEPATH attribute. Use the Workflow plugin to properly copy from StarterGui.Screens.")
+				continue
+			end
+
+			-- Parse the base path to determine the target location
+			-- Expected format: game.StarterGui.Screens.SomeScreen or similar
+			local pathParts = {}
+			for part in basePath:gmatch("[^%.]+") do
+				table.insert(pathParts, part)
+			end
+
+			-- Validate the path structure
+			if #pathParts < 3 or pathParts[1] ~= "StarterGui" or pathParts[2] ~= "Screens" then
+				warn("⚠️ Skipping sync for '" .. child.Name .. "' - invalid __BASEPATH format: " .. basePath .. ". Expected: game.StarterGui.Screens.ScreenName")
+				continue
+			end
+
+			table.remove(pathParts, 1) -- Remove "StarterGui"
+			table.remove(pathParts, 1) -- Remove "Screens"
+
+			-- Extract the original screen name from the path
+			local originalScreenName = pathParts[1]
+
+			-- Use the original screen name for the target location
+			local targetName = originalScreenName
+
+			-- Track this screen name as being synced
+			syncedScreenNames[targetName] = true
+
+			-- Merge dev changes into the screens folder in memory
+			if screens:FindFirstChild(targetName) then
+				screens:FindFirstChild(targetName):Destroy()
+			end
+			
+			-- Clone the child and rename it to match the original screen name
+			local childClone = child:Clone()
+			childClone.Name = targetName
+			childClone.Parent = screens
+
+			-- Build the target directory from __BASEPATH: BASE_DIR + path after "Screens"
+			local targetPath = SCREENS_DIR
+			for i = 1, #pathParts - 1 do -- All parts except the last one (the instance name itself)
+				targetPath = targetPath .. "/" .. pathParts[i]
+			end
+
+			print("📦 Exporting screen:", targetName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
+			exportInstance(childClone, targetPath)
 		end
 		
-		-- Clean up orphaned directories using the updated screens folder
+		-- Clean up orphaned directories, but preserve screens that weren't synced from Dev
 		print("🧹 Cleaning up orphaned directories...")
-		scanDeleted(screens, SCREENS_DIR)
+		scanDeletedWithBasePath(screens, SCREENS_DIR, syncedScreenNames)
 	else
 		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
 		return
