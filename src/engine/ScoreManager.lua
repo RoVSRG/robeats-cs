@@ -207,7 +207,7 @@ function ScoreManager:new(_game)
 			table.insert(_hits, renderable_hit)
 		end
 
-		_on_change:Fire(_marvelous_count,_perfect_count,_great_count,_good_count,_bad_count,_miss_count,_max_chain,_chain,_score,renderable_hit)
+		_on_change:Fire(_marvelous_count,_perfect_count,_great_count,_good_count,_bad_count,_miss_count,_max_chain,_chain,_score,renderable_hit, _hits)
 	end
 
 	function self:get_hits() return _hits end
@@ -217,8 +217,6 @@ function ScoreManager:new(_game)
 	function self:get_ghost_taps() return _ghost_taps end
 
 	function self:get_on_change() return _on_change end
-
-	function self:get_chain() return _chain end
 
 	function self:update()
 		_frame_has_played_sfx = false

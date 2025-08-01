@@ -46,7 +46,7 @@ function OptionsHandler:createIntOption(name, val, incrementVal)
 	option.Display.Text = name
 
 	option.Increment.MouseButton1Click:Connect(function()
-		val:set(val:get() - incrementVal)
+		val:set(val:get() + incrementVal)
 	end)
 
 	option.Decrement.MouseButton1Click:Connect(function()

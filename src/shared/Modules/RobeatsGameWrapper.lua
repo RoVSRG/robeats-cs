@@ -92,6 +92,7 @@ function RobeatsGameWrapper.new()
 		totalNotes = 0,
 		notesHit = 0,
 		grade = "F",
+		hits = {}
 	} :: GameStats
 	
 	return self
@@ -117,7 +118,7 @@ function RobeatsGameWrapper:_setupEventListeners()
 	if scoreManager then
 		-- Listen for score manager changes
 		-- Parameters: marvelous_count, perfect_count, great_count, good_count, bad_count, miss_count, max_chain, chain, score, renderable_hit
-		scoreManager:get_on_change():Connect(function(marvelous: number, perfect: number, great: number, good: number, bad: number, miss: number, maxChain: number, chain: number, score: number, renderableHit: any)
+		scoreManager:get_on_change():Connect(function(marvelous: number, perfect: number, great: number, good: number, bad: number, miss: number, maxChain: number, chain: number, score: number, renderableHit: any, hits: any)
 			-- Update all stats from ScoreManager
 			self._stats.marvelous = marvelous
 			self._stats.perfect = perfect
@@ -129,6 +130,7 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self._stats.maxCombo = maxChain
 			self._stats.combo = chain
 			self._stats.notesHit = marvelous + perfect + great + good + bad
+			self._stats.hits = hits
 
 			self._stats.accuracy = (scoreManager:get_accuracy() :: number) * 100 -- Convert to percentage
 			self._stats.rating = Rating.calculateRating(rate / 100, self._stats.accuracy, song.Difficulty)
