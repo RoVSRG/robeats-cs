@@ -486,40 +486,50 @@ local function pullGuiFromPlace(path: string)
 			end
 
 			-- Validate the path structure
-			if #pathParts < 3 or pathParts[1] ~= "StarterGui" or pathParts[2] ~= "Screens" then
+			if #pathParts < 4 or pathParts[1] ~= "game" or pathParts[2] ~= "StarterGui" or pathParts[3] ~= "Screens" then
 				warn("⚠️ Skipping sync for '" .. child.Name .. "' - invalid __BASEPATH format: " .. basePath .. ". Expected: game.StarterGui.Screens.ScreenName")
 				continue
 			end
 
-			table.remove(pathParts, 1) -- Remove "StarterGui"
+			-- Remove "game", "StarterGui", "Screens" 
+			table.remove(pathParts, 1) -- Remove "game"
+			table.remove(pathParts, 1) -- Remove "StarterGui" 
 			table.remove(pathParts, 1) -- Remove "Screens"
 
-			-- Extract the original screen name from the path
-			local originalScreenName = pathParts[1]
+			-- Extract the original instance name from the path (last part)
+			local originalInstanceName = pathParts[#pathParts]
 
-			-- Use the original screen name for the target location
-			local targetName = originalScreenName
-
-			-- Track this screen name as being synced
-			syncedScreenNames[targetName] = true
-
-			-- Merge dev changes into the screens folder in memory
-			if screens:FindFirstChild(targetName) then
-				screens:FindFirstChild(targetName):Destroy()
-			end
-			
-			-- Clone the child and rename it to match the original screen name
-			local childClone = child:Clone()
-			childClone.Name = targetName
-			childClone.Parent = screens
-
-			-- Build the target directory from __BASEPATH: BASE_DIR + path after "Screens"
+			-- Build the target directory from __BASEPATH: BASE_DIR + path except the last part
 			local targetPath = SCREENS_DIR
 			for i = 1, #pathParts - 1 do -- All parts except the last one (the instance name itself)
 				targetPath = targetPath .. "/" .. pathParts[i]
 			end
 
-			print("📦 Exporting screen:", targetName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
+			-- Track the top-level screen name for cleanup
+			local topLevelScreenName = pathParts[1]
+			syncedScreenNames[topLevelScreenName] = true
+
+			-- Clone the child and keep its original name from the __BASEPATH
+			local childClone = child:Clone()
+			childClone.Name = originalInstanceName
+			
+			-- Add to screens folder for cleanup tracking
+			if screens:FindFirstChild(topLevelScreenName) then
+				-- Find or create the nested structure in screens
+				local currentParent = screens:FindFirstChild(topLevelScreenName)
+				if not currentParent then
+					local screenFolder = Instance.new("Folder")
+					screenFolder.Name = topLevelScreenName
+					screenFolder.Parent = screens
+					currentParent = screenFolder
+				end
+			else
+				local screenFolder = Instance.new("Folder")
+				screenFolder.Name = topLevelScreenName
+				screenFolder.Parent = screens
+			end
+
+			print("📦 Exporting instance:", originalInstanceName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
 			exportInstance(childClone, targetPath)
 		end
 		

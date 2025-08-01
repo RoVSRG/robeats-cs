@@ -58,7 +58,7 @@ local function swap()
     local selectedClone = selected:Clone()
 
     -- Add __BASEPATH attribute to the top-level instance
-    local basePath = selected:GetFullName()
+    local basePath = "game." .. selected:GetFullName()
     selectedClone:SetAttribute("__BASEPATH", basePath)
 
     -- Set the parent of the cloned object to the ScreenGui
