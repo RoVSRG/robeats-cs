@@ -24,6 +24,10 @@
     },
     "VerticalAlignment": {
       "Enum": 1
-    }
+    },
+    "VerticalFlex": {
+      "Enum": 0
+    },
+    "Wraps": false
   }
 }

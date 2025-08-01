@@ -33,11 +33,11 @@ local function refreshSongPanel()
 	node.MaxRating.Rainbow.Value = Rating.isRainbow(maxRating)
 
 	if not Rating.isRainbow(difficulty) then
-		node.SongDiffInfo.TextColor3 = Color.calculateDifficultyColor(difficulty / RAINBOW_MIN)
+		node.SongDiffInfo.TextColor3 = Color.calculateDifficultyColor(difficulty)
 	end
 	
 	if not Rating.isRainbow(maxRating) then
-		node.MaxRating.TextColor3 = Color.calculateDifficultyColor(maxRating / RAINBOW_MIN)
+		node.MaxRating.TextColor3 = Color.calculateDifficultyColor(maxRating)
 	end
 
 	-- Map Length
