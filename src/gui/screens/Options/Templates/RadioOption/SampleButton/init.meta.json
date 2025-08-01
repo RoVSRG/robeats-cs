@@ -23,10 +23,11 @@
       "style": "Normal",
       "weight": "Medium"
     },
+    "LayoutOrder": 1,
     "Position": {
       "UDim2": [
         [
-          1,
+          0.2237609326839447,
           -100
         ],
         [
@@ -51,7 +52,7 @@
       "UDim2": [
         [
           0,
-          92
+          91
         ],
         [
           0,
@@ -71,7 +72,6 @@
       0.8999999761581421,
       0.8999999761581421
     ],
-    "TextSize": 12,
-    "Visible": false
+    "TextSize": 12
   }
 }
