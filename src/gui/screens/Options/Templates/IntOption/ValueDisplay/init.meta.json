@@ -23,6 +23,7 @@
       "style": "Normal",
       "weight": "Medium"
     },
+    "LayoutOrder": 2,
     "Position": {
       "UDim2": [
         [
@@ -68,9 +69,6 @@
       0.8999999761581421,
       0.8999999761581421
     ],
-    "TextSize": 12,
-    "TextXAlignment": {
-      "Enum": 1
-    }
+    "TextSize": 12
   }
 }
