@@ -57,6 +57,8 @@ function OptionsHandler:createIntOption(name, val, incrementVal)
 		option.ValueDisplay.Text = val
 	end)
 
+	val:set(val:get(), true)
+
 	option.Parent = self.container
 	option.Visible = true
 end
@@ -78,6 +80,8 @@ function OptionsHandler:createBoolOption(name, val)
 			clone.Toggleable.BackgroundColor3 = Color3.fromRGB(147, 44, 46)
 		end
 	end)
+
+	val:set(val:get(), true)
 
     clone.Name = name
 	clone.Parent = self.container
