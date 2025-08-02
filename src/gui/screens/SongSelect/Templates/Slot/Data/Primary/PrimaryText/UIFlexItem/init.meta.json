@@ -3,6 +3,11 @@
   "properties": {
     "FlexMode": {
       "Enum": 3
-    }
+    },
+    "GrowRatio": 0,
+    "ItemLineAlignment": {
+      "Enum": 0
+    },
+    "ShrinkRatio": 0
   }
 }

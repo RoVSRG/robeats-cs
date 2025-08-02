@@ -7,6 +7,12 @@
     "HorizontalAlignment": {
       "Enum": 1
     },
+    "HorizontalFlex": {
+      "Enum": 0
+    },
+    "ItemLineAlignment": {
+      "Enum": 0
+    },
     "Padding": {
       "UDim": [
         0,
@@ -18,6 +24,10 @@
     },
     "VerticalAlignment": {
       "Enum": 1
-    }
+    },
+    "VerticalFlex": {
+      "Enum": 0
+    },
+    "Wraps": false
   }
 }
