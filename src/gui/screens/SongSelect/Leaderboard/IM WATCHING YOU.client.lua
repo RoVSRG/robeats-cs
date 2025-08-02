@@ -30,8 +30,9 @@ function updateLeaderboard(hash)
 
 			data.Name = "Player" .. i
 			data.Player.Text = "#" .. tostring(i) .. ". " .. entry["player_name"]
-			data.Primary.PrimaryText.Text = string.format("Rating: %0.2f | Accuracy: %0.2f", entry["rating"], entry["accuracy"])
+			data.Primary.PrimaryText.Text = string.format("Rating: %0.2f | Accuracy: %0.2f%%", entry["rating"], entry["accuracy"])
 			data.Primary.Rate.Text = string.format("%0.2fx", entry["rate"] / 100)
+			data.Primary.Rate.BackgroundColor3 = Color.calculateRateColor(entry["rate"])
 
 			data.Spread.Text = Color.getSpreadRichText(
 				entry["marvelous"],

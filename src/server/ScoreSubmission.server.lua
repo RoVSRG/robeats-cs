@@ -19,13 +19,11 @@ end
 
 local submitScore = Function.create(function(player, scoreData, settings)
 	if type(scoreData) ~= "table" then
-		warn("Invalid score data submitted by " .. player.Name)
-		return { success = false, error = "Invalid data format" }
+		error("Invalid score data submitted by " .. player.Name)
 	end
 
     if settings == nil then
-        warn("No settings provided for score submission by " .. player.Name)
-        return
+        error("No settings provided for score submission by " .. player.Name)
     end
 
 	-- Build payload to match your backend schema
@@ -45,7 +43,8 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	})
 
 	print(player.Name .. " submitted a score")
-	return { success = true }
+
+	return nil
 end)
 
 local getLeaderboard = Function.create(function(player, hash)
