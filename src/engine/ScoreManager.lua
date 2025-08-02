@@ -39,6 +39,8 @@ function ScoreManager:new(_game)
 	local _score = 0
 	local _ghost_taps = 0
 	local _hits = {}
+	local _mean_sum = 0
+	local _mean_count = 0
 
 	local _on_change = Signal.new()
 
@@ -72,23 +74,11 @@ function ScoreManager:new(_game)
 	end
 
 	function self:get_mean()
-		local mean = 0
-
-		local miss_count = 0
+		if _mean_count == 0 then
+			return 0
+		end
 		
-		for _, hit in ipairs(_hits) do
-			if hit.judgement ~= NoteResult.Miss then
-				mean += hit.time_left
-			else
-				miss_count = miss_count + 1
-			end
-		end
-
-		if #_hits ~= 0 then
-			mean /= #_hits - miss_count
-		end
-
-		return mean
+		return _mean_sum / _mean_count
 	end
 
 	local _frame_has_played_sfx = false
@@ -205,6 +195,12 @@ function ScoreManager:new(_game)
 
 		if renderable_hit then
 			table.insert(_hits, renderable_hit)
+			
+			-- Update running mean calculation
+			if renderable_hit.judgement ~= NoteResult.Miss and renderable_hit.time_left then
+				_mean_sum += renderable_hit.time_left
+				_mean_count += 1
+			end
 		end
 
 		_on_change:Fire(_marvelous_count,_perfect_count,_great_count,_good_count,_bad_count,_miss_count,_max_chain,_chain,_score,renderable_hit, _hits)

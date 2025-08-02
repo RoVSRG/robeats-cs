@@ -1,4 +1,5 @@
 local Http = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Http"))
+local Function = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Function"))
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
 local Remotes = game.ReplicatedStorage.Remotes
 
@@ -16,7 +17,7 @@ local function mergeTables(...)
     return result
 end
 
-local function submitScore(player, scoreData, settings)
+local submitScore = Function.create(function(player, scoreData, settings)
 	if type(scoreData) ~= "table" then
 		warn("Invalid score data submitted by " .. player.Name)
 		return { success = false, error = "Invalid data format" }
@@ -45,31 +46,19 @@ local function submitScore(player, scoreData, settings)
 
 	print(player.Name .. " submitted a score")
 	return { success = true }
-end
+end)
 
-local function getLeaderboard(player, hash)
+local getLeaderboard = Function.create(function(player, hash)
 	if not hash or type(hash) ~= "string" then
-		return { success = false, error = "Invalid song hash" }
+		error("Invalid hash provided for leaderboard retrieval by " .. player.Name)
 	end
 
-	local success, result = pcall(function()
-		return Http.get("/scores/leaderboard", {
-			params = { hash = hash },
-		})
-	end)
+	local result = Http.get("/scores/leaderboard", {
+		params = { hash = hash },
+	})
 
-	if not success then
-		warn("Failed to fetch leaderboard for " .. player.Name .. ": " .. tostring(result))
-		return { success = false, error = "Internal request failed" }
-	end
-
-	if not result.success then
-		warn("Backend returned error for leaderboard: " .. tostring(result.body))
-		return { success = false, error = result.body }
-	end
-
-	return { success = true, data = result.json() }
-end
+	return result.json()
+end)
 
 Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
 Remotes.Functions.GetLeaderboard.OnServerInvoke = Protect.wrap(getLeaderboard)

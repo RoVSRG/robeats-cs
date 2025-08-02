@@ -56,22 +56,16 @@ Game.results.score:on(function(score)
 	ScorePanel.PlayRating.Rainbow.Value = Rating.isRainbow(score.rating)
 
 	ScorePanel.Accuracy.Text = string.format("Accuracy: %0.2f [%s]", score.accuracy, score.grade)
+	ScorePanel.AvgOffset.Text = string.format("Avg. Offset: %0.1f ms", score.mean)
 	ScorePanel.GradeImage.Image = GradeIconMap[score.grade]
 	ScorePanel.Spread.RichText = true
 	ScorePanel.Score.Text = string.format("Score: %d", score.score)
-	ScorePanel.Spread.Text = string.format(
-		"Spread: <font color='rgb(255, 255, 255)'>%s</font> / <font color='rgb(235, 220, 13)'>%s</font> / <font color='rgb(57, 192, 16)'>%s</font> / <font color='rgb(12, 15, 151)'>%s</font> / <font color='rgb(174, 22, 194)'>%s</font> / <font color='rgb(190, 30, 30)'>%s</font>",
-		tostring(score.marvelous),
-		tostring(score.perfect),
-		tostring(score.great),
-		tostring(score.good),
-		tostring(score.bad),
-		tostring(score.miss)
-	)
+	ScorePanel.Spread.Text = Color.getSpreadRichText(score.marvelous, score.perfect, score.great, score.good, score.bad, score.miss)
 	ScorePanel.UnstableRate.Text = string.format("Unstable Rate: %0.2f", 0)
 	ScorePanel.MaxCombo.Text = string.format("Max Combo: %d", score.maxCombo)
 	ScorePanel.PlayTitle.Text = song.SongName .. " - " .. song.ArtistName
 	ScorePanel.PlayerName.Text = game.Players.LocalPlayer.Name .. "'s Play Stats"
+	
 	constructHitGraph(song, score.hits)
 end)
 

@@ -48,6 +48,8 @@ export type GameStats = {
 	totalNotes: number,
 	notesHit: number,
 	grade: string,
+	hits: { [number]: any }, -- Renderable hits
+	mean: number, -- Running mean of hit timings
 }
 
 export type GameState = "idle" | "loading" | "ready" | "playing" | "paused" | "finished"
@@ -75,25 +77,11 @@ function RobeatsGameWrapper.new()
 	self.noteMissed = Signal.new() :: any
 	self.scoreChanged = Signal.new() :: any
 	self.updated = Signal.new() :: any
-	
-	-- Statistics tracking
-	self._stats = {
-		rating = 0, -- Placeholder for future rating system
-		score = 0,
-		accuracy = 0,
-		combo = 0,
-		maxCombo = 0,
-		marvelous = 0,
-		perfect = 0,
-		great = 0,
-		good = 0,
-		bad = 0,
-		miss = 0,
-		totalNotes = 0,
-		notesHit = 0,
-		grade = "F",
-		hits = {}
-	} :: GameStats
+
+
+	-- Initialize stats
+	self._stats = {} :: GameStats
+	self:_resetStats()
 	
 	return self
 end
@@ -134,6 +122,9 @@ function RobeatsGameWrapper:_setupEventListeners()
 
 			self._stats.accuracy = (scoreManager:get_accuracy() :: number) * 100 -- Convert to percentage
 			self._stats.rating = Rating.calculateRating(rate / 100, self._stats.accuracy, song.Difficulty)
+
+			-- Update mean using ScoreManager's method
+			self._stats.mean = scoreManager:get_mean()
 
 			-- Update accuracy using ScoreManager's method
 			
@@ -206,6 +197,8 @@ function RobeatsGameWrapper:_resetStats()
 		notesHit = 0,
 		grade = "F",
 		rating = 0,
+		hits = {},
+		mean = 0,
 	}
 end
 

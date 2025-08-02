@@ -1,6 +1,7 @@
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local Transient = require(game.ReplicatedStorage.State.Transient)
 local Pfp = require(game.ReplicatedStorage.Shared.Pfp)
+local Color = require(game.ReplicatedStorage.Shared.Color)
 
 local Container = script.Parent.Players
 local Loading = script.Parent.Loading
@@ -19,7 +20,7 @@ function updateLeaderboard(hash)
 	local leaderboard = Remotes.Functions.GetLeaderboard:InvokeServer(hash)
 
 	if leaderboard.success then
-		for i, entry in ipairs(leaderboard.data) do
+		for i, entry in ipairs(leaderboard.result) do
 			local playerFrame = slot:Clone()
 			playerFrame.LayoutOrder = i
 
@@ -32,7 +33,7 @@ function updateLeaderboard(hash)
 			data.Primary.PrimaryText.Text = string.format("Rating: %0.2f | Accuracy: %0.2f", entry["rating"], entry["accuracy"])
 			data.Primary.Rate.Text = string.format("%0.2fx", entry["rate"] / 100)
 
-			data.Spread.Text = string.format("Spread: %d / %d / %d / %d / %d / %d", 
+			data.Spread.Text = Color.getSpreadRichText(
 				entry["marvelous"],
 				entry["perfect"],
 				entry["great"],
