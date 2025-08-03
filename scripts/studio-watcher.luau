@@ -358,7 +358,7 @@ local function exportInstance(instance, targetDir: string)
 	end
 end
 
-local function scanDeleted(parentInstance, targetDir: string)
+local function scanDeletedChildren(parentInstance, targetDir: string)
 	-- Check if target directory exists
 	if not fs.isDir(targetDir) then
 		return
@@ -406,7 +406,7 @@ local function scanDeleted(parentInstance, targetDir: string)
 			local correspondingInstance = validInstanceNames[dirName]
 			local subdirPath = targetDir .. "/" .. dirName
 			-- Recursive call for subdirectories
-			scanDeleted(correspondingInstance, subdirPath)
+			scanDeletedChildren(correspondingInstance, subdirPath)
 		end
 	end
 end
@@ -499,34 +499,38 @@ local function pullGuiFromPlace(path: string)
 		local pathParts = parseRobloxPath(basePath)
 
 		-- Validate the path structure
-		if #pathParts < 4 or pathParts[1] ~= "game" or pathParts[2] ~= "StarterGui" or pathParts[3] ~= "Screens" then
+		if pathParts[1] ~= "game" or pathParts[2] ~= "StarterGui" or pathParts[3] ~= "Screens" then
 			warn("⚠️ Skipping sync - invalid __BASEPATH format: " .. basePath .. ". Expected: game.StarterGui.Screens.xxx")
 			return
 		end
 
-		for _, child in dev:GetChildren() do
-			-- Check for __BASEPATH attribute
+		table.remove(pathParts, 1) -- Remove "game"
+		table.remove(pathParts, 1) -- Remove "StarterGui"
+		table.remove(pathParts, 1) -- Remove "Screens"
 
+		for _, child in dev:GetChildren() do
 			-- Extract the original instance name from the path (last part)
-			local originalInstanceName = pathParts[#pathParts]
+			local childName = sanitizeFilename(child.Name)
 
 			-- Build the target directory from __BASEPATH: skip game.StarterGui.Screens, use remaining path parts
 			local targetPath = SCREENS_DIR
-			for i = 4, #pathParts - 1 do -- Start from index 4 to skip game.StarterGui.Screens
+			for i = 1, #pathParts - 1 do
 				targetPath = targetPath .. "/" .. pathParts[i]
 			end
 
+			print("🔄 Processing child:", child.Name)
+
 			-- Clone the child and keep its original name from the __BASEPATH
 			local childClone = child:Clone()
-			childClone.Name = originalInstanceName
+			childClone.Name = childName
 
 			print(childClone.Name, "->", targetPath)
 
-			print("📦 Exporting instance:", originalInstanceName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
+			print("📦 Exporting instance:", childName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
 			exportInstance(childClone, targetPath)
 
 			print("🧹 Cleaning up orphaned directories...")
-			scanDeleted(childClone, targetPath .. "/" .. originalInstanceName)
+			scanDeletedChildren(childClone, targetPath .. "/" .. childName)
 		end
 	else
 		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
