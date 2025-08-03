@@ -17,10 +17,22 @@ function updateLeaderboard(hash)
 
 	local slot = ScreenChief:GetTemplates("SongSelect"):FindFirstChild("Slot")
 
-	local leaderboard = Remotes.Functions.GetLeaderboard:InvokeServer(hash)
+	local response = Remotes.Functions.GetLeaderboard:InvokeServer(hash)
 
-	if leaderboard.success then
-		for i, entry in ipairs(leaderboard.result) do
+	if response.success then
+		local result = response.result
+		local leaderboard = result.leaderboard
+		local best = result.best
+
+		local bestText: TextLabel = script.Parent.best
+
+		if best then
+			bestText.Text = string.format("Best: %0.2f SR | %0.2f%% | %0.2fx", best.rating, best.accuracy, best.rate / 100)
+		else
+			bestText.Text = "No Best Score"
+		end
+
+		for i, entry in ipairs(leaderboard) do
 			local playerFrame = slot:Clone()
 			playerFrame.LayoutOrder = i
 
@@ -50,14 +62,13 @@ function updateLeaderboard(hash)
 			playerFrame.Parent = Container
 		end
 	else
-		warn("Failed to fetch leaderboard: " .. leaderboard.error)
+		warn("Failed to fetch leaderboard: " .. response.error)
 	end
 end
 
-
-
 Transient.song.hash:on(function(hash)
 	Loading.Visible = true
+	script.Parent.best.Text = "Loading..."
 
 	for _, child in Container:GetChildren() do
 		if child:IsA("Frame") then

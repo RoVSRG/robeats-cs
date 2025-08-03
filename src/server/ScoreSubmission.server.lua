@@ -53,7 +53,7 @@ local getLeaderboard = Function.create(function(player, hash)
 	end
 
 	local result = Http.get("/scores/leaderboard", {
-		params = { hash = hash },
+		params = { hash = hash, userId = player.UserId },
 	})
 
 	return result.json()
