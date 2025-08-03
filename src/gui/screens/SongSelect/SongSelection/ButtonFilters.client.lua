@@ -21,15 +21,15 @@ local sortOptions = {
         func = nil
     },
     {
-        name = "Difficulty (Asc)",
-        func = function(a, b)
-            return getDifficulty(getSongId(a)) < getDifficulty(getSongId(b))
-        end
-    },
-    {
         name = "Difficulty (Desc)",
         func = function(a, b)
             return getDifficulty(getSongId(a)) > getDifficulty(getSongId(b))
+        end
+    },
+    {
+        name = "Difficulty (Asc)",
+        func = function(a, b)
+            return getDifficulty(getSongId(a)) < getDifficulty(getSongId(b))
         end
     },
     {
