@@ -61,8 +61,10 @@ local function isRateLimited(userId)
 end
 
 -- Core multiplayer functions (camelCase)
-local function createRoom(player, roomName, password, mapSelected, playRate)
+local function createRoom(player, password, mapSelected, playRate)
     print("Creating room for player:", player.Name)
+
+	local roomName = player.Name .. "'s Room"
 
 	if isRateLimited(player.UserId) then
 		return false, "Rate limited"
