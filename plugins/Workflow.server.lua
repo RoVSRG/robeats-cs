@@ -2,6 +2,22 @@ local Selection = game:GetService("Selection")
 local Toolbar = plugin:CreateToolbar("Workflow")
 local Button = Toolbar:CreateButton("Change Working Screen", "Change the working screen to the selected GUI", "rbxassetid://4458901886")
 
+local function parseRobloxPath(path: string, up: number?)
+	local pathParts = {}
+
+	for part in path:gmatch("[^%.]+") do
+		table.insert(pathParts, part)
+	end
+
+    if up and up > 0 then
+        for i = 1, up do
+            table.remove(pathParts) -- Remove last part for each level up
+        end
+    end
+
+	return pathParts
+end
+
 local function getCurrentSelection()
     local selection = Selection:Get()
     if #selection == 0 then
@@ -54,12 +70,13 @@ local function swap()
 
     dev:ClearAllChildren()
 
+    local instancePath = "game." .. selected:GetFullName()
+    local containingPath = parseRobloxPath(instancePath, 1)
+
+    dev:SetAttribute("__BASEPATH", table.concat(containingPath, "."))
+
     -- Create a copy of the selected GUI object
     local selectedClone = selected:Clone()
-
-    -- Add __BASEPATH attribute to the top-level instance
-    local basePath = "game." .. selected:GetFullName()
-    selectedClone:SetAttribute("__BASEPATH", basePath)
 
     -- Set the parent of the cloned object to the ScreenGui
     selectedClone.Parent = dev

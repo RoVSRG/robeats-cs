@@ -358,8 +358,7 @@ local function exportInstance(instance, targetDir: string)
 	end
 end
 
--- === Recursive deletion with __BASEPATH awareness ===
-local function scanDeletedWithBasePath(parentInstance, targetDir: string, syncedScreenNames: {[string]: boolean})
+local function scanDeleted(parentInstance, targetDir: string)
 	-- Check if target directory exists
 	if not fs.isDir(targetDir) then
 		return
@@ -368,6 +367,14 @@ local function scanDeletedWithBasePath(parentInstance, targetDir: string, synced
 	-- Safety check: only operate within the screens directory
 	if not targetDir:find("screens") then
 		print("⚠️ Safety check: skipping deletion outside screens directory")
+		return
+	end
+	
+	-- Skip deletion if this is a top-level directory (directly under screens)
+	local normalizedPath = targetDir:gsub("\\", "/")
+	local screensPattern = SCREENS_DIR:gsub("\\", "/")
+	if normalizedPath:match("^" .. screensPattern:gsub("([^%w])", "%%%1") .. "/[^/]+$") then
+		print("⚠️ Skipping deletion at top-level directory:", targetDir)
 		return
 	end
 	
@@ -390,8 +397,7 @@ local function scanDeletedWithBasePath(parentInstance, targetDir: string, synced
 	-- Find directories that don't have corresponding instances
 	for dirName, _ in filesystemDirs do
 		-- Only delete if the directory doesn't have a corresponding instance
-		-- AND it wasn't one of the screens we just synced from Dev
-		if not validInstanceNames[dirName] and not syncedScreenNames[dirName] then
+		if not validInstanceNames[dirName] then
 			local dirPath = targetDir .. "/" .. dirName
 			print("🗑️ Deleting orphaned directory:", dirPath)
 			fs.removeDir(dirPath)
@@ -399,8 +405,8 @@ local function scanDeletedWithBasePath(parentInstance, targetDir: string, synced
 			-- Recursively check subdirectories for valid instances
 			local correspondingInstance = validInstanceNames[dirName]
 			local subdirPath = targetDir .. "/" .. dirName
-			-- Recursive call for subdirectories (no syncedScreenNames needed for subdirs)
-			scanDeletedWithBasePath(correspondingInstance, subdirPath, {})
+			-- Recursive call for subdirectories
+			scanDeleted(correspondingInstance, subdirPath)
 		end
 	end
 end
@@ -433,6 +439,23 @@ local function displayGitDiffAfterSync()
 		end
 	end
 end
+
+local function parseRobloxPath(path: string, up: number?)
+	local pathParts = {}
+
+	for part in path:gmatch("[^%.]+") do
+		table.insert(pathParts, part)
+	end
+
+    if up and up > 0 then
+        for i = 1, up do
+            table.remove(pathParts) -- Remove last part for each level up
+        end
+    end
+
+	return pathParts
+end
+
 
 -- === Pull GUI from place file ===
 local function pullGuiFromPlace(path: string)
@@ -467,57 +490,43 @@ local function pullGuiFromPlace(path: string)
 			return
 		end
 
-		-- Track which screen names are being synced from Dev
-		local syncedScreenNames = {}
+		local basePath = dev:GetAttribute("__BASEPATH")
+		if not basePath then
+			warn("⚠️ Skipping sync - Dev container missing __BASEPATH attribute. Use the Workflow plugin to properly copy from StarterGui.Screens.")
+			return
+		end
+		
+		local pathParts = parseRobloxPath(basePath)
+
+		-- Validate the path structure
+		if #pathParts < 4 or pathParts[1] ~= "game" or pathParts[2] ~= "StarterGui" or pathParts[3] ~= "Screens" then
+			warn("⚠️ Skipping sync - invalid __BASEPATH format: " .. basePath .. ". Expected: game.StarterGui.Screens.xxx")
+			return
+		end
 
 		for _, child in dev:GetChildren() do
 			-- Check for __BASEPATH attribute
-			local basePath = child:GetAttribute("__BASEPATH")
-			if not basePath then
-				warn("⚠️ Skipping sync for '" .. child.Name .. "' - missing __BASEPATH attribute. Use the Workflow plugin to properly copy from StarterGui.Screens.")
-				continue
-			end
-
-			-- Parse the base path to determine the target location
-			-- Expected format: game.StarterGui.Screens.SomeScreen or similar
-			local pathParts = {}
-			for part in basePath:gmatch("[^%.]+") do
-				table.insert(pathParts, part)
-			end
-
-			-- Validate the path structure
-			if #pathParts < 4 or pathParts[1] ~= "game" or pathParts[2] ~= "StarterGui" or pathParts[3] ~= "Screens" then
-				warn("⚠️ Skipping sync for '" .. child.Name .. "' - invalid __BASEPATH format: " .. basePath .. ". Expected: game.StarterGui.Screens.ScreenName")
-				continue
-			end
-
-			-- Remove "game", "StarterGui", "Screens" 
-			table.remove(pathParts, 1) -- Remove "game"
-			table.remove(pathParts, 1) -- Remove "StarterGui" 
-			table.remove(pathParts, 1) -- Remove "Screens"
 
 			-- Extract the original instance name from the path (last part)
 			local originalInstanceName = pathParts[#pathParts]
 
-			-- Build the target directory from __BASEPATH: BASE_DIR + path except the last part
+			-- Build the target directory from __BASEPATH: skip game.StarterGui.Screens, use remaining path parts
 			local targetPath = SCREENS_DIR
-			for i = 1, #pathParts - 1 do -- All parts except the last one (the instance name itself)
+			for i = 4, #pathParts - 1 do -- Start from index 4 to skip game.StarterGui.Screens
 				targetPath = targetPath .. "/" .. pathParts[i]
 			end
-
-			-- Track the top-level screen name for cleanup
-			local topLevelScreenName = pathParts[1]
-			syncedScreenNames[topLevelScreenName] = true
 
 			-- Clone the child and keep its original name from the __BASEPATH
 			local childClone = child:Clone()
 			childClone.Name = originalInstanceName
 
+			print(childClone.Name, "->", targetPath)
+
 			print("📦 Exporting instance:", originalInstanceName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
 			exportInstance(childClone, targetPath)
 
 			print("🧹 Cleaning up orphaned directories...")
-			scanDeletedWithBasePath(childClone, targetPath, syncedScreenNames)
+			scanDeleted(childClone, targetPath .. "/" .. originalInstanceName)
 		end
 	else
 		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
