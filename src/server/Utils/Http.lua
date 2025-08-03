@@ -1,15 +1,34 @@
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
+local DataStoreService = game:GetService("DataStoreService")
 
 local GLOBAL_HEADERS = {}
 local LOCALHOST = "http://localhost:3000"
 
 local function withUrl(path)
-	if RunService:IsStudio() then
+	local useDevServer = game:GetService("ServerScriptService"):GetAttribute("USE_DEV_SERVER")
+
+	if RunService:IsStudio() and not useDevServer then
+		warn("----------------------------------------------------------------------------------")
+		warn("Using production server for HTTP requests! This is not recommended in Studio mode.")
+		warn("----------------------------------------------------------------------------------")
+	end
+
+	if RunService:IsStudio() and useDevServer then
 		return LOCALHOST .. path
 	end
 
-	return "https://your-api-domain.com" .. path
+	return "https://robeatscs.com" .. path
+end
+
+local SECRETS = DataStoreService:GetDataStore("SECRETS")
+local API_KEY = SECRETS:GetAsync("API_KEY")
+
+local function withApiKey(params)
+	params = params or {}
+	params.api_key = API_KEY
+
+	return params
 end
 
 local function encodeParams(params)
@@ -26,6 +45,7 @@ end
 
 local function request(config, contentType)
 	contentType = contentType or "application/json"
+	config.params = config.params or {}
 
 	local url = config.url or ""
 
@@ -33,10 +53,10 @@ local function request(config, contentType)
 		url = withUrl(url)
 	end
 
-	if config.params then
-		url ..= encodeParams(config.params)
-		config.params = nil
-	end
+	local params = withApiKey(config.params)
+
+	url ..= encodeParams(params)
+	config.params = nil
 
 	local requestOptions = {
 		Url = url,
@@ -68,6 +88,10 @@ local function request(config, contentType)
 	end
 
 	local response = HttpService:RequestAsync(requestOptions)
+
+	if RunService:IsStudio() and response.StatusCode ~= 200 then
+		warn(string.format("HTTP request failed: %s", response.Body))
+	end
 
 	return {
 		json = function()
@@ -110,6 +134,20 @@ local function del(url, config)
 	config.method = "DELETE"
 	return request(config)
 end
+
+local lastApiKeyUpdate = tick()
+
+RunService.Heartbeat:Connect(function(dt)
+	if tick() - lastApiKeyUpdate > 30 then
+		local newApiKey = SECRETS:GetAsync("API_KEY")
+
+		if newApiKey then
+			API_KEY = newApiKey
+		end
+
+		lastApiKeyUpdate = tick()
+	end
+end)
 
 return {
 	request = request,
