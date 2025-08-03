@@ -5,13 +5,17 @@ local DataStoreService = game:GetService("DataStoreService")
 local GLOBAL_HEADERS = {}
 local LOCALHOST = "http://localhost:3000"
 
+local warned = false
+
 local function withUrl(path)
 	local useDevServer = game:GetService("ServerScriptService"):GetAttribute("USE_DEV_SERVER")
 
-	if RunService:IsStudio() and not useDevServer then
+	if RunService:IsStudio() and not useDevServer and not warned then
 		warn("----------------------------------------------------------------------------------")
 		warn("Using production server for HTTP requests! This is not recommended in Studio mode.")
 		warn("----------------------------------------------------------------------------------")
+		
+		warned = true
 	end
 
 	if RunService:IsStudio() and useDevServer then
