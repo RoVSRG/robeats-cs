@@ -515,11 +515,10 @@ local function pullGuiFromPlace(path: string)
 
 			print("📦 Exporting instance:", originalInstanceName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
 			exportInstance(childClone, targetPath)
+
+			print("🧹 Cleaning up orphaned directories...")
+			scanDeletedWithBasePath(childClone, targetPath, syncedScreenNames)
 		end
-		
-		-- Clean up orphaned directories, but preserve screens that weren't synced from Dev
-		print("🧹 Cleaning up orphaned directories...")
-		scanDeletedWithBasePath(screens, SCREENS_DIR, syncedScreenNames)
 	else
 		print("⚠️ No Dev ScreenGui found. Please make a ScreenGui named 'Dev' in StarterGui to start two-way sync!")
 		return

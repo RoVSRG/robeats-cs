@@ -1,5 +1,5 @@
 -- Modern multiplayer system for the new game structure
-local MultiplayerRooms = workspace.MultiplayerRooms or Instance.new("Folder")
+local MultiplayerRooms = workspace:FindFirstChild("MultiplayerRooms") or Instance.new("Folder")
 MultiplayerRooms.Name = "MultiplayerRooms"
 MultiplayerRooms.Parent = workspace
 
@@ -8,8 +8,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 
 -- Get remote functions from the new structure
-local remoteFunctions = ReplicatedStorage.Functions
-local remoteEvents = ReplicatedStorage.Events
+local remoteFunctions = ReplicatedStorage.Remotes.Functions
+local remoteEvents = ReplicatedStorage.Remotes.Events
 
 -- Rate limiting
 local rateLimits = {}
@@ -62,6 +62,8 @@ end
 
 -- Core multiplayer functions (camelCase)
 local function createRoom(player, roomName, password, mapSelected, playRate)
+    print("Creating room for player:", player.Name)
+
 	if isRateLimited(player.UserId) then
 		return false, "Rate limited"
 	end
