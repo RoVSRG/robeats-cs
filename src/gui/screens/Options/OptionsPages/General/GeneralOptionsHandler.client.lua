@@ -16,4 +16,7 @@ optionsHandler:createIntOption("Audio Offset", Options.AudioOffset, 1)
 -- optionsHandler:createIntOption("Lane Cover", Options.LaneCover, 10)
 -- optionsHandler:createBoolOption("Lane Cover Enabled", Options.LaneCoverEnabled)
 optionsHandler:createIntOption("Note Speed", Options.ScrollSpeed, 1)
+optionsHandler:createBoolOption("Lane Cover Enabled", Options.LaneCoverEnabled)
+optionsHandler:createIntOption("Lane Cover Height", Options.LaneCoverPct, 1)
+
 optionsHandler:createRadioOption("Timing Preset", Options.TimingPreset, {"Standard", "Strict"})

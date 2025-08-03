@@ -1,4 +1,12 @@
 {
   "className": "UIAspectRatioConstraint",
-  "properties": {}
+  "properties": {
+    "AspectRatio": 1,
+    "AspectType": {
+      "Enum": 0
+    },
+    "DominantAxis": {
+      "Enum": 0
+    }
+  }
 }

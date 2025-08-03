@@ -12,6 +12,8 @@ local Options = Val.scope {
     AudioOffset = Val.new(0), -- Audio offset in milliseconds
     HitOffset = Val.new(0), -- Hit offset in milliseconds
     TimingPreset = Val.new("Standard"), -- Timing window preset
+    LaneCoverEnabled = Val.new(false),
+    LaneCoverPct = Val.new(0),
     Mods = Val.new({}), -- Array of active mods
     
     -- Visual Settings - 2D Mode
