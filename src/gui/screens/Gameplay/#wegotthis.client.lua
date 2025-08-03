@@ -1,7 +1,9 @@
+local MainGui = game.Players.LocalPlayer.PlayerGui:WaitForChild("Main")
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local Game = require(game.ReplicatedStorage.State.Game)
 local Time = require(game.ReplicatedStorage.Libraries.Time)
 local Pfp = require(game.ReplicatedStorage.Shared.Pfp)
+local Options = require(game.ReplicatedStorage.State.Options)
 
 local Screen = script.Parent
 
@@ -18,10 +20,24 @@ end)
 local function onGameCreated()
 	local Counters = Screen.MAWindow.Counters
 	local CompeteScreen = Screen.CompeteScreen
+	local LaneCover = Screen.LaneCover
+
+	
 
 	CompeteScreen.Player1.Visible = true
 	CompeteScreen.Player1.Avatar.Image = Pfp.getPfp(game.Players.LocalPlayer.UserId)
 	CompeteScreen.Player1.PlayerName.Text = game.Players.LocalPlayer.Name
+
+	MainGui.IgnoreGuiInset = true
+
+	local function constructLaneCover()
+		if Options.LaneCoverEnabled:get() then
+			LaneCover.Size = UDim2.fromScale(1, Options.LaneCoverPct:get() / 100)
+			LaneCover.Visible = true
+		else
+			LaneCover.Visible = false
+		end
+	end
 
 	local function updateCompeteScreen(score, accuracy, combo)
 		CompeteScreen.Player1.Score.Text = string.format("%d | %0.2f%%", score, accuracy)
@@ -49,6 +65,7 @@ local function onGameCreated()
 		updateCompeteScreen(score.score, score.accuracy, score.combo)
 	end
 
+	constructLaneCover()
 	updateCompeteScreen(0, 0, 0)
 	updateMAWindow({
 		accuracy = 0,
@@ -76,6 +93,7 @@ local function onGameCreated()
 		Game.results.score:set(score)
 		Game.results.open:set(true)
 		
+		MainGui.IgnoreGuiInset = false
 		ScreenChief:Switch("SongSelect")
 	end)
 end

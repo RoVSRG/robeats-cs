@@ -46,11 +46,11 @@ function OptionsHandler:createIntOption(name, val, incrementVal)
 	option.Display.Text = name
 
 	option.Increment.MouseButton1Click:Connect(function()
-		val:set(val:get() + incrementVal)
+		val:add(incrementVal)
 	end)
 
 	option.Decrement.MouseButton1Click:Connect(function()
-		val:set(val:get() - incrementVal)
+		val:sub(incrementVal)
 	end)
 
 	val:on(function(val)
