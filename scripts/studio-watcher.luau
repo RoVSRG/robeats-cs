@@ -370,14 +370,6 @@ local function scanDeletedChildren(parentInstance, targetDir: string)
 		return
 	end
 	
-	-- Skip deletion if this is a top-level directory (directly under screens)
-	local normalizedPath = targetDir:gsub("\\", "/")
-	local screensPattern = SCREENS_DIR:gsub("\\", "/")
-	if normalizedPath:match("^" .. screensPattern:gsub("([^%w])", "%%%1") .. "/[^/]+$") then
-		print("⚠️ Skipping deletion at top-level directory:", targetDir)
-		return
-	end
-	
 	-- Get all directories in the target directory
 	local filesystemDirs = {}
 	for _, entry in fs.readDir(targetDir) do
