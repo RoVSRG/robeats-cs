@@ -312,7 +312,6 @@ function AudioManager:new(_game)
 	local _sync_timer = 0
 	local _raise_ended_trigger = false
 	local _raise_just_finished = false
-	local _ended_connection: RBXScriptConnection? = nil
 
 	function self:update(dt_scale)
 		_note_prebuffer_time = 13720 / math.clamp(_game._config.NoteSpeed, 1, 100)
@@ -355,17 +354,6 @@ function AudioManager:new(_game)
 				_bgm.Volume = _audio_volume
 				_bgm.PlaybackSpeed = _rate
 
-				print(_rate)
-
-				print("AudioManager:update(): Starting audio playback at time " .. _bgm_time_position)
-				-- _bgm_time_position = 0
-				_ended_connection = _bgm.Ended:Connect(function()
-					_raise_ended_trigger = true
-					if _ended_connection then
-						_ended_connection:Disconnect()
-					end
-					_ended_connection = nil
-				end)
 
 				_current_mode = AudioManager.Mode.Playing
 			end
