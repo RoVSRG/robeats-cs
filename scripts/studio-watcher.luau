@@ -9,7 +9,7 @@ local function encodeJson(data: any): string
 	return serde.encode("json", data, { pretty = true })
 end
 
-local function decodeJson(data: string): string
+local function _decodeJson(data: string): string
 	return serde.decode("json", data)
 end
 
@@ -237,7 +237,7 @@ local function getFullPropertySet(className: string)
 end
 
 -- === Rojo-compatible property serializer ===
-local function getInstanceProperties(instance: any): { [string]: any }
+local function getInstanceProperties(instance: any, forcedProps: { [string]: boolean }?): { [string]: any }
 	local className = instance.ClassName
 	local fullClassData = getFullPropertySet(className)
 	
@@ -255,8 +255,12 @@ local function getInstanceProperties(instance: any): { [string]: any }
 			end
 
 			local isDefault = tostring(fullClassData.defaultProperties[prop.Name]) == tostring(value)
+			local forceWrite = forcedProps ~= nil and forcedProps[prop.Name] == true
 
-			if isDefault and not instance:IsA("UIComponent") then
+			-- Skip default-valued properties unless
+			-- 1) this is a UIComponent (we keep all), or
+			-- 2) the property previously existed in meta and needs to be written to force Studio to sync back to default
+			if isDefault and not instance:IsA("UIComponent") and not forceWrite then
 				continue
 			end
 
@@ -272,10 +276,10 @@ local function getInstanceProperties(instance: any): { [string]: any }
 end
 
 -- === Rojo-compatible instance serialization ===
-local function serializeInstanceToJson(instance: any): any
+local function serializeInstanceToJson(instance: any, forcedProps: { [string]: boolean }?): any
 	return {
 		["className"] = instance.ClassName,
-		["properties"] = getInstanceProperties(instance),
+		["properties"] = getInstanceProperties(instance, forcedProps),
 	}
 end
 
@@ -324,8 +328,23 @@ local function exportInstance(instance, targetDir: string)
 		fs.writeDir(instanceDir)
 	end
 
+	-- Prepare set of properties that previously existed so defaults can be written to force-sync
+	local forcedProps: { [string]: boolean } = {}
+	local existingMetaPath = instanceDir .. "/init.meta.json"
+	if fs.isFile(existingMetaPath) then
+		local content = fs.readFile(existingMetaPath)
+		if content and #content > 0 then
+			local decoded = serde.decode("json", content)
+			if decoded and type(decoded.properties) == "table" then
+				for key, _ in pairs(decoded.properties) do
+					forcedProps[key] = true
+				end
+			end
+		end
+	end
+
 	-- Write init.meta.json for the parent itself
-	local jsonData = serializeInstanceToJson(instance)
+	local jsonData = serializeInstanceToJson(instance, forcedProps)
 	fs.writeFile(instanceDir .. "/init.meta.json", encodeJson(jsonData))
 
 	-- Process all children
@@ -505,9 +524,10 @@ local function pullGuiFromPlace(path: string)
 			local childName = sanitizeFilename(child.Name)
 
 			-- Build the target directory from __BASEPATH: skip game.StarterGui.Screens, use remaining path parts
+			local relativePath = table.concat(pathParts, "/")
 			local targetPath = SCREENS_DIR
-			for i = 1, #pathParts - 1 do
-				targetPath = targetPath .. "/" .. pathParts[i]
+			if #relativePath > 0 then
+				targetPath = SCREENS_DIR .. "/" .. relativePath
 			end
 
 			print("🔄 Processing child:", child.Name)

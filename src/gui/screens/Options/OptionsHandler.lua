@@ -92,8 +92,7 @@ function OptionsHandler:createRadioOption(name, val, selection)
 	local option = Templates:FindFirstChild("RadioOption"):Clone()
 	option.Display.Text = name
 
-    -- Ensure the template sample button isn't displayed or laid out
-    if option:FindFirstChild("SampleButton") then
+	if option:FindFirstChild("SampleButton") then
         option.SampleButton.Visible = false
     end
 
@@ -118,9 +117,9 @@ function OptionsHandler:createRadioOption(name, val, selection)
         for _, child in ipairs(option:GetChildren()) do
             if child:IsA("GuiButton") and child ~= option.SampleButton then
                 if child.Name == tostring(currentValue) then
-                    child.BackgroundTransparency = 0
+                    child.BackgroundColor3 = Color3.fromRGB(255, 167, 36)
                 else
-                    child.BackgroundTransparency = 0.4
+                    child.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
                 end
             end
         end
