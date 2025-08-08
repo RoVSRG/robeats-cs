@@ -23,7 +23,7 @@ local function refreshSongPanel()
 	
 	RateSelector.RateInfo.Text = string.format("Song Rate: %0.2fx", rate / 100)
 	
-	local difficulty = Rating.getDifficultyMultiplier(rate / 100) * data.Difficulty
+    local difficulty = Rating.getDifficultyMultiplier(rate / 100, data.Difficulty) * data.Difficulty
 	
 	-- Max rating (placeholder: maybe based on difficulty * some multiplier?)
 	local maxRating = Rating.calculateRating(rate / 100, 100, data.Difficulty)
