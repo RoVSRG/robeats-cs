@@ -1,3 +1,6 @@
 [submodule "songs"]
 	path = songs
 	url = https://github.com/RoVSRG/robeats-cs-songs.git
+[submodule "transactor"]
+	path = transactor
+	url = https://github.com/RoVSRG/robeats-cs-transactor
