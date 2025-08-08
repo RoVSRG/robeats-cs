@@ -92,27 +92,46 @@ function OptionsHandler:createRadioOption(name, val, selection)
 	local option = Templates:FindFirstChild("RadioOption"):Clone()
 	option.Display.Text = name
 
-	for i = 1, #selection do
-		local selectionButton = option.SampleButton:Clone()
-		selectionButton.Name = selection[i]
-		selectionButton.Text = selection[i]
-		CollectionService:AddTag(selectionButton, "Radio_" .. name)
-		selectionButton.Parent = option
-	end
+    -- Ensure the template sample button isn't displayed or laid out
+    if option:FindFirstChild("SampleButton") then
+        option.SampleButton.Visible = false
+    end
 
-	for _, button in pairs(CollectionService:GetTagged("Radio_" .. name)) do
-		button.MouseButton1Click:Connect(function()
-			val:set(button.Name)
+    local valueToButton = {}
 
-			for _, item in pairs(option:GetChildren()) do
-				if item:IsA("GuiButton") then
-					item.BackgroundTransparency = 0
-				end
-			end
+    for i = 1, #selection do
+        local selectionButton = option.SampleButton:Clone()
+        selectionButton.Visible = true
+        selectionButton.Name = selection[i]
+        selectionButton.Text = selection[i]
+        CollectionService:AddTag(selectionButton, "Radio_" .. name)
+        selectionButton.Parent = option
+        valueToButton[selection[i]] = selectionButton
 
-			button.BackgroundTransparency = 0.6
-		end)
-	end
+        selectionButton.MouseButton1Click:Connect(function()
+            val:set(selectionButton.Name)
+        end)
+    end
+
+    -- Reflect current value in UI and keep it in sync
+    local function updateSelectionUI(currentValue)
+        for _, child in ipairs(option:GetChildren()) do
+            if child:IsA("GuiButton") and child ~= option.SampleButton then
+                if child.Name == tostring(currentValue) then
+                    child.BackgroundTransparency = 0
+                else
+                    child.BackgroundTransparency = 0.4
+                end
+            end
+        end
+    end
+
+    val:on(function(currentValue)
+        updateSelectionUI(currentValue)
+    end)
+
+    -- Initialize UI to current value (without re-firing listeners)
+    val:set(val:get(), true)
 
 	option.Parent = self.container
 	option.Visible = true
