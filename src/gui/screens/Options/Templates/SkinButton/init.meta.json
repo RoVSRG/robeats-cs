@@ -5,9 +5,9 @@
       "Enum": 0
     },
     "BackgroundColor3": [
-      1,
-      1,
-      1
+      0.06666667014360428,
+      0.06666667014360428,
+      0.06666667014360428
     ],
     "BorderColor3": [
       0,
@@ -19,14 +19,14 @@
     },
     "BorderSizePixel": 0,
     "FontFace": {
-      "family": "rbxasset://fonts/families/SourceSansPro.json",
+      "family": "rbxasset://fonts/families/GothamSSm.json",
       "style": "Normal",
       "weight": "Regular"
     },
     "Position": {
       "UDim2": [
         [
-          -0.01875000074505806,
+          1,
           0
         ],
         [
@@ -51,11 +51,11 @@
       "UDim2": [
         [
           0,
-          159
+          222
         ],
         [
           0,
-          50
+          26
         ]
       ]
     },
@@ -66,10 +66,13 @@
       "Enum": 0
     },
     "TextColor3": [
-      0,
-      0,
-      0
+      0.9843137860298157,
+      1,
+      0.003921568859368563
     ],
-    "TextSize": 26
+    "TextSize": 13,
+    "TextXAlignment": {
+      "Enum": 0
+    }
   }
 }

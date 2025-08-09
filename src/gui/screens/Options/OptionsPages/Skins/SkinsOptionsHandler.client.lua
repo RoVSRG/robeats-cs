@@ -1,18 +1,37 @@
--- local Options = require(game.ReplicatedStorage.State.Options)
-local _OptionsHandler = require(script.Parent.Parent.Parent.OptionsHandler)
+local CollectionService = game:GetService("CollectionService")
 
--- Note: Skins page may not have a standard container
--- Create your own container or use a different approach for skin management
+local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
+local Skins = require(game.ReplicatedStorage.Skins)
+local Color = require(game.ReplicatedStorage.Shared.Color)
 
--- Create a new OptionsHandler instance that will manage its own container
--- local container = script.Parent:FindFirstChild("SkinsContainer") -- if one exists
--- local _optionsHandler = OptionsHandler.new(container)
+local Options = require(game.ReplicatedStorage.State.Options)
 
--- TODO: Implement skin management interface
--- See OPTIONS_DOCUMENTATION.md for notes about skin functionality
---
--- Skin management typically requires custom components:
--- - Skin browser/list
--- - Skin preview
--- - Upload/download functionality
--- - File management
+local Templates = ScreenChief:GetTemplates("Options")
+
+local SkinButton: TextButton = Templates:FindFirstChild("SkinButton")
+
+local container = script.Parent:FindFirstChild("SkinsList")
+
+container.CanvasSize = UDim2.new(1, 0, 0, 0)
+
+print(CollectionService:GetTagged("SkinsList"))
+
+for _, skin in Skins:key_itr() do
+    local skinName = skin.Name
+
+    local clone = SkinButton:Clone()
+    clone.Name = skinName
+    clone.Text = skinName
+    clone.Visible = true
+    clone.BackgroundColor3 = Color3.new(math.random(), math.random(), math.random())
+
+    clone.Parent = container
+
+    clone.MouseButton1Click:Connect(function()
+        Options.Skin2D:set(skinName)
+
+        print(skinName)
+    end)
+
+    container.CanvasSize = UDim2.new(1, 0, 0, container.CanvasSize.Y.Offset + clone.Size.Y.Offset)
+end

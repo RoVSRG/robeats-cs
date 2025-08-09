@@ -1,4 +1,5 @@
 local TweenService = game:GetService("TweenService")
+local CollectionService = game:GetService("CollectionService")
 
 local player = game.Players.LocalPlayer
 local playerGui = player.PlayerGui
@@ -22,16 +23,32 @@ function ScreenChief:GetScreen(name)
 	return screen
 end
 
-function ScreenChief:GetTemplates(name: string)
-	local screen: Frame = self:GetScreen(name):FindFirstChild(name)
+local function _getTaggedTemplates(screen: Frame)
+	local templates = {}
 
-	if not screen:FindFirstChild("Templates") then
-		error(`"{name}" does not have a Templates folder.`)
+	for _, child in screen:GetDescendants() do
+		if CollectionService:HasTag(child, "Template") then
+			templates[child.Name] = child
+		end
 	end
 
-	return screen:FindFirstChild("Templates")
+	return templates
 end
 
+local templatesCache = {}
+
+function ScreenChief:GetTemplates(name: string)
+	if templatesCache[name] then
+		return templatesCache[name]
+	end
+
+	local screen: Frame = self:GetScreen(name)
+	local templates = _getTaggedTemplates(screen)
+
+	templatesCache[name] = templates
+
+	return templates
+end
 
 function ScreenChief:GetScreenGui()
 	return live

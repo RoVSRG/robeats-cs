@@ -268,6 +268,16 @@ local function getInstanceProperties(instance: any, forcedProps: { [string]: boo
 		end
 	end
 
+	local tags = {}
+
+	for _, tag in instance:GetTags() do
+		table.insert(tags, tag)
+	end
+
+	if #tags > 0 then
+		serializedProps["Tags"] = tags
+	end
+
 	if className == "ScreenGui" then
 		serializedProps["Enabled"] = false
 	end
