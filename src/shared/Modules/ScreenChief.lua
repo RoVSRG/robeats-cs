@@ -7,6 +7,43 @@ local playerGui = player.PlayerGui
 local screens = playerGui:WaitForChild("Screens")
 local live = playerGui:WaitForChild("Main")
 
+local function _getTaggedTemplates(screen: Frame)
+	local templates = {}
+
+	for _, child in screen:GetDescendants() do
+		if CollectionService:HasTag(child, "Template") then
+			templates[child.Name] = child
+		end
+	end
+
+	return templates
+end
+
+local templates = {}
+
+local function _extractTemplates(screen: Frame)
+	templates[screen.Name] = {}
+	local screenTemplates = templates[screen.Name]
+
+	local tagged = _getTaggedTemplates(screen)
+
+	for name, template in tagged do
+		screenTemplates[name] = template
+		template.Parent = nil
+	end
+
+	if screen:FindFirstChild("Templates") then
+		for _, child in screen:GetChildren() do
+			if not screenTemplates[child.Name] then
+				screenTemplates[child.Name] = child
+			end
+		end
+	end
+end
+
+_extractTemplates(live)
+_extractTemplates(screens)
+
 local ScreenChief = {}
 
 function ScreenChief:GetCurrentScreen()
@@ -23,31 +60,8 @@ function ScreenChief:GetScreen(name)
 	return screen
 end
 
-local function _getTaggedTemplates(screen: Frame)
-	local templates = {}
-
-	for _, child in screen:GetDescendants() do
-		if CollectionService:HasTag(child, "Template") then
-			templates[child.Name] = child
-		end
-	end
-
-	return templates
-end
-
-local templatesCache = {}
-
-function ScreenChief:GetTemplates(name: string)
-	if templatesCache[name] then
-		return templatesCache[name]
-	end
-
-	local screen: Frame = self:GetScreen(name)
-	local templates = _getTaggedTemplates(screen)
-
-	templatesCache[name] = templates
-
-	return templates
+function ScreenChief:GetTemplates(screen: string)
+	return templates[screen] or {}
 end
 
 function ScreenChief:GetScreenGui()
