@@ -4,6 +4,13 @@
     "$className": "DataModel",
     "$ignoreUnknownInstances": true,
 
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "ClockTime": 18.1
+      }
+    },
+
     "ReplicatedStorage": {
       "$path": "src/shared",
       "$ignoreUnknownInstances": true,
