@@ -1,13 +1,13 @@
 {
-  "className": "Frame",
+  "className": "TextButton",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      0.08235294371843338,
-      0.08235294371843338,
-      0.08235294371843338
+      0.06666667014360428,
+      0.06666667014360428,
+      0.06666667014360428
     ],
     "BorderColor3": [
       0,
@@ -18,15 +18,19 @@
       "Enum": 0
     },
     "BorderSizePixel": 0,
-    "LayoutOrder": 1,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Regular"
+    },
     "Position": {
       "UDim2": [
         [
-          0,
+          1,
           0
         ],
         [
-          3.439635776203431e-8,
+          0,
           0
         ]
       ]
@@ -46,20 +50,32 @@
     "Size": {
       "UDim2": [
         [
-          1,
-          0
+          0,
+          222
         ],
         [
           0,
-          36
+          26
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
+    "Style": {
+      "Enum": 0
+    },
     "Tags": [
       "Template"
-    ]
+    ],
+    "TextColor3": [
+      0.9843137860298157,
+      1,
+      0.003921568859368563
+    ],
+    "TextSize": 13,
+    "TextXAlignment": {
+      "Enum": 0
+    }
   }
 }

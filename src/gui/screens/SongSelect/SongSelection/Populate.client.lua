@@ -16,6 +16,10 @@ local SongDatabase = require(ReplicatedStorage:WaitForChild("SongDatabase"))
 
 local SPUtil = require(ReplicatedStorage.Shared.SPUtil)
 
+if true then
+	return
+end
+
 -- Helper to clamp text width using MaxVisibleGraphemes
 local function calculateVisibleGraphemes(text, textSize, font, maxWidth)
 	for i = 1, string.len(text) do

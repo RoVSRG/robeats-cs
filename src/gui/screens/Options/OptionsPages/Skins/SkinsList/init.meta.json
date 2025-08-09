@@ -1,14 +1,15 @@
 {
-  "className": "Frame",
+  "className": "ScrollingFrame",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      0.08235294371843338,
-      0.08235294371843338,
-      0.08235294371843338
+      1,
+      1,
+      1
     ],
+    "BackgroundTransparency": 1,
     "BorderColor3": [
       0,
       0,
@@ -18,15 +19,14 @@
       "Enum": 0
     },
     "BorderSizePixel": 0,
-    "LayoutOrder": 1,
     "Position": {
       "UDim2": [
         [
-          0,
+          0.03448279947042465,
           0
         ],
         [
-          3.439635776203431e-8,
+          0.13832196593284607,
           0
         ]
       ]
@@ -46,20 +46,20 @@
     "Size": {
       "UDim2": [
         [
-          1,
-          0
+          0,
+          241
         ],
         [
           0,
-          36
+          345
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "Tags": [
-      "Template"
-    ]
+    "VerticalScrollBarPosition": {
+      "Enum": 1
+    }
   }
 }

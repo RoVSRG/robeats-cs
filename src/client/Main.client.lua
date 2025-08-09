@@ -1,6 +1,5 @@
---local player = game.Players.LocalPlayer
---local playerGui = player:WaitForChild("PlayerGui")
--- Test comment for file watcher
+-- Clear all children of StarterGui so that it doesn't interfere with tagging
+game:GetService("StarterGui"):ClearAllChildren()
 
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
