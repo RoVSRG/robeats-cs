@@ -1,4 +1,5 @@
 local CollectionService = game:GetService("CollectionService")
+local ContentProvider = game:GetService("ContentProvider")
 
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local Skins = require(game.ReplicatedStorage.Skins)
@@ -14,8 +15,6 @@ local container = script.Parent:FindFirstChild("SkinsList")
 
 container.CanvasSize = UDim2.new(1, 0, 0, 0)
 
-print(CollectionService:GetTagged("SkinsList"))
-
 for _, skin in Skins:key_itr() do
     local skinName = skin.Name
 
@@ -30,8 +29,8 @@ for _, skin in Skins:key_itr() do
     clone.MouseButton1Click:Connect(function()
         Options.Skin2D:set(skinName)
 
-        print(skinName)
+        ContentProvider:PreloadAsync({ skin })
     end)
 
-    container.CanvasSize = UDim2.new(1, 0, 0, container.CanvasSize.Y.Offset + clone.Size.Y.Offset)
+    container.CanvasSize = UDim2.new(0, 0, 0, container.CanvasSize.Y.Offset + clone.Size.Y.Offset)
 end
