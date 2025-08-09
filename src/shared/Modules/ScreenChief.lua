@@ -1,4 +1,3 @@
-local TweenService = game:GetService("TweenService")
 local CollectionService = game:GetService("CollectionService")
 
 local player = game.Players.LocalPlayer
@@ -19,26 +18,49 @@ local function _getTaggedTemplates(screen: Frame)
 	return templates
 end
 
-local templates = {}
+local templates = Instance.new("Folder")
+templates.Name = "TemplateCache"
+templates.Parent = playerGui
 
-local function _extractTemplates(screen: Frame)
-	templates[screen.Name] = {}
-	local screenTemplates = templates[screen.Name]
+local function _extractTemplatesForScreen(screenFrame: Frame)
+    local screenTemplatesFolder = templates:FindFirstChild(screenFrame.Name)
+    if not screenTemplatesFolder then
+        screenTemplatesFolder = Instance.new("Folder")
+        screenTemplatesFolder.Name = screenFrame.Name
+        screenTemplatesFolder.Parent = templates
+    end
 
-	local tagged = _getTaggedTemplates(screen)
+    -- 1) Move all descendants tagged as Template into the cache for this screen
+    local tagged = _getTaggedTemplates(screenFrame)
+    for _, template in tagged do
+        template.Parent = screenTemplatesFolder
+    end
 
-	for name, template in tagged do
-		screenTemplates[name] = template
-		template.Parent = nil
-	end
+    local sourceTemplates = screenFrame:FindFirstChild("Templates")
 
-	if screen:FindFirstChild("Templates") then
-		for _, child in screen:GetChildren() do
-			if not screenTemplates[child.Name] then
-				screenTemplates[child.Name] = child
-			end
+    if sourceTemplates and sourceTemplates:IsA("ScreenGui") then
+        for _, child in sourceTemplates:GetChildren() do
+            if not screenTemplatesFolder:FindFirstChild(child.Name) then
+                child.Parent = screenTemplatesFolder
+            end
+        end
+    end
+end
+
+local function _extractTemplates(root: Instance)
+    local framesToProcess = {}
+
+    for _, wrappedScreen in root:GetChildren() do
+		local screen = wrappedScreen:FindFirstChildWhichIsA("Frame")
+
+		if screen then
+			table.insert(framesToProcess, screen)
 		end
 	end
+
+    for _, frame in framesToProcess do
+        _extractTemplatesForScreen(frame)
+    end
 end
 
 _extractTemplates(live)
@@ -61,7 +83,13 @@ function ScreenChief:GetScreen(name)
 end
 
 function ScreenChief:GetTemplates(screen: string)
-	return templates[screen] or {}
+    local folder = templates:FindFirstChild(screen)
+    if not folder then
+        folder = Instance.new("Folder")
+        folder.Name = screen
+        folder.Parent = templates
+    end
+    return folder
 end
 
 function ScreenChief:GetScreenGui()
