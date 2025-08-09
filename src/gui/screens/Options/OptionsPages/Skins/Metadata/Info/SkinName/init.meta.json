@@ -1,5 +1,5 @@
 {
-  "className": "ScrollingFrame",
+  "className": "TextLabel",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
@@ -19,14 +19,19 @@
       "Enum": 0
     },
     "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Bold"
+    },
     "Position": {
       "UDim2": [
         [
-          0.034482795745134354,
+          0,
           0
         ],
         [
-          0.13832196593284607,
+          0.529411792755127,
           0
         ]
       ]
@@ -47,19 +52,25 @@
       "UDim2": [
         [
           0,
-          222
+          145
         ],
         [
           0,
-          345
+          10
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "VerticalScrollBarPosition": {
-      "Enum": 1
+    "TextColor3": [
+      0.847058892250061,
+      0.847058892250061,
+      0.847058892250061
+    ],
+    "TextSize": 11,
+    "TextXAlignment": {
+      "Enum": 0
     }
   }
 }
