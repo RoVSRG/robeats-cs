@@ -1,6 +1,8 @@
 -- Clear all children of StarterGui so that it doesn't interfere with tagging
 game:GetService("StarterGui"):ClearAllChildren()
 
+local ContentProvider = game:GetService("ContentProvider")
+
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
@@ -13,6 +15,12 @@ local live = ScreenChief:GetScreenGui()
 
 local MainMenu = ScreenChief:GetScreen("Initialize")
 MainMenu.Parent = live
+
+for _, skin in require(game.ReplicatedStorage.Skins):key_itr() do
+    task.spawn(function()
+        ContentProvider:PreloadAsync({ skin })
+    end)
+end
 
 SongDatabase:LoadAllSongs()
 

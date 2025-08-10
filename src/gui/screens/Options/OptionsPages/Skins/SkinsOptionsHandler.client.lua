@@ -1,5 +1,3 @@
-local ContentProvider = game:GetService("ContentProvider")
-
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local Skins = require(game.ReplicatedStorage.Skins)
 local Options = require(game.ReplicatedStorage.State.Options)
@@ -12,10 +10,6 @@ container.CanvasSize = UDim2.new(1, 0, 0, 0)
 
 local function renderSkin(skinName: string)
     local skin = Skins:get_skin(skinName)
-
-    task.spawn(function()
-        ContentProvider:PreloadAsync({ skin })
-    end)
 
     local gameplayFrameBase = skin:FindFirstChild("GameplayFrame")
 
