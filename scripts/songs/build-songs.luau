@@ -158,7 +158,7 @@ for index, song in pairs(song_listing) do
         stdio.write(string.format("Converting songs (%d/%d)\n", index, #song_listing))
 
         local songFolder = roblox.Instance.new("Folder")
-        songFolder.Name = string.format("[%s] %s - %s", index, metadata.Artist or "Unknown", metadata.Filename or "Unknown")
+        songFolder.Name = string.format("[%s] %s - %s (%s)", index, metadata.Artist or "Unknown", metadata.Filename or "Unknown", metadata.Mapper or "Unknown")
         
         -- Basic song information
         songFolder:SetAttribute("ArtistName", metadata.Artist or "Unknown")

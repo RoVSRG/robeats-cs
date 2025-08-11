@@ -64,10 +64,11 @@ local function createSongButton(songData)
 
 	-- Build text
 	local text = string.format(
-		"[%d] %s - %s",
+		"[%d] %s - %s (%s)",
 		math.floor(songData.Difficulty + 0.5),
 		songData.ArtistName or "Unknown",
-		songData.SongName or "Unknown"
+		songData.SongName or "Unknown",
+		songData.CharterName or "Unknown"
 	)
 
 	hookButton(button, songData.ID)
