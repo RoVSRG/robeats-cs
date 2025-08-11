@@ -45,9 +45,9 @@ local function getYourScores()
     end
 end
 
-Time.setInterval(getYourScores, 60)
-getYourScores()
-
 script.Parent.BackButton.MouseButton1Click:Connect(function()
     ScreenChief:Switch("MainMenu")
 end)
+
+Time.setInterval(getYourScores, 60)
+getYourScores()
