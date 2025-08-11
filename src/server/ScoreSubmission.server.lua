@@ -59,8 +59,17 @@ local getLeaderboard = Function.create(function(player, hash)
 	return result.json()
 end)
 
+local getYourScores = Function.create(function(player)
+	local result = Http.get("/scores/user/best", {
+		params = { userId = player.UserId },
+	})
+
+	return result.json()
+end)
+
 Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
 Remotes.Functions.GetLeaderboard.OnServerInvoke = Protect.wrap(getLeaderboard)
+Remotes.Functions.GetYourScores.OnServerInvoke = Protect.wrap(getYourScores)
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)

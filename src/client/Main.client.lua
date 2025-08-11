@@ -15,10 +15,10 @@ local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.Environm
 
 local Transient = require(game.ReplicatedStorage.State.Transient)
 
-local function handlePlayerSettings()
-    local playerSettings = GetSettings:InvokeServer()
-    SettingsSerializer.applyOptionsFromSerialized(playerSettings)
-end
+-- local function handlePlayerSettings()
+--     local playerSettings = GetSettings:InvokeServer()
+--     SettingsSerializer.applyOptionsFromSerialized(playerSettings)
+-- end
 
 -- INITIALIZE GAME
 
@@ -44,8 +44,8 @@ end
 Transient.song.selected:set(math.random(1, #SongDatabase.songs))
 
 
-for i, v in pairs(Options) do
-    print(`Option {i}: | Value: {v:get()}`)
-end
+-- for i, v in pairs(Options) do
+--     print(`Option {i}: | Value: {v:get()}`)
+-- end
 -- Load player settings
 --handlePlayerSettings()

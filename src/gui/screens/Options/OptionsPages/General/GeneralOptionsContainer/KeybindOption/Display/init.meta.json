@@ -1,14 +1,15 @@
 {
-  "className": "Frame",
+  "className": "TextLabel",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      0.062745101749897,
-      0.062745101749897,
-      0.062745101749897
+      1,
+      1,
+      1
     ],
+    "BackgroundTransparency": 1,
     "BorderColor3": [
       0,
       0,
@@ -18,10 +19,15 @@
       "Enum": 0
     },
     "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Medium"
+    },
     "Position": {
       "UDim2": [
         [
-          0.05128205195069313,
+          0.02317722700536251,
           0
         ],
         [
@@ -45,20 +51,27 @@
     "Size": {
       "UDim2": [
         [
-          0,
-          607
+          0.46005579829216003,
+          -120
         ],
         [
-          0,
-          51
+          1,
+          0
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "Tags": [
-      "Template"
-    ]
+    "Text": "[Placeholder]",
+    "TextColor3": [
+      0.8999999761581421,
+      0.8999999761581421,
+      0.8999999761581421
+    ],
+    "TextSize": 14,
+    "TextXAlignment": {
+      "Enum": 0
+    }
   }
 }

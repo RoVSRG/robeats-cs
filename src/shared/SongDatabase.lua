@@ -7,6 +7,7 @@ local Functions = Remotes:WaitForChild("Functions")
 local SongDatabase = {}
 SongDatabase.songs = {}          -- Table of all songs loaded client-side
 SongDatabase.songByKey = {} :: {[any]: any}      -- Quick lookup by Name or ID
+SongDatabase.songByHash = {} :: {[any]: any}      -- Quick lookup by MD5Hash
 SongDatabase.pageSize = 100      -- Should match server PAGE_SIZE
 
 SongDatabase.IsLoaded = false
@@ -46,13 +47,14 @@ function SongDatabase:AddSong(songData)
 	end
 
 	-- Prevent duplicates
-	if self.songByKey[songData.Name] then
+	if self.songByHash[songData.MD5Hash] then
 		return
 	end
 
 	table.insert(self.songs, songData)
 	self.songByKey[songData.Name] = songData
 	self.songByKey[songData.ID] = songData
+	self.songByHash[songData.MD5Hash] = songData
 
 	-- Fire event so UI or other systems can respond
 	self.SongAdded:Fire(songData)
@@ -60,7 +62,7 @@ end
 
 -- Fetch song by name or ID
 function SongDatabase:GetSongByKey(key)
-	return self.songByKey[key]
+	return self.songByKey[key] or self.songByHash[key]
 end
 
 function SongDatabase:GetPropertyByKey(key, property, tf)
