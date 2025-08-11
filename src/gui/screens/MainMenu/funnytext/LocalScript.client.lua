@@ -10,6 +10,7 @@ local Messages = {
 	"we listened?!?",
 	"kisperal is the best dev",
 	"no astral is",
+	"welcome back wheelchair gang 🧑‍🦽🧑‍🦽🧑‍🦽"
 }
 
 while true do
