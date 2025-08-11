@@ -1,7 +1,10 @@
 local CollectionService = game:GetService("CollectionService")
 
+local SettingsSerializer = require(game.ReplicatedStorage.Serialization.SettingsSer)
 local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local switchPage = require(script.Parent.SwitchPage)
+
+local SaveSettings = game.ReplicatedStorage.Remotes.Events.SaveSettings
 
 local BackButton = script.Parent.BackButton
 local pageButtons = script.Parent.OptionsPagesList
@@ -22,6 +25,7 @@ local function setupPageButtons()
 end
 
 BackButton.MouseButton1Click:Connect(function()
+	SaveSettings:FireServer(SettingsSerializer.get_serialized_opts())
 	ScreenChief:Switch("MainMenu")
 end)
 
