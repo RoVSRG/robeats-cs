@@ -4,79 +4,79 @@ local NoteResult = require(game.ReplicatedStorage.RobeatsGameCore.Enums.NoteResu
 local Replay = {}
 
 Replay.HitType = {
-    Press = 1,
-    Release = 2,
+	Press = 1,
+	Release = 2,
 }
 
 type Config = {
-    viewing: boolean,
+	viewing: boolean,
 }
 
 function Replay:new(config: Config)
-    local self = {}
+	local self = {}
 
-    self.viewing = not not config.viewing
-    self.hits = {}
-    self.scoreChanged = Instance.new("BindableEvent")
+	self.viewing = not not config.viewing
+	self.hits = {}
+	self.scoreChanged = Instance.new("BindableEvent")
 
-    local hitsSinceLastSend = {}
+	local hitsSinceLastSend = {}
 
-    local minIndex = 1
+	local minIndex = 1
 
-    function self:add_replay_hit(time, track, action, judgement: any?, scoreData: any?)
-        local hit = {
-            time = time,
-            track = track,
-            action = action,
-            judgement = judgement,
-            scoreData = scoreData,
-        }
+	function self:add_replay_hit(time, track, action, judgement: any?, scoreData: any?)
+		local hit = {
+			time = time,
+			track = track,
+			action = action,
+			judgement = judgement,
+			scoreData = scoreData,
+		}
 
-        table.insert(self.hits, hit)
-        table.insert(hitsSinceLastSend, hit)
-    end
+		table.insert(self.hits, hit)
+		table.insert(hitsSinceLastSend, hit)
+	end
 
-    function self:set_hits(hits)
-        self.hits = hits
-    end
+	function self:set_hits(hits)
+		self.hits = hits
+	end
 
-    function self:get_hits()
-        return self.hits
-    end
+	function self:get_hits()
+		return self.hits
+	end
 
-    function self:get_actions_this_frame(time: number)
-        local actions = {}
-        local lastScoreData
+	function self:get_actions_this_frame(time: number)
+		local actions = {}
+		local lastScoreData
 
-        for i = minIndex, #self.hits do
-            local hit = self.hits[i]
+		for i = minIndex, #self.hits do
+			local hit = self.hits[i]
 
-            if time >= hit.time then
-                if hit.action then
-                    table.insert(actions, hit)
-                end
+			if time >= hit.time then
+				if hit.action then
+					table.insert(actions, hit)
+				end
 
-                lastScoreData = hit.scoreData
+				lastScoreData = hit.scoreData
 
-                minIndex += 1
-            else
-                break
-            end
-        end
+				minIndex += 1
+			else
+				break
+			end
+		end
 
-        if lastScoreData then
-            self.scoreChanged:Fire(lastScoreData)
-        end
+		if lastScoreData then
+			self.scoreChanged:Fire(lastScoreData)
+		end
 
-        return actions
-    end
+		return actions
+	end
 
-    function self:send_last_hits()
-        -- SpectatingService:DisemminateHits(hitsSinceLastSend)
-        table.clear(hitsSinceLastSend)
-    end
+	function self:send_last_hits()
+		-- SpectatingService:DisemminateHits(hitsSinceLastSend)
+		table.clear(hitsSinceLastSend)
+	end
 
-    return self
+	return self
 end
 
 -- function Replay.perfect(hash, rate)
@@ -108,4 +108,3 @@ end
 -- end
 
 return Replay
-

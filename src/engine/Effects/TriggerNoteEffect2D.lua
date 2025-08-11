@@ -25,28 +25,32 @@ function TriggerNoteEffect2D:new(_game, _track_index)
 		_effect_obj = _game._object_pool:depool(self.ClassName)
 		if _effect_obj == nil then
 			_effect_obj = proto:Clone()
-			_effect_obj.ImageTransparency = .5
+			_effect_obj.ImageTransparency = 0.5
 		end
 
 		_anim_t = 0
 		update_visual()
 	end
 
-	--[[Override--]] function self:add_to_parent(parent)
+	--[[Override--]]
+	function self:add_to_parent(parent)
 		local _player_gui_root = EnvironmentSetup:get_player_gui_root()
 		local _gameplay_frame = _player_gui_root.GameplayFrame
 		local buttons = _gameplay_frame.TriggerButtons
-		_effect_obj.Parent = buttons['Button'.._track_index]
+		_effect_obj.Parent = buttons["Button" .. _track_index]
 	end
 
-	--[[Override--]] function self:update(dt_scale)
+	--[[Override--]]
+	function self:update(dt_scale)
 		_anim_t = _anim_t + CurveUtil:SecondsToTick(0.25) * dt_scale
 		update_visual()
 	end
-	--[[Override--]] function self:should_remove()
+	--[[Override--]]
+	function self:should_remove()
 		return _anim_t >= 1
 	end
-	--[[Override--]] function self:do_remove()
+	--[[Override--]]
+	function self:do_remove()
 		_game._object_pool:repool(self.ClassName, _effect_obj)
 	end
 
@@ -55,4 +59,3 @@ function TriggerNoteEffect2D:new(_game, _track_index)
 end
 
 return TriggerNoteEffect2D
-

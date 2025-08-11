@@ -16,17 +16,19 @@ local ScoreManager = {}
 
 function ScoreManager:new(_game)
 	local self = {}
-	
+
 	local _chain = 0
-	function self:get_chain() return _chain end
+	function self:get_chain()
+		return _chain
+	end
 
 	local result_to_point_increase = {
-		[NoteResult.Miss] = 0;
-		[NoteResult.Bad] = 50;
-		[NoteResult.Good] = 100;
-		[NoteResult.Great] = 200;
-		[NoteResult.Perfect] = 300;
-		[NoteResult.Marvelous] = 375;
+		[NoteResult.Miss] = 0,
+		[NoteResult.Bad] = 50,
+		[NoteResult.Good] = 100,
+		[NoteResult.Great] = 200,
+		[NoteResult.Perfect] = 300,
+		[NoteResult.Marvelous] = 375,
 	}
 
 	local _marvelous_count = 0
@@ -55,7 +57,7 @@ function ScoreManager:new(_game)
 			Misses = _miss_count,
 			MaxChain = _max_chain,
 			Chain = _chain,
-			Accuracy = self:get_accuracy() * 100
+			Accuracy = self:get_accuracy() * 100,
 		}
 	end
 
@@ -65,50 +67,44 @@ function ScoreManager:new(_game)
 
 	function self:get_accuracy()
 		local total_count = self:get_total_judgements() + _miss_count
-		
+
 		if total_count == 0 then
 			return 0
 		end
 
-		return ((_marvelous_count * 1.0) + (_perfect_count * 1.0) + (_great_count * 0.75) + (_good_count * 0.37) + (_bad_count * 0.25)) / total_count
+		return (
+			(_marvelous_count * 1.0)
+			+ (_perfect_count * 1.0)
+			+ (_great_count * 0.75)
+			+ (_good_count * 0.37)
+			+ (_bad_count * 0.25)
+		) / total_count
 	end
 
 	function self:get_mean()
 		if _mean_count == 0 then
 			return 0
 		end
-		
+
 		return _mean_sum / _mean_count
 	end
 
 	local _frame_has_played_sfx = false
 
-	function self:register_hit(
-		note_result,
-		slot_index,
-		track_index,
-		params,
-		renderable_hit
-	)
+	function self:register_hit(note_result, slot_index, track_index, params, renderable_hit)
 		local track = _game:get_tracksystem(slot_index):get_track(track_index)
 
 		if (not params.GhostTap) and _game:get_judgement_visibility()[note_result] then
 			if _game:get_2d_mode() then
-				_game._effects:add_effect(NoteResultPopupEffect2D:new(
-					_game,
-					note_result
-				))
+				_game._effects:add_effect(NoteResultPopupEffect2D:new(_game, note_result))
 			else
-				_game._effects:add_effect(NoteResultPopupEffect:new(
-					_game,
-					track:get_end_position() + Vector3.new(0,0.25,0),
-					note_result
-				))
+				_game._effects:add_effect(
+					NoteResultPopupEffect:new(_game, track:get_end_position() + Vector3.new(0, 0.25, 0), note_result)
+				)
 			end
 		end
 
-		if params.PlaySFX == true and (not params.GhostTap) and _game._audio_manager:get_hitsounds() then
-			
+		if params.PlaySFX == true and not params.GhostTap and _game._audio_manager:get_hitsounds() then
 			--Make sure only one sfx is played per frame
 			if _frame_has_played_sfx == false then
 				if note_result ~= NoteResult.Miss then
@@ -122,21 +118,14 @@ function ScoreManager:new(_game)
 				end
 				_frame_has_played_sfx = true
 			end
-			
+
 			--Create an effect at HoldEffectPosition if PlayHoldEffect is true
 			if params.PlayHoldEffect then
 				if note_result ~= NoteResult.Miss then
 					if _game:get_2d_mode() then
-						_game._effects:add_effect(HoldingNoteEffect2D:new(
-							_game,
-							track_index
-						))
+						_game._effects:add_effect(HoldingNoteEffect2D:new(_game, track_index))
 					else
-						_game._effects:add_effect(HoldingNoteEffect:new(
-							_game,
-							params.HoldEffectPosition,
-							note_result
-						))
+						_game._effects:add_effect(HoldingNoteEffect:new(_game, params.HoldEffectPosition, note_result))
 					end
 				end
 			end
@@ -146,25 +135,20 @@ function ScoreManager:new(_game)
 		if note_result == NoteResult.Marvelous then
 			_marvelous_count += 1
 			_chain += 1
-
 		elseif note_result == NoteResult.Perfect then
 			_chain += 1
 			_perfect_count += 1
-
 		elseif note_result == NoteResult.Great then
 			_chain += 1
 			_great_count += 1
-
 		elseif note_result == NoteResult.Good then
 			_good_count += 1
-
 		elseif note_result == NoteResult.Bad then
 			_chain = 0
 			_bad_count = _bad_count + 1
 		else
 			if params.GhostTap then
 				_ghost_taps += 1
-
 			elseif _chain > 0 then
 				_chain = 0
 				_miss_count = _miss_count + 1
@@ -172,7 +156,6 @@ function ScoreManager:new(_game)
 				if not _game:is_viewing_replay() then
 					_game:add_replay_hit(track_index, nil, note_result, self:get_end_records())
 				end
-
 			elseif params.TimeMiss == true then
 				_miss_count = _miss_count + 1
 
@@ -184,7 +167,7 @@ function ScoreManager:new(_game)
 
 		_score += result_to_point_increase[note_result]
 
-		_max_chain = math.max(_chain,_max_chain)
+		_max_chain = math.max(_chain, _max_chain)
 
 		if not renderable_hit and not params.GhostTap and note_result == NoteResult.Miss then
 			renderable_hit = {
@@ -195,7 +178,7 @@ function ScoreManager:new(_game)
 
 		if renderable_hit then
 			table.insert(_hits, renderable_hit)
-			
+
 			-- Update running mean calculation
 			if renderable_hit.judgement ~= NoteResult.Miss and renderable_hit.time_left then
 				_mean_sum += renderable_hit.time_left
@@ -203,16 +186,36 @@ function ScoreManager:new(_game)
 			end
 		end
 
-		_on_change:Fire(_marvelous_count,_perfect_count,_great_count,_good_count,_bad_count,_miss_count,_max_chain,_chain,_score,renderable_hit, _hits)
+		_on_change:Fire(
+			_marvelous_count,
+			_perfect_count,
+			_great_count,
+			_good_count,
+			_bad_count,
+			_miss_count,
+			_max_chain,
+			_chain,
+			_score,
+			renderable_hit,
+			_hits
+		)
 	end
 
-	function self:get_hits() return _hits end
+	function self:get_hits()
+		return _hits
+	end
 
-	function self:get_score() return _score end
+	function self:get_score()
+		return _score
+	end
 
-	function self:get_ghost_taps() return _ghost_taps end
+	function self:get_ghost_taps()
+		return _ghost_taps
+	end
 
-	function self:get_on_change() return _on_change end
+	function self:get_on_change()
+		return _on_change
+	end
 
 	function self:update()
 		_frame_has_played_sfx = false
@@ -222,4 +225,3 @@ function ScoreManager:new(_game)
 end
 
 return ScoreManager
-

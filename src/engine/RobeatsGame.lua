@@ -30,30 +30,30 @@ local StarterGui = game:GetService("StarterGui")
 
 local RobeatsGame = {}
 RobeatsGame.Mode = {
-	Setup = 1;
-	Game = 2;
-	GameEnded = 3;
+	Setup = 1,
+	Game = 2,
+	GameEnded = 3,
 }
 
 function RobeatsGame.new(_game_environment_center_position: Vector3)
 	local self = {
-		_tracksystems = SPDict:new();
-		_audio_manager = nil;
-		_score_manager = nil;
-		_effects = EffectSystem:new();
-		_input = InputUtil:new();
-		_sfx_manager = SFXManager:new();
-		_object_pool = ObjectPool:new();
+		_tracksystems = SPDict:new(),
+		_audio_manager = nil,
+		_score_manager = nil,
+		_effects = EffectSystem:new(),
+		_input = InputUtil:new(),
+		_sfx_manager = SFXManager:new(),
+		_object_pool = ObjectPool:new(),
 	}
 
-	local left_tar_orientation = math.rad(13.5);
-	local right_tar_orientation = math.rad(-13.5);
+	local left_tar_orientation = math.rad(13.5)
+	local right_tar_orientation = math.rad(-13.5)
 
-	local _2d_left_tar_pos = 0.1;
-	local _2d_right_tar_pos = -0.1;
+	local _2d_left_tar_pos = 0.1
+	local _2d_right_tar_pos = -0.1
 
-	self.target_cam_orientation = 0;
-	self.target_2d_playfield_pos = 0;
+	self.target_cam_orientation = 0
+	self.target_2d_playfield_pos = 0
 
 	self.keybind_pressed = Instance.new("BindableEvent")
 
@@ -102,17 +102,17 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			NoteSpeed = Options.ScrollSpeed:get(),
 			TimingPreset = Options.TimingPreset:get(),
 			Mods = Options.Mods:get(),
-			
+
 			-- 2D Mode settings
 			Use2DLane = Options.Use2DMode:get(),
 			Skin2D = Options.Skin2D:get(),
 			NoteColorAffects2D = Options.NoteColorAffects2D:get(),
-			
+
 			-- Audio settings
 			Hitsounds = Options.Hitsounds:get(),
 			HitsoundVolume = Options.HitsoundVolume:get(),
 			MusicVolume = Options.MusicVolume:get(),
-			
+
 			-- Judgement visibility
 			JudgementVisibility = {
 				[NoteResult.Marvelous] = Options.ShowMarvelous:get(),
@@ -121,7 +121,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 				[NoteResult.Good] = Options.ShowGood:get(),
 				[NoteResult.Bad] = Options.ShowBad:get(),
 				[NoteResult.Miss] = Options.ShowMiss:get(),
-			}
+			},
 		}
 	end
 
@@ -135,25 +135,29 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	self._mode_changed = Signal.new()
 
 	self.original_cam_cf = CFrame.new()
-	
+
 	local _local_game_slot = 0
-	function self:get_local_game_slot() return _local_game_slot end
-	
+	function self:get_local_game_slot()
+		return _local_game_slot
+	end
+
 	local _current_mode = RobeatsGame.Mode.Setup
-	function self:get_mode() return _current_mode end
-	function self:set_mode(val) 
+	function self:get_mode()
+		return _current_mode
+	end
+	function self:set_mode(val)
 		AssertType:is_enum_member(val, RobeatsGame.Mode)
-		_current_mode = val 
+		_current_mode = val
 		self._mode_changed:Fire(_current_mode)
 
 		if val == RobeatsGame.Mode.GameEnded then
-            if StarterGui:GetCoreGuiEnabled("PlayerList") == false then
-                StarterGui:SetCoreGuiEnabled("PlayerList", true)
+			if StarterGui:GetCoreGuiEnabled("PlayerList") == false then
+				StarterGui:SetCoreGuiEnabled("PlayerList", true)
 			end
-			
+
 			if StarterGui:GetCoreGuiEnabled("Chat") == false then
-                StarterGui:SetCoreGuiEnabled("Chat", true)
-            end
+				StarterGui:SetCoreGuiEnabled("Chat", true)
+			end
 		end
 	end
 
@@ -162,58 +166,106 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 
 	--[[ 2D Implementations ]]
-	function self:get_skin() return _skin end
-	function self:set_skin(val) _skin = val end
-
-	function self:get_2d_mode() return _get_2d_mode end
-	function self:set_2d_mode(val) _get_2d_mode = val end
-
-	function self:get_2d_hit_position() return _2d_hit_pos end
-	function self:set_2d_hit_position(val)
-		_2d_hit_pos = val;
+	function self:get_skin()
+		return _skin
+	end
+	function self:set_skin(val)
+		_skin = val
 	end
 
-	function self:is_upscroll() return _is_upscroll end
-	function self:set_upscroll_mode(val) 
+	function self:get_2d_mode()
+		return _get_2d_mode
+	end
+	function self:set_2d_mode(val)
+		_get_2d_mode = val
+	end
+
+	function self:get_2d_hit_position()
+		return _2d_hit_pos
+	end
+	function self:set_2d_hit_position(val)
+		_2d_hit_pos = val
+	end
+
+	function self:is_upscroll()
+		return _is_upscroll
+	end
+	function self:set_upscroll_mode(val)
 		_is_upscroll = val
 		self._input:invert_keys(val)
 	end
 	--[[ END of 2D Implementations ]]
 
-	function self:set_ln_transparent(val) _ln_transparent = val end
-	function self:get_ln_transparent() return _ln_transparent end
+	function self:set_ln_transparent(val)
+		_ln_transparent = val
+	end
+	function self:get_ln_transparent()
+		return _ln_transparent
+	end
 
-	function self:set_hit_lighting(val) _show_hit_lighting = val end
-	function self:get_hit_lighting() return _show_hit_lighting end
+	function self:set_hit_lighting(val)
+		_show_hit_lighting = val
+	end
+	function self:get_hit_lighting()
+		return _show_hit_lighting
+	end
 
-	function self:get_ln_tails() return _hide_ln_tails end
-	function self:set_ln_tails(val) _hide_ln_tails = val end
+	function self:get_ln_tails()
+		return _hide_ln_tails
+	end
+	function self:set_ln_tails(val)
+		_hide_ln_tails = val
+	end
 
-	function self:get_judgement_visibility() return _judgement_visibility end
-	function self:set_judgement_visibility(val) _judgement_visibility = val end
+	function self:get_judgement_visibility()
+		return _judgement_visibility
+	end
+	function self:set_judgement_visibility(val)
+		_judgement_visibility = val
+	end
 
-	function self:get_note_color() return _note_color end
-	function self:set_note_color(val) _note_color = val end
+	function self:get_note_color()
+		return _note_color
+	end
+	function self:set_note_color(val)
+		_note_color = val
+	end
 
-	function self:get_target_cam_orientation() return self.target_cam_orientation end
-	function self:set_target_cam_orientation(val: number) self.target_cam_orientation = val end
+	function self:get_target_cam_orientation()
+		return self.target_cam_orientation
+	end
+	function self:set_target_cam_orientation(val: number)
+		self.target_cam_orientation = val
+	end
 
-	function self:get_target_2d_playfield_pos() return self.target_2d_playfield_pos end
-	function self:set_target_2d_playfield_pos(val) self.target_2d_playfield_pos = val end
+	function self:get_target_2d_playfield_pos()
+		return self.target_2d_playfield_pos
+	end
+	function self:set_target_2d_playfield_pos(val)
+		self.target_2d_playfield_pos = val
+	end
 
-	function self:get_mods() return _mods end
-	function self:set_mods(val) _mods = val end
+	function self:get_mods()
+		return _mods
+	end
+	function self:set_mods(val)
+		_mods = val
+	end
 	function self:is_mod_active(mod)
 		for _, itr_mod in ipairs(_mods) do
 			if mod == itr_mod then
 				return true
 			end
 		end
-		return false 
+		return false
 	end
 
-	function self:get_note_color_affects_2d() return _note_color_affects_2d end
-	function self:set_note_color_affects_2d(val) _note_color_affects_2d = val end
+	function self:get_note_color_affects_2d()
+		return _note_color_affects_2d
+	end
+	function self:set_note_color_affects_2d(val)
+		_note_color_affects_2d = val
+	end
 
 	function self:get_game_environment_center_position()
 		return _game_environment_center_position
@@ -222,10 +274,9 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	function self:setup_world(game_slot)
 		_local_game_slot = game_slot
 
-		workspace.CurrentCamera.CFrame =
-			GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot()) +
-			self:get_game_environment_center_position()
-			
+		workspace.CurrentCamera.CFrame = GameSlot:slot_to_camera_cframe_offset(self:get_local_game_slot())
+			+ self:get_game_environment_center_position()
+
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 		workspace.CurrentCamera.CameraSubject = nil
 
@@ -251,11 +302,11 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 		local floor
 
 		if self:get_2d_mode() then
-			self._tracksystems:add(self:get_local_game_slot(), NoteTrackSystem2D:new(self,self:get_local_game_slot()))
+			self._tracksystems:add(self:get_local_game_slot(), NoteTrackSystem2D:new(self, self:get_local_game_slot()))
 		else
-			local tracksystem = NoteTrackSystem:new(self,self:get_local_game_slot())
+			local tracksystem = NoteTrackSystem:new(self, self:get_local_game_slot())
 			self._tracksystems:add(self:get_local_game_slot(), tracksystem)
-			
+
 			-- Update the dynamic floor with actual track geometry for 3D mode
 			floor = EnvironmentSetup:update_dynamic_floor_with_tracksystem(tracksystem, self:get_local_game_slot())
 		end
@@ -277,11 +328,11 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	function self:tracksystems_itr()
 		return self._tracksystems:key_itr()
 	end
-	
+
 	function self:add_replay_hit(track, action, judgement, scoreData)
 		replay:add_replay_hit(self._audio_manager:get_current_time_ms(true), track, action, judgement, scoreData)
 	end
-	
+
 	function self:update(dt_scale)
 		send_replay_data:update(dt_scale)
 
@@ -305,16 +356,20 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 					end
 				end
 			else
-				for itr_key,itr_index in GameTrack:inpututil_key_to_track_index():key_itr() do
+				for itr_key, itr_index in GameTrack:inpututil_key_to_track_index():key_itr() do
 					if self._input:control_just_pressed(itr_key) then
 						--mod work
 
-
 						self.keybind_pressed:Fire(itr_index)
-						
+
 						local note_result = self:get_local_tracksystem():press_track_index(itr_index)
 
-						self:add_replay_hit(itr_index, Replay.HitType.Press, note_result, self._score_manager:get_end_records())
+						self:add_replay_hit(
+							itr_index,
+							Replay.HitType.Press,
+							note_result,
+							self._score_manager:get_end_records()
+						)
 
 						if self:is_mod_active(Mods.Sway) then
 							if itr_key == 0 or itr_key == 1 then
@@ -331,7 +386,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 								end
 							else
 								self:set_target_cam_orientation(0)
-								self:set_target_2d_playfield_pos(self.original_2d_playfield_pos.X.Scale);
+								self:set_target_2d_playfield_pos(self.original_2d_playfield_pos.X.Scale)
 							end
 
 							-- if not self:get_2d_mode() then
@@ -339,15 +394,18 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 							-- else
 							-- 	self._sway_motor:setGoal(Flipper.Spring.new(self:get_target_2d_playfield_pos(), self._2D_SPRING_CONSTANTS))
 							-- end
-							
 						end
-						
 					end
 
 					if self._input:control_just_released(itr_key) then
 						local note_result = self:get_local_tracksystem():release_track_index(itr_index)
 
-						self:add_replay_hit(itr_index, Replay.HitType.Release, note_result, self._score_manager:get_end_records())
+						self:add_replay_hit(
+							itr_index,
+							Replay.HitType.Release,
+							note_result,
+							self._score_manager:get_end_records()
+						)
 
 						if self:is_mod_active(Mods.Sway) then
 							-- if not self:get_2d_mode() then
@@ -365,18 +423,18 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			if send_replay_data:do_flash() and not self:is_viewing_replay() then
 				replay:send_last_hits()
 			end
-			
+
 			for _, itr in self._tracksystems:key_itr() do
 				itr:update(dt_scale)
 			end
-			
+
 			self._sfx_manager:update()
 			self._score_manager:update()
 
 			self._effects:update(dt_scale)
 
 			self._input:post_update()
-			
+
 			-- Check if the game should end
 			if self._audio_manager:get_just_finished() then
 				self:set_mode(RobeatsGame.Mode.GameEnded)
@@ -437,7 +495,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 
 		self._config = config
 	end
-	
+
 	function self:is_viewing_replay()
 		return replay.viewing
 	end
@@ -468,4 +526,3 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 end
 
 return RobeatsGame
-

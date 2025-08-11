@@ -6,13 +6,13 @@ local Config = require(game.ReplicatedStorage.RobeatsGameCore.Types.Config)
 
 local EnvironmentSetup = {}
 EnvironmentSetup.Mode = {
-	Menu = 0;
-	Game = 1;
+	Menu = 0,
+	Game = 1,
 }
 
 EnvironmentSetup.LaneMode = {
-	['2D'] = 0;
-	['3D'] = 1;
+	["2D"] = 0,
+	["3D"] = 1,
 }
 
 local _game_environment
@@ -57,7 +57,7 @@ function EnvironmentSetup:setup_2d_environment(skin: Instance, config: Config.Ga
 	if not gameplayFrame then
 		error("GameplayFrame not found in skin")
 	end
-	
+
 	local _gameplay_frame = gameplayFrame:Clone() :: GuiObject
 	_gameplay_frame.Position = UDim2.fromScale(0.5, 1)
 	_gameplay_frame.Size = UDim2.new(0.3, 0, 1.2, 0)
@@ -69,13 +69,13 @@ function EnvironmentSetup:setup_2d_environment(skin: Instance, config: Config.Ga
 	local _trigger_buttons = (_gameplay_frame :: any).TriggerButtons
 	if #_trigger_buttons:GetChildren() == 0 then
 		local skinGameplayFrame = (skin :: any).GameplayFrame
-		for i,proto in pairs(skinGameplayFrame.TriggerButtons:Clone():GetChildren()) do
+		for i, proto in pairs(skinGameplayFrame.TriggerButtons:Clone():GetChildren()) do
 			proto.Parent = _trigger_buttons
 		end
 	end
 
-	_trigger_buttons.Size = UDim2.new(1, 0, hit_pos/100, 0)
-	tracks.Size = UDim2.new(1, 0, 1-hit_pos/100, 0)
+	_trigger_buttons.Size = UDim2.new(1, 0, hit_pos / 100, 0)
+	tracks.Size = UDim2.new(1, 0, 1 - hit_pos / 100, 0)
 
 	for _, trigger_button in (_gameplay_frame :: any).TriggerButtons:GetChildren() do
 		if trigger_button:FindFirstChild("ReceptorImage") then
@@ -98,11 +98,11 @@ function EnvironmentSetup:teardown_2d_environment()
 		return
 	end
 
-	local gameplayFrame = (_gameplay_frame :: any)
+	local gameplayFrame = _gameplay_frame :: any
 	gameplayFrame.ResultPopups:ClearAllChildren()
 	local _trigger_buttons = gameplayFrame.TriggerButtons
-	for i=1,4 do
-		for _, proto in pairs(_trigger_buttons["Button"..i]:GetChildren()) do
+	for i = 1, 4 do
+		for _, proto in pairs(_trigger_buttons["Button" .. i]:GetChildren()) do
 			if proto.Name == "EffectProto" then
 				proto:Destroy()
 			end
@@ -197,7 +197,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 			floor_rotation = math.rad(135)
 		elseif game_slot == 3 then -- SLOT_3: Looking towards (-Z, -X) - needs 225° rotation
 			floor_rotation = math.rad(225)
-		else -- SLOT_4: Looking towards (+Z, -X) - needs 315° rotation  
+		else -- SLOT_4: Looking towards (+Z, -X) - needs 315° rotation
 			floor_rotation = math.rad(315 + 90)
 		end
 	end
@@ -228,11 +228,8 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	local center_part = Instance.new("Part")
 	center_part.Name = "FloorCenter"
 	center_part.Size = Vector3.new(near_width, floor_thickness, floor_depth)
-	center_part.CFrame = CFrame.new(
-		center_position.X,
-		center_position.Y + floor_y_offset,
-		center_position.Z + half_depth - SHIFT_BACK
-	)
+	center_part.CFrame =
+		CFrame.new(center_position.X, center_position.Y + floor_y_offset, center_position.Z + half_depth - SHIFT_BACK)
 	center_part.Material = Enum.Material.Neon
 	center_part.BrickColor = BrickColor.new("Black")
 	center_part.Anchored = true
@@ -256,7 +253,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	left_wedge.Anchored = true
 	left_wedge.CanCollide = true
 	left_wedge.Parent = floor_model
-	
+
 	local right_wedge = Instance.new("WedgePart")
 	right_wedge.Name = "FloorRight"
 	right_wedge.Size = wedge_size
@@ -274,9 +271,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 
 	-- Apply rotation to the entire model if game slot is specified
 	if game_slot and floor_rotation ~= 0 then
-		floor_model:SetPrimaryPartCFrame(
-			floor_model.PrimaryPart.CFrame * CFrame.Angles(0, floor_rotation, 0)
-		)
+		floor_model:SetPrimaryPartCFrame(floor_model.PrimaryPart.CFrame * CFrame.Angles(0, floor_rotation, 0))
 	end
 
 	_dynamic_floor = floor_model
@@ -295,4 +290,3 @@ function EnvironmentSetup:get_dynamic_floor()
 end
 
 return EnvironmentSetup
-

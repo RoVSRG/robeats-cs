@@ -15,17 +15,17 @@ function TriggerButton2D:new(_game, _parent_note_track, _position)
 		if not _gameplay_frame then
 			error("GameplayFrame not found in player GUI. Make sure 2D environment is set up first.")
 		end
-		
+
 		local _buttons = _gameplay_frame:FindFirstChild("TriggerButtons")
 		if not _buttons then
 			error("TriggerButtons not found in GameplayFrame")
 		end
-		
-		_triggerbutton_obj = _buttons:FindFirstChild('Button'.._position)
+
+		_triggerbutton_obj = _buttons:FindFirstChild("Button" .. _position)
 		if not _triggerbutton_obj then
-			error("Button".._position.." not found in TriggerButtons")
+			error("Button" .. _position .. " not found in TriggerButtons")
 		end
-		
+
 		_triggerbutton_obj.ZIndex = 2
 	end
 
@@ -50,9 +50,9 @@ function TriggerButton2D:new(_game, _parent_note_track, _position)
 			_tar_glow_transparency,
 			CurveUtil:NormalizedDefaultExptValueInSeconds(0.2),
 			dt_scale
-		)	
+		)
 	end
-	
+
 	function self:teardown() end
 
 	self:cons()
@@ -60,4 +60,3 @@ function TriggerButton2D:new(_game, _parent_note_track, _position)
 end
 
 return TriggerButton2D
-
