@@ -2,10 +2,10 @@
   "className": "UIListLayout",
   "properties": {
     "FillDirection": {
-      "Enum": 0
+      "Enum": 1
     },
     "HorizontalAlignment": {
-      "Enum": 0
+      "Enum": 1
     },
     "HorizontalFlex": {
       "Enum": 0
@@ -16,14 +16,14 @@
     "Padding": {
       "UDim": [
         0,
-        10
+        5
       ]
     },
     "SortOrder": {
       "Enum": 2
     },
     "VerticalAlignment": {
-      "Enum": 0
+      "Enum": 1
     },
     "VerticalFlex": {
       "Enum": 0

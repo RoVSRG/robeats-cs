@@ -1,15 +1,14 @@
 {
-  "className": "TextLabel",
+  "className": "TextButton",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      1,
-      1,
-      1
+      0.16078431904315948,
+      0.16078431904315948,
+      0.16078431904315948
     ],
-    "BackgroundTransparency": 1,
     "BorderColor3": [
       0,
       0,
@@ -22,20 +21,9 @@
     "FontFace": {
       "family": "rbxasset://fonts/families/GothamSSm.json",
       "style": "Normal",
-      "weight": "Regular"
+      "weight": "Medium"
     },
-    "Position": {
-      "UDim2": [
-        [
-          0.30002686381340027,
-          0
-        ],
-        [
-          -1.549279431856121e-6,
-          0
-        ]
-      ]
-    },
+    "LayoutOrder": 1,
     "SelectionBehaviorDown": {
       "Enum": 0
     },
@@ -51,26 +39,27 @@
     "Size": {
       "UDim2": [
         [
-          -0.0595291368663311,
-          385
+          0,
+          100
         ],
         [
-          0.27768629789352417,
-          0
+          0,
+          26
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "Text": "[Placeholder]",
+    "Style": {
+      "Enum": 0
+    },
+    "Text": "[Option]",
     "TextColor3": [
-      1,
-      1,
-      1
+      0.8999999761581421,
+      0.8999999761581421,
+      0.8999999761581421
     ],
-    "TextScaled": true,
-    "TextSize": 14,
-    "TextWrapped": true
+    "TextSize": 12
   }
 }

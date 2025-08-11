@@ -1,14 +1,15 @@
 {
-  "className": "TextButton",
+  "className": "TextLabel",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      0.22352942824363708,
-      0.22352942824363708,
-      0.22352942824363708
+      1,
+      1,
+      1
     ],
+    "BackgroundTransparency": 1,
     "BorderColor3": [
       0,
       0,
@@ -26,12 +27,12 @@
     "Position": {
       "UDim2": [
         [
-          1,
-          -100
+          0,
+          16
         ],
         [
           0,
-          4
+          0
         ]
       ]
     },
@@ -50,27 +51,27 @@
     "Size": {
       "UDim2": [
         [
-          0,
-          92
+          0.9898648858070374,
+          -120
         ],
         [
-          0,
-          24
+          1,
+          0
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "Style": {
-      "Enum": 0
-    },
-    "Text": "FALSE",
+    "Text": "[Placeholder]",
     "TextColor3": [
       0.8999999761581421,
       0.8999999761581421,
       0.8999999761581421
     ],
-    "TextSize": 12
+    "TextSize": 14,
+    "TextXAlignment": {
+      "Enum": 0
+    }
   }
 }
