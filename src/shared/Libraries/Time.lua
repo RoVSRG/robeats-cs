@@ -13,25 +13,19 @@ end
     @return function
 ]]
 local function setInterval(callback, interval)
-    local startTime = os.time()
-    local currentTime = startTime
-    local elapsedTime = 0
+	local timeSinceLastCall = 0
 
-	local stop = false
-    
-	task.spawn(function()
-		while RunService.Heartbeat:Wait() and not stop do
-			currentTime = os.time()
-			elapsedTime = currentTime - startTime
+	local connection = RunService.Heartbeat:Connect(function(dt)
+		timeSinceLastCall += dt
 
-			if elapsedTime >= interval then
-				callback()
-			end
+		if timeSinceLastCall >= interval then
+			timeSinceLastCall = 0
+			callback()
 		end
 	end)
 
 	return function()
-		stop = true
+		connection:Disconnect()
 	end
 end
 
