@@ -17,8 +17,8 @@ local function refreshSongPanel()
 	local rate = song.rate:get()
 	
 	local data = SongDatabase:GetSongByKey(selected)
-	
-	local nameFormatted = string.format("[#%d] %s - %s", data.ID, data.ArtistName or "???", data.SongName or "???")
+
+	local nameFormatted = string.format("[#%d] %s - %s (%s)", data.ID, data.ArtistName or "???", data.SongName or "???", data.CharterName or "Unknown")
 	node.SongNameInfo.Text = nameFormatted
 	
 	RateSelector.RateInfo.Text = string.format("Song Rate: %0.2fx", rate / 100)
