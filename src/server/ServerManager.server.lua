@@ -1,5 +1,8 @@
 local DataStoreService = game:GetService("DataStoreService")
+local LocalizationService = game:GetService("LocalizationService")
+
 local OptionsStore = DataStoreService:GetDataStore("OptionsStore")
+
 local GetSettings = game.ReplicatedStorage.Remotes.Functions.GetSettings
 local SaveSettings = game.ReplicatedStorage.Remotes.Events.SaveSettings
 local createLeaderstat = require(game.ServerScriptService.Playerboard)
@@ -34,15 +37,12 @@ SaveSettings.OnServerEvent:Connect(function(player, settings)
 end)
 
 game.Players.PlayerAdded:Connect(function(player)
-    -- Create the leaderboard for the player
     local leaderstats = createLeaderstat(player)
 
-    -- Set up the player's country code and rank (these would typically be set elsewhere)
-    local countryCode = "US" -- Example country code, replace with actual logic
-    local rank = 1 -- Example rank, replace with actual logic
+    local countryCode = LocalizationService:GetCountryRegionForPlayerAsync(player) or "??"
+    local rank = "#?"
 
-    leaderstats.Country.Value = countryCode
     leaderstats.Rank.Value = rank
-
-    print("[ServerManager.lua] Leaderboard created for player:", player.Name)
+    leaderstats.Rating.Value = 0
+    leaderstats.Country.Value = countryCode
 end)
