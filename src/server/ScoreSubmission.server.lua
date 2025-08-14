@@ -1,20 +1,23 @@
 local Http = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Http"))
 local Function = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Function"))
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
+local Leaderstats = require(game.ServerScriptService:WaitForChild("Leaderstats"))
 local Remotes = game.ReplicatedStorage.Remotes
+
+local Events = game.ServerScriptService.Events
 
 local Queue = require(game.ServerScriptService:WaitForChild("Queue"))
 
 local function mergeTables(...)
-    local result = {}
-    for _, tbl in ipairs({...}) do
-        if type(tbl) == "table" then
-            for k, v in pairs(tbl) do
-                result[k] = v
-            end
-        end
-    end
-    return result
+	local result = {}
+	for _, tbl in ipairs({ ... }) do
+		if type(tbl) == "table" then
+			for k, v in pairs(tbl) do
+				result[k] = v
+			end
+		end
+	end
+	return result
 end
 
 local submitScore = Function.create(function(player, scoreData, settings)
@@ -22,11 +25,17 @@ local submitScore = Function.create(function(player, scoreData, settings)
 		error("Invalid score data submitted by " .. player.Name)
 	end
 
-    if settings == nil then
-        error("No settings provided for score submission by " .. player.Name)
-    end
+	if settings == nil then
+		error("No settings provided for score submission by " .. player.Name)
+	end
 
 	-- Build payload to match your backend schema
+	local submissionId = string.format("%d_%d_%d", 
+		player.UserId, 
+		tick() * 1000, -- milliseconds for uniqueness
+		math.random(1000, 9999) -- additional randomness
+	)
+	
 	local payload = {
 		user = {
 			userId = player.UserId,
@@ -35,14 +44,48 @@ local submitScore = Function.create(function(player, scoreData, settings)
 		payload = mergeTables(scoreData, {
 			rate = settings.rate,
 			hash = settings.hash,
+			submissionId = submissionId,
+			timestamp = tick(),
 		}),
 	}
 
-	Queue.addToQueue(Http.post, "/scores", {
-		json = payload,
-	})
+	-- Try synchronous request first
+	local success, response = pcall(function()
+		return Http.post("/scores", {
+			json = payload,
+		})
+	end)
 
-	print(player.Name .. " submitted a score")
+	if success and response.success then
+		-- Immediate success - apply profile data
+		local data = response.json()
+		if data and data.profile then
+			Leaderstats.update(player, data.profile)
+			Events.PlayerUpdated:Fire(player, data.profile)
+		end
+		print(player.Name .. " submitted a score (immediate)")
+	elseif success and not response.success then
+		-- HTTP request succeeded but server returned error (4xx, 5xx)
+		-- Don't queue these as they likely won't succeed on retry
+		warn(string.format("Score submission failed for %s: HTTP %d - %s", 
+			player.Name, response.status.code, response.body))
+	else
+		-- Network/connection failure - queue with callback for retry
+		Queue.addToQueue(Http.post, "/scores", {
+			json = payload,
+		}, function(queuedResponse)
+			-- Callback when queued request succeeds
+			if queuedResponse.success then
+				local data = queuedResponse.json()
+				if data and data.profile then
+					Leaderstats.update(player, data.profile)
+					Events.PlayerUpdated:Fire(player, data.profile)
+				end
+				print(player.Name .. " submitted a score (queued)")
+			end
+		end)
+		print(player.Name .. " score submission queued (connection failed)")
+	end
 
 	return nil
 end)
@@ -78,8 +121,8 @@ game:GetService("Players").PlayerAdded:Connect(function(player)
 		json = {
 			userId = player.UserId,
 			name = player.Name,
-		}
+		},
 	})
 
-    print("Player " .. player.Name .. " has joined.")
+	print("Player " .. player.Name .. " has joined.")
 end)

@@ -14,7 +14,7 @@ local function withUrl(path)
 		warn("----------------------------------------------------------------------------------")
 		warn("Using production server for HTTP requests! This is not recommended in Studio mode.")
 		warn("----------------------------------------------------------------------------------")
-		
+
 		warned = true
 	end
 
@@ -26,12 +26,32 @@ local function withUrl(path)
 end
 
 local SECRETS = DataStoreService:GetDataStore("SECRETS")
-local API_KEY = SECRETS:GetAsync("API_KEY")
+local API_KEY = nil
+local apiKeyLoaded = false
+
+local function loadApiKey()
+	local success, result = pcall(function()
+		return SECRETS:GetAsync("API_KEY")
+	end)
+	
+	if success and result then
+		API_KEY = result
+		apiKeyLoaded = true
+	else
+		warn("Failed to fetch API_KEY from DataStore:", result)
+	end
+end
+
+spawn(loadApiKey)
 
 local function withApiKey(params)
 	params = params or {}
+	
+	while not apiKeyLoaded do
+		wait()
+	end
+	
 	params.api_key = API_KEY
-
 	return params
 end
 
@@ -143,11 +163,18 @@ local lastApiKeyUpdate = tick()
 
 RunService.Heartbeat:Connect(function(dt)
 	if tick() - lastApiKeyUpdate > 30 then
-		local newApiKey = SECRETS:GetAsync("API_KEY")
+		spawn(function()
+			local success, newApiKey = pcall(function()
+				return SECRETS:GetAsync("API_KEY")
+			end)
 
-		if newApiKey then
-			API_KEY = newApiKey
-		end
+			if success and newApiKey then
+				API_KEY = newApiKey
+				apiKeyLoaded = true
+			elseif not success then
+				warn("Failed to refresh API_KEY from DataStore:", newApiKey)
+			end
+		end)
 
 		lastApiKeyUpdate = tick()
 	end
