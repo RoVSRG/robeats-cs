@@ -44,7 +44,7 @@ local function getYourScores()
         local scoreInstance = ScoreTemplate:Clone()
         local songInfo = scoreInstance.SongInfo
 
-        songInfo.ScoreData.Text = string.format("Rating: %0.2f | Score: %d | Accuracy: %0.2f%% | Rate: %0.2fx", score.rating, score.score, score.accuracy, score.rate / 100)
+        songInfo.ScoreData.ScoreString.Text = string.format("Rating: %0.2f | Score: %d | Accuracy: %0.2f%% | Rate: %0.2fx", score.rating, score.score, score.accuracy, score.rate / 100)
         songInfo.Song.Text = tostring(i) .. ". " .. song.SongName .. " - " .. song.ArtistName
 
         scoreInstance.Parent = list
