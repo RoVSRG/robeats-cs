@@ -30,8 +30,16 @@ local function getYourScores()
     local result = response.result
     local scores = result.scores
 
-    for i, score in scores do
+    local i = 0
+
+    for _, score in scores do
         local song = SongDatabase:GetSongByKey(score.hash)
+
+        if not song then
+            continue
+        end
+
+        i += 1
 
         local scoreInstance = ScoreTemplate:Clone()
         local songInfo = scoreInstance.SongInfo
