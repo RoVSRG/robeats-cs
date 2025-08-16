@@ -887,18 +887,24 @@ end
 	@within Val
 	@method asOption
 	Adds option metadata to a Val instance for automatic UI generation
-	@param config {type: string, displayName: string, category: string, increment: number?, selection: {string}?}
+	@param config {type: string, displayName: string, category: string, increment: number?, selection: {string}?, min: number?, max: number?}
 	@return Val
 	```lua
 	local speed = Val.new(23):asOption({
 		type = "int",
 		displayName = "Note Speed",
 		category = "General",
-		increment = 1
+		increment = 1,
+		min = 1,
+		max = 100
 	})
 	```
 ]=]
-function Val.asOption<T>(self: Val<T>, config: {type: string, displayName: string, category: string, increment: number?, selection: {string}?}): Val<T>
+function Val.asOption<T>(self: Val<T>, config: {type: string, displayName: string, category: string, increment: number?, selection: {string}?, min: number?, max: number?}): Val<T>
+	if config.type == "int" then
+		config.min = config.min or -math.huge
+		config.max = config.max or math.huge
+	end
 	self._optionConfig = config
 	return self
 end

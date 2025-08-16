@@ -55,18 +55,26 @@ local function withTemplate(container, templateName, callback)
 	option.Visible = true
 end
 
-function OptionsHandler:createIntOption(name, val, incrementVal)
+function OptionsHandler:createIntOption(name, val, incrementVal, minVal, maxVal)
 	incrementVal = incrementVal or 1
+	minVal = minVal or -math.huge
+	maxVal = maxVal or math.huge
 
 	withTemplate(self.container, "IntOption", function(option)
 		option.Display.Text = name
 
 		option.Increment.MouseButton1Click:Connect(function()
-			val:add(incrementVal)
+			local newValue = val:get() + incrementVal
+			if newValue <= maxVal then
+				val:set(newValue)
+			end
 		end)
 
 		option.Decrement.MouseButton1Click:Connect(function()
-			val:sub(incrementVal)
+			local newValue = val:get() - incrementVal
+			if newValue >= minVal then
+				val:set(newValue)
+			end
 		end)
 
 		val:on(function(val)
@@ -174,7 +182,7 @@ end
 
 function OptionsHandler:createOptionFromConfig(name, val, config)
 	if config.type == "int" then
-		self:createIntOption(name, val, config.increment or 1)
+		self:createIntOption(name, val, config.increment or 1, config.min, config.max)
 	elseif config.type == "bool" then
 		self:createBoolOption(name, val)
 	elseif config.type == "radio" then

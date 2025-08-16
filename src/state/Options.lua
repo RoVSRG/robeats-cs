@@ -12,19 +12,25 @@ local Options = Val.scope {
         type = "int",
         displayName = "Note Speed",
         category = "General",
-        increment = 1
+        increment = 1,
+        min = 1,
+        max = 100
     }),
     AudioOffset = Val.new(0):asOption({
         type = "int",
         displayName = "Audio Offset",
         category = "General",
-        increment = 1
+        increment = 1,
+        min = -1000,
+        max = 1000
     }),
     HitOffset = Val.new(0):asOption({
         type = "int",
         displayName = "Hit Offset",
         category = "General",
-        increment = 1
+        increment = 1,
+        min = -1000,
+        max = 1000
     }),
     TimingPreset = Val.new("Standard"):asOption({
         type = "radio",
@@ -41,7 +47,9 @@ local Options = Val.scope {
         type = "int",
         displayName = "Lane Cover Height",
         category = "General",
-        increment = 1
+        increment = 1,
+        min = 0,
+        max = 100
     }),
     Mods = Val.new({}), -- Array of active mods
     
@@ -74,7 +82,9 @@ local Options = Val.scope {
         type = "int",
         displayName = "Receptor Transparency",
         category = "VisualEffects",
-        increment = 10
+        increment = 10,
+        min = 0,
+        max = 100
     }),
     LnTransparency = Val.new(false):asOption({
         type = "bool",
@@ -110,13 +120,17 @@ local Options = Val.scope {
         type = "int",
         displayName = "Hitsound Volume",
         category = "Input",
-        increment = 5
+        increment = 5,
+        min = 0,
+        max = 100
     }),
     MusicVolume = Val.new(0.5):asOption({
         type = "int",
         displayName = "Music Volume",
         category = "Input",
-        increment = 5
+        increment = 5,
+        min = 0,
+        max = 100
     }),
     
     -- Advanced Settings
