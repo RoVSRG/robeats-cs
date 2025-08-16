@@ -5,22 +5,26 @@ local Options = Val.scope {
     Keybind1 = Val.new("A"):asOption({
         type = "keybind",
         displayName = "Lane 1 Key",
-        category = "Input"
+        category = "Input",
+        layoutOrder = 1
     }),
     Keybind2 = Val.new("S"):asOption({
         type = "keybind",
         displayName = "Lane 2 Key",
-        category = "Input"
+        category = "Input",
+        layoutOrder = 2
     }),
     Keybind3 = Val.new("Y"):asOption({
         type = "keybind",
         displayName = "Lane 3 Key",
-        category = "Input"
+        category = "Input",
+        layoutOrder = 3
     }),
     Keybind4 = Val.new("U"):asOption({
         type = "keybind",
         displayName = "Lane 4 Key",
-        category = "Input"
+        category = "Input",
+        layoutOrder = 4
     }),
 
     -- Gameplay Settings
@@ -130,7 +134,8 @@ local Options = Val.scope {
     Hitsounds = Val.new(true):asOption({
         type = "bool",
         displayName = "Hitsounds Enabled",
-        category = "Input"
+        category = "Input",
+        layoutOrder = 5
     }),
     HitsoundVolume = Val.new(50):asOption({
         type = "int",
@@ -138,7 +143,8 @@ local Options = Val.scope {
         category = "Input",
         increment = 5,
         min = 0,
-        max = 100
+        max = 100,
+        layoutOrder = 6
     }),
     MusicVolume = Val.new(50):asOption({
         type = "int",
@@ -146,7 +152,8 @@ local Options = Val.scope {
         category = "Input",
         increment = 5,
         min = 0,
-        max = 100
+        max = 100,
+        layoutOrder = 7
     }),
     
     -- Advanced Settings

@@ -39,7 +39,7 @@ function OptionsHandler:destroy()
 	end
 end
 
-local function withTemplate(container, templateName, callback)
+local function withTemplate(container, templateName, callback, layoutOrder)
 	assert(container, "container must be provided")
 	assert(typeof(container) == "Instance", "container must be an Instance")
 	assert(templateName, "templateName must be provided")
@@ -51,11 +51,15 @@ local function withTemplate(container, templateName, callback)
 
 	callback(option)
 	
+	if layoutOrder then
+		option.LayoutOrder = layoutOrder
+	end
+	
 	option.Parent = container
 	option.Visible = true
 end
 
-function OptionsHandler:createIntOption(name, val, incrementVal, minVal, maxVal)
+function OptionsHandler:createIntOption(name, val, incrementVal, minVal, maxVal, layoutOrder)
 	incrementVal = incrementVal or 1
 	minVal = minVal or -math.huge
 	maxVal = maxVal or math.huge
@@ -82,10 +86,10 @@ function OptionsHandler:createIntOption(name, val, incrementVal, minVal, maxVal)
 		end)
 
 		val:set(val:get(), true)
-	end)
+	end, layoutOrder)
 end
 
-function OptionsHandler:createBoolOption(name, val)
+function OptionsHandler:createBoolOption(name, val, layoutOrder)
 	withTemplate(self.container, "BoolOption", function(option)
 		option.Display.Text = name
 		option.Name = name
@@ -105,10 +109,10 @@ function OptionsHandler:createBoolOption(name, val)
 		end)
 
 		val:set(val:get(), true)
-	end)
+	end, layoutOrder)
 end
 
-function OptionsHandler:createRadioOption(name, val, selection)
+function OptionsHandler:createRadioOption(name, val, selection, layoutOrder)
 	withTemplate(self.container, "RadioOption", function(option)
 		option.Display.Text = name
 
@@ -151,10 +155,10 @@ function OptionsHandler:createRadioOption(name, val, selection)
 
 		-- Initialize UI to current value (without re-firing listeners)
 		val:set(val:get(), true)
-	end)
+	end, layoutOrder)
 end
 
-function OptionsHandler:createMultiselectOption(name, val, selection)
+function OptionsHandler:createMultiselectOption(name, val, selection, layoutOrder)
 	withTemplate(self.container, "RadioOption", function(option)
 		option.Display.Text = name
 
@@ -177,10 +181,10 @@ function OptionsHandler:createMultiselectOption(name, val, selection)
 				end
 			end)
 		end
-	end)
+	end, layoutOrder)
 end
 
-function OptionsHandler:createKeybindOption(name, val)
+function OptionsHandler:createKeybindOption(name, val, layoutOrder)
 	withTemplate(self.container, "KeybindOption", function(option)
 		option.Display.Text = name
 		option.Name = name
@@ -225,20 +229,20 @@ function OptionsHandler:createKeybindOption(name, val)
 		end)
 		
 		val:set(val:get(), true)
-	end)
+	end, layoutOrder)
 end
 
 function OptionsHandler:createOptionFromConfig(name, val, config)
 	if config.type == "int" then
-		self:createIntOption(name, val, config.increment or 1, config.min, config.max)
+		self:createIntOption(name, val, config.increment or 1, config.min, config.max, config.layoutOrder)
 	elseif config.type == "bool" then
-		self:createBoolOption(name, val)
+		self:createBoolOption(name, val, config.layoutOrder)
 	elseif config.type == "radio" then
-		self:createRadioOption(name, val, config.selection)
+		self:createRadioOption(name, val, config.selection, config.layoutOrder)
 	elseif config.type == "multiselect" then
-		self:createMultiselectOption(name, val, config.selection)
+		self:createMultiselectOption(name, val, config.selection, config.layoutOrder)
 	elseif config.type == "keybind" then
-		self:createKeybindOption(name, val)
+		self:createKeybindOption(name, val, config.layoutOrder)
 	else
 		warn("Unknown option type:", config.type)
 	end
