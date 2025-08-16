@@ -2,10 +2,26 @@ local Val = require(game.ReplicatedStorage.Libraries.Val)
 
 local Options = Val.scope {
     -- Input Settings
-    Keybind1 = Val.new("A"),
-    Keybind2 = Val.new("S"),
-    Keybind3 = Val.new("Y"),
-    Keybind4 = Val.new("U"),
+    Keybind1 = Val.new("A"):asOption({
+        type = "keybind",
+        displayName = "Lane 1 Key",
+        category = "Input"
+    }),
+    Keybind2 = Val.new("S"):asOption({
+        type = "keybind",
+        displayName = "Lane 2 Key",
+        category = "Input"
+    }),
+    Keybind3 = Val.new("Y"):asOption({
+        type = "keybind",
+        displayName = "Lane 3 Key",
+        category = "Input"
+    }),
+    Keybind4 = Val.new("U"):asOption({
+        type = "keybind",
+        displayName = "Lane 4 Key",
+        category = "Input"
+    }),
 
     -- Gameplay Settings
     ScrollSpeed = Val.new(23):asOption({

@@ -180,6 +180,54 @@ function OptionsHandler:createMultiselectOption(name, val, selection)
 	end)
 end
 
+function OptionsHandler:createKeybindOption(name, val)
+	withTemplate(self.container, "KeybindOption", function(option)
+		option.Display.Text = name
+		option.Name = name
+		
+		local isListening = false
+		
+		local function updateKeyDisplay(keyCode)
+			if keyCode then
+				option.Key.Text = keyCode
+			else
+				option.Key.Text = "NONE"
+			end
+		end
+		
+		option.Key.MouseButton1Click:Connect(function()
+			if isListening then
+				return
+			end
+			
+			isListening = true
+			option.Key.Text = "Press any key..."
+			option.Key.BackgroundColor3 = Color3.fromRGB(255, 167, 36)
+			
+			local connection
+			connection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+				if gameProcessed then
+					return
+				end
+				
+				if input.UserInputType == Enum.UserInputType.Keyboard then
+					local keyName = input.KeyCode.Name
+					val:set(keyName)
+					isListening = false
+					option.Key.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
+					connection:Disconnect()
+				end
+			end)
+		end)
+		
+		val:on(function(keyCode)
+			updateKeyDisplay(keyCode)
+		end)
+		
+		val:set(val:get(), true)
+	end)
+end
+
 function OptionsHandler:createOptionFromConfig(name, val, config)
 	if config.type == "int" then
 		self:createIntOption(name, val, config.increment or 1, config.min, config.max)
@@ -189,6 +237,8 @@ function OptionsHandler:createOptionFromConfig(name, val, config)
 		self:createRadioOption(name, val, config.selection)
 	elseif config.type == "multiselect" then
 		self:createMultiselectOption(name, val, config.selection)
+	elseif config.type == "keybind" then
+		self:createKeybindOption(name, val)
 	else
 		warn("Unknown option type:", config.type)
 	end
