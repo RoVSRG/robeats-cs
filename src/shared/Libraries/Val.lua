@@ -885,6 +885,26 @@ end
 
 --[=[
 	@within Val
+	@method asOption
+	Adds option metadata to a Val instance for automatic UI generation
+	@param config {type: string, displayName: string, category: string, increment: number?, selection: {string}?}
+	@return Val
+	```lua
+	local speed = Val.new(23):asOption({
+		type = "int",
+		displayName = "Note Speed",
+		category = "General",
+		increment = 1
+	})
+	```
+]=]
+function Val.asOption<T>(self: Val<T>, config: {type: string, displayName: string, category: string, increment: number?, selection: {string}?}): Val<T>
+	self._optionConfig = config
+	return self
+end
+
+--[=[
+	@within Val
 	@method copy
 	Creates a copy of the state
 
