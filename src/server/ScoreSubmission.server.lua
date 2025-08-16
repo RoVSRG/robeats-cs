@@ -30,12 +30,13 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	end
 
 	-- Build payload to match your backend schema
-	local submissionId = string.format("%d_%d_%d", 
-		player.UserId, 
+	local submissionId = string.format(
+		"%d_%d_%d",
+		player.UserId,
 		tick() * 1000, -- milliseconds for uniqueness
 		math.random(1000, 9999) -- additional randomness
 	)
-	
+
 	local payload = {
 		user = {
 			userId = player.UserId,
@@ -67,8 +68,14 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	elseif success and not response.success then
 		-- HTTP request succeeded but server returned error (4xx, 5xx)
 		-- Don't queue these as they likely won't succeed on retry
-		warn(string.format("Score submission failed for %s: HTTP %d - %s", 
-			player.Name, response.status.code, response.body))
+		warn(
+			string.format(
+				"Score submission failed for %s: HTTP %d - %s",
+				player.Name,
+				response.status.code,
+				response.body
+			)
+		)
 	else
 		-- Network/connection failure - queue with callback for retry
 		Queue.addToQueue(Http.post, "/scores", {
@@ -78,7 +85,6 @@ local submitScore = Function.create(function(player, scoreData, settings)
 			if queuedResponse.success then
 				local data = queuedResponse.json()
 				if data and data.profile then
-					Leaderstats.update(player, data.profile)
 					Events.PlayerUpdated:Fire(player, data.profile)
 				end
 				print(player.Name .. " submitted a score (queued)")

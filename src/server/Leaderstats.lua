@@ -10,7 +10,7 @@ function Leaderstats.create(player)
 	rankLeaderstat.Value = "#?"
 	rankLeaderstat.Parent = leaderstats
 
-	local ratingLeaderstat = Instance.new("IntValue")
+	local ratingLeaderstat = Instance.new("StringValue")
 	ratingLeaderstat.Name = "Rating"
 	ratingLeaderstat.Value = 0
 	ratingLeaderstat.Parent = leaderstats
@@ -19,8 +19,6 @@ function Leaderstats.create(player)
 	countryLeaderstat.Name = "Country"
 	countryLeaderstat.Value = "??"
 	countryLeaderstat.Parent = leaderstats
-
-	local rank = player:FindFirstChild("rank")
 
 	return leaderstats
 end
