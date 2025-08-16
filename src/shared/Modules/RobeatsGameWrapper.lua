@@ -383,10 +383,10 @@ end
 
 function RobeatsGameWrapper:setVolume(musicVolume: number?, hitsoundVolume: number?)
 	if musicVolume then
-		Options.MusicVolume:set(musicVolume)
+		Options.MusicVolume:set(musicVolume * 100)
 	end
 	if hitsoundVolume then
-		Options.HitsoundVolume:set(hitsoundVolume)
+		Options.HitsoundVolume:set(hitsoundVolume * 100)
 	end
 	
 	-- Update the audio manager if game is running

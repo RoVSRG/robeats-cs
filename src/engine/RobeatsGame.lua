@@ -108,10 +108,14 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			Skin2D = Options.Skin2D:get(),
 			NoteColorAffects2D = Options.NoteColorAffects2D:get(),
 
+			-- Visual settings
+			ReceptorTransparency = Options.ReceptorTransparency:get() / 100,
+			HideReceptorGlow = Options.HideReceptorGlow:get(),
+
 			-- Audio settings
 			Hitsounds = Options.Hitsounds:get(),
-			HitsoundVolume = Options.HitsoundVolume:get(),
-			MusicVolume = Options.MusicVolume:get(),
+			HitsoundVolume = Options.HitsoundVolume:get() / 100,
+			MusicVolume = Options.MusicVolume:get() / 100,
 
 			-- Judgement visibility
 			JudgementVisibility = {

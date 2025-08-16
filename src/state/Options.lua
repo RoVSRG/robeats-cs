@@ -116,7 +116,7 @@ local Options = Val.scope {
         displayName = "Hitsounds Enabled",
         category = "Input"
     }),
-    HitsoundVolume = Val.new(0.5):asOption({
+    HitsoundVolume = Val.new(50):asOption({
         type = "int",
         displayName = "Hitsound Volume",
         category = "Input",
@@ -124,7 +124,7 @@ local Options = Val.scope {
         min = 0,
         max = 100
     }),
-    MusicVolume = Val.new(0.5):asOption({
+    MusicVolume = Val.new(50):asOption({
         type = "int",
         displayName = "Music Volume",
         category = "Input",
