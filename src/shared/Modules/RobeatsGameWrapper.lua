@@ -156,6 +156,7 @@ function RobeatsGameWrapper:_setupEventListeners()
 			Remotes.Functions.SubmitScore:InvokeServer(self:getStats(), {
 				rate = Transient.song.rate:get(),
 				hash = Transient.song.hash:get(),
+				overallDifficulty = Options.OverallDifficulty:get(),
 			})
 		end
 	end)

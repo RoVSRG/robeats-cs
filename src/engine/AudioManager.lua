@@ -198,7 +198,7 @@ function AudioManager:new(_game)
 
 		--Apply timing windows
 		if not _config.UseCustomJudgements then
-			_timing_preset = TimingPresets[_config.TimingPreset]
+			_timing_preset = TimingPresets.calculateTimingWindows(_config.OverallDifficulty or 5)
 			_note_bad_max = _timing_preset.NoteBadMaxMS
 			_note_good_max = _timing_preset.NoteGoodMaxMS
 			_note_great_max = _timing_preset.NoteGreatMaxMS

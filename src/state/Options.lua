@@ -60,11 +60,13 @@ local Options = Val.scope({
 		min = -1000,
 		max = 1000,
 	}),
-	TimingPreset = Val.new("Standard"):asOption({
-		type = "radio",
-		displayName = "Timing Preset",
+	OverallDifficulty = Val.new(8):asOption({
+		type = "int",
+		displayName = "Overall Difficulty (OD)",
 		category = "General",
-		selection = { "Standard", "Strict" },
+		increment = 1,
+		min = 0,
+		max = 10,
 	}),
 	LaneCoverEnabled = Val.new(false):asOption({
 		type = "bool",
@@ -169,15 +171,5 @@ local Options = Val.scope({
 	GameSlot = Val.new(0), -- Game slot for multiplayer
 	RecordReplay = Val.new(false), -- Record replay data
 })
-
-type TimingPreset = "Standard" | "Strict"
-
-Options.setTimingPreset = function(preset: TimingPreset)
-	if preset == "Standard" or preset == "Strict" then
-		Options.TimingPreset:set(preset)
-	else
-		error("Invalid timing preset: " .. tostring(preset))
-	end
-end
 
 return Options

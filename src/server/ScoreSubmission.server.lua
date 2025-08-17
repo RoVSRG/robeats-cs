@@ -29,6 +29,11 @@ local submitScore = Function.create(function(player, scoreData, settings)
 		error("No settings provided for score submission by " .. player.Name)
 	end
 
+	-- Validate Overall Difficulty for ranked integrity
+	if settings.overallDifficulty ~= 8 then
+		error("Scores can only be submitted with Overall Difficulty 8 for ranked play. Current OD: " .. tostring(settings.overallDifficulty or "unknown"))
+	end
+
 	-- Build payload to match your backend schema
 	local submissionId = string.format(
 		"%d_%d_%d",

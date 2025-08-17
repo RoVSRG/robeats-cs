@@ -1,68 +1,34 @@
-local TimingPresets = {
-	["Lenient"] = { ---Robeats Accuracy stage 1
-		NoteBadMaxMS = 142,
-		NoteBadMinMS = -142,
+local TimingPresets = {}
 
-		NoteGoodMaxMS = 118,
-		NoteGoodMinMS = -118,
+function TimingPresets.calculateTimingWindows(od)
+	local timing_windows = {}
 
-		NoteGreatMaxMS = 88,
-		NoteGreatMinMS = -88,
+	-- osu! OD-based timing window calculations
+	-- MAX (marvelous) is constant at 16ms
+	timing_windows.NoteMarvelousMaxMS = 16
+	timing_windows.NoteMarvelousMinMS = -16
 
-		NotePerfectMaxMS = 55,
-		NotePerfectMinMS = -55,
+	-- 300 (perfect): 64 - 3 × OD
+	local perfect_window = 64 - 3 * od
+	timing_windows.NotePerfectMaxMS = perfect_window
+	timing_windows.NotePerfectMinMS = -perfect_window
 
-		NoteMarvelousMaxMS = 26,
-		NoteMarvelousMinMS = -26,
-	},
-	["Standard"] = { --Stepmania J4, slight modification
-		NoteBadMaxMS = 136,
-		NoteBadMinMS = -136,
+	-- 200 (great): 97 - 3 × OD
+	local great_window = 97 - 3 * od
+	timing_windows.NoteGreatMaxMS = great_window
+	timing_windows.NoteGreatMinMS = -great_window
 
-		NoteGoodMaxMS = 112,
-		NoteGoodMinMS = -112,
+	-- 100 (good): 127 - 3 × OD
+	local good_window = 127 - 3 * od
+	timing_windows.NoteGoodMaxMS = good_window
+	timing_windows.NoteGoodMinMS = -good_window
 
-		NoteGreatMaxMS = 85,
-		NoteGreatMinMS = -85,
+	-- 50 (bad): 151 - 3 × OD
+	local bad_window = 151 - 3 * od
+	timing_windows.NoteBadMaxMS = bad_window
+	timing_windows.NoteBadMinMS = -bad_window
 
-		NotePerfectMaxMS = 45,
-		NotePerfectMinMS = -45,
-
-		NoteMarvelousMaxMS = 22,
-		NoteMarvelousMinMS = -22,
-	},
-	["Strict"] = { --Stepmania Judge 5, slight modification
-		NoteBadMaxMS = 130,
-		NoteBadMinMS = -130,
-
-		NoteGoodMaxMS = 106,
-		NoteGoodMinMS = -106,
-
-		NoteGreatMaxMS = 76,
-		NoteGreatMinMS = -76,
-
-		NotePerfectMaxMS = 36,
-		NotePerfectMinMS = -36,
-
-		NoteMarvelousMaxMS = 16,
-		NoteMarvelousMinMS = -16,
-	},
-	["ROFAST GAMER"] = { --Stepmania judge 7
-		NoteBadMaxMS = 90,
-		NoteBadMinMS = -90,
-
-		NoteGoodMaxMS = 68,
-		NoteGoodMinMS = -68,
-
-		NoteGreatMaxMS = 45,
-		NoteGreatMinMS = -45,
-
-		NotePerfectMaxMS = 23,
-		NotePerfectMinMS = -23,
-
-		NoteMarvelousMaxMS = 11,
-		NoteMarvelousMinMS = -11,
-	},
-}
+	return timing_windows
+end
 
 return TimingPresets

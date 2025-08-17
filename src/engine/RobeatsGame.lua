@@ -102,7 +102,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			SongRate = Transient.song.rate:get(),
 			AudioOffset = Options.AudioOffset:get(),
 			NoteSpeed = Options.ScrollSpeed:get(),
-			TimingPreset = Options.TimingPreset:get(),
+			OverallDifficulty = Options.OverallDifficulty:get(),
 			Mods = Options.Mods:get(),
 
 			-- 2D Mode settings

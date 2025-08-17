@@ -24,7 +24,7 @@ export type GameConfig = {
 	
 	-- Timing Settings
 	UseCustomJudgements: boolean?,
-	TimingPreset: string,
+	OverallDifficulty: number?,
 	
 	-- Custom Timing Presets (used when UseCustomJudgements is true)
 	CustomMarvelousPreset: number?,
