@@ -1,0 +1,227 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Test and build the API server
+  server:
+    name: Server (TypeScript)
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: robeats_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API types
+        run: npm run generate:types
+
+      - name: Lint server code
+        run: npm run lint:server
+
+      - name: Build server
+        run: npm run build:server
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/robeats_test
+          REDIS_URL: redis://localhost:6379
+
+      - name: Test server
+        run: npm run test:server
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/robeats_test
+          REDIS_URL: redis://localhost:6379
+
+  # Build Roblox components
+  roblox:
+    name: Roblox (Lua)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code  
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Lune
+        uses: lune-org/setup-lune@v1
+        with:
+          version: "0.8"
+
+      - name: Setup Rojo
+        uses: rojo-rbx/setup-rojo@v1
+        with:
+          version: "7.4.0"
+
+      - name: Generate API types
+        run: |
+          # Install Node.js temporarily to generate types
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          npm ci
+          npm run generate:types
+
+      - name: Build songs database
+        run: npm run build:songs
+
+      - name: Build Roblox place file
+        run: npm run build:roblox
+
+      - name: Upload Roblox build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: roblox-build
+          path: |
+            RoBeats-Community-Server.rbxl
+            roblox/build/
+          retention-days: 30
+
+  # Integration tests (if server and Roblox client can communicate)
+  integration:
+    name: Integration Tests
+    needs: [server, roblox]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: robeats_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start server in background
+        run: |
+          npm run build:server
+          npm run start:server &
+          sleep 5
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/robeats_test
+          REDIS_URL: redis://localhost:6379
+          PORT: 3000
+
+      - name: Test API endpoints
+        run: |
+          # Basic smoke tests to ensure API is responding
+          curl -f http://localhost:3000/ || exit 1
+          curl -f http://localhost:3000/players/top || exit 1
+          echo "✅ API endpoints responding"
+
+  # Security and quality checks
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level moderate
+
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+
+  # Deploy staging (only on main branch)
+  deploy-staging:
+    name: Deploy Staging
+    needs: [server, roblox, integration]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build server for production
+        run: |
+          npm ci
+          npm run build:server
+
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploy to staging server would happen here"
+          echo "Built artifacts ready for deployment"
+          # Add your deployment scripts here

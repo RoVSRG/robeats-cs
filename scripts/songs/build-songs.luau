@@ -219,6 +219,6 @@ if not fs.isDir("./roblox/build") then
 end
 
 local model_file = roblox.serializeModel({ songs }, false)
-fs.writeFile("./build/bin.rbxm", model_file)
+fs.writeFile("./roblox/build/bin.rbxm", model_file)
 
 stdio.write("-[DONE]-")

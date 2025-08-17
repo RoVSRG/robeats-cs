@@ -1,0 +1,45 @@
+{
+  "name": "robeats-cs-monorepo",
+  "version": "1.0.0",
+  "description": "RoBeats Community Server - A comprehensive Roblox rhythm game with API server",
+  "private": true,
+  "workspaces": [
+    "server"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=server",
+    "build:server": "npm run build --workspace=server",
+    "start:server": "npm run start --workspace=server",
+    "build:songs": "lune run scripts/songs/build-songs.luau",
+    "build:roblox": "rojo build default.project.json --output RoBeats-Community-Server.rbxl",
+    "serve:roblox": "rojo serve default.project.json",
+    "sync": "lune run scripts/studio-watcher.luau",
+    "dev": "concurrently \"npm run dev:server\" \"npm run serve:roblox\" --names \"server,rojo\" --prefix-colors \"blue,green\"",
+    "install:all": "npm install",
+    "lint:server": "npm run lint --workspace=server",
+    "test:server": "npm run test --workspace=server",
+    "generate:types": "npm run generate:types --workspace=server",
+    "clean": "rimraf server/dist roblox/build",
+    "postinstall": "echo 'Make sure you have Lune and Rojo installed globally for full functionality'"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/robeats-cs.git"
+  },
+  "keywords": [
+    "roblox",
+    "rhythm-game",
+    "monorepo",
+    "api",
+    "typescript"
+  ],
+  "author": "RoBeats Community",
+  "license": "MIT"
+}

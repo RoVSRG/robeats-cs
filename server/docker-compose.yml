@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: robeats-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: robeats
+      POSTGRES_USER: robeats
+      POSTGRES_PASSWORD: robeats_password_change_in_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U robeats -d robeats"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Valkey (Redis-compatible cache)
+  valkey:
+    image: valkey/valkey:7.2-alpine
+    container_name: robeats-valkey
+    restart: unless-stopped
+    command: valkey-server --appendonly yes --appendfsync everysec
+    volumes:
+      - valkey_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # RoBeats API Server
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: robeats-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    environment:
+      # Database Configuration
+      DATABASE_URL: postgresql://robeats:robeats_password_change_in_production@postgres:5432/robeats
+      
+      # Valkey Configuration
+      VALKEY_HOST: valkey
+      VALKEY_PORT: 6379
+      VALKEY_DB: 0
+      VALKEY_TLS: false
+      VALKEY_TLS_REJECT_UNAUTHORIZED: false
+      
+      # API Configuration
+      API_KEY: your_secure_api_key_change_in_production
+      
+      # Node.js Configuration
+      NODE_ENV: production
+    volumes:
+      # Mount for development (comment out for production)
+      # - .:/app
+      # - /app/node_modules
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Development override service (optional)
+  app-dev:
+    extends: app
+    container_name: robeats-server-dev
+    profiles:
+      - dev
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+
+volumes:
+  postgres_data:
+    driver: local
+  valkey_data:
+    driver: local
+
+networks:
+  default:
+    name: robeats-network

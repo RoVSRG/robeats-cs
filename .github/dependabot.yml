@@ -1,0 +1,45 @@
+# Dependabot configuration for monorepo dependency management
+
+version: 2
+updates:
+  # Root package.json (monorepo orchestration)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "maintainers"
+    assignees:
+      - "maintainers"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # Server workspace
+  - package-ecosystem: "npm"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "maintainers"
+    assignees:
+      - "maintainers"
+    commit-message:
+      prefix: "chore(server)"
+      include: "scope"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "maintainers"
+    commit-message:
+      prefix: "chore(ci)"

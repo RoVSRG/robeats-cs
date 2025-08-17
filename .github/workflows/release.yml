@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Build and publish server
+  build-server:
+    name: Build Server
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API types
+        run: npm run generate:types
+
+      - name: Build server
+        run: npm run build:server
+
+      - name: Upload server build
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-dist
+          path: server/dist/
+          retention-days: 90
+
+  # Build Roblox assets
+  build-roblox:
+    name: Build Roblox
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Lune
+        uses: lune-org/setup-lune@v1
+        with:
+          version: "0.8"
+
+      - name: Setup Rojo
+        uses: rojo-rbx/setup-rojo@v1
+        with:
+          version: "7.4.0"
+
+      - name: Setup Node.js (for type generation)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies and generate types
+        run: |
+          npm ci
+          npm run generate:types
+
+      - name: Build songs database
+        run: npm run build:songs
+
+      - name: Build Roblox place file
+        run: npm run build:roblox
+
+      - name: Upload Roblox assets to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            RoBeats-Community-Server.rbxl
+            roblox/build/bin.rbxm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Deploy production
+  deploy-production:
+    name: Deploy Production
+    needs: [build-server, build-roblox]
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download server build
+        uses: actions/download-artifact@v4
+        with:
+          name: server-dist
+          path: server/dist/
+
+      - name: Deploy to production
+        run: |
+          echo "🚀 Production deployment would happen here"
+          echo "Server build ready at: server/dist/"
+          # Add your production deployment scripts here
+          # Examples:
+          # - Deploy to Docker registry
+          # - Deploy to cloud provider (AWS, GCP, Azure)
+          # - Update production server
+          
+      - name: Notify deployment success
+        run: |
+          echo "✅ RoBeats Community Server ${{ github.event.release.tag_name }} deployed successfully"

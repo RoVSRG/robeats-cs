@@ -1,6 +1,6 @@
 # RoBeats Community Server
 
-A comprehensive Roblox game development project featuring a full rhythm game implementation with modern tooling, two-way sync workflow, and extensive GUI systems.
+A comprehensive monorepo containing a Roblox rhythm game with TypeScript API server, featuring modern tooling, two-way sync workflow, and extensive GUI systems.
 
 ## 🚀 Quick Start
 
@@ -8,6 +8,7 @@ A comprehensive Roblox game development project featuring a full rhythm game imp
 
 You'll need to install these tools manually:
 
+- **[Node.js](https://nodejs.org/)** (v18+) - For the API server and monorepo management
 - **[Lune](https://github.com/lune-org/lune)** - Lua runtime for build scripts and automation
 - **[Rojo](https://rojo.space/docs/installation/)** - Roblox project management and syncing
 - **[Git](https://git-scm.com/)** - Version control (for submodules)
@@ -16,8 +17,8 @@ You'll need to install these tools manually:
 
 1. **Clone the repository with submodules:**
    ```bash
-   git clone --recursive https://github.com/your-repo/robeats-cs-scripts.git
-   cd robeats-cs-scripts
+   git clone --recursive https://github.com/your-repo/robeats-cs.git
+   cd robeats-cs
    ```
 
 2. **If you already cloned without `--recursive`, initialize submodules:**
@@ -25,8 +26,14 @@ You'll need to install these tools manually:
    git submodule update --init --recursive
    ```
 
-3. **Verify tool installation:**
+3. **Install dependencies:**
    ```bash
+   npm install
+   ```
+
+4. **Verify tool installation:**
+   ```bash
+   node --version
    lune --version
    rojo --version
    ```
@@ -36,15 +43,22 @@ You'll need to install these tools manually:
 ### Core Directories
 
 ```
-robeats-cs-scripts/
-├── src/                    # Source code (development files)
-│   ├── client/            # Client-side scripts (→ StarterPlayerScripts)
-│   ├── server/            # Server-side scripts (→ ServerScriptService)  
-│   ├── shared/            # Shared modules (→ ReplicatedStorage)
-│   ├── gui/               # GUI screens and components (→ StarterGui)
-│   ├── engine/            # Core RoBeats game engine
-│   ├── state/             # State management modules
-│   └── workspace/         # Workspace objects and environment
+robeats-cs/
+├── package.json           # Monorepo configuration and scripts
+├── roblox/                # Roblox game source code
+│   ├── src/
+│   │   ├── client/        # Client-side scripts (→ StarterPlayerScripts)
+│   │   ├── server/        # Server-side scripts (→ ServerScriptService)  
+│   │   ├── shared/        # Shared modules (→ ReplicatedStorage)
+│   │   ├── gui/           # GUI screens and components (→ StarterGui)
+│   │   ├── engine/        # Core RoBeats game engine
+│   │   ├── state/         # State management modules
+│   │   └── workspace/     # Workspace objects and environment
+│   └── build/             # Built Roblox assets
+├── server/                # TypeScript API server
+│   ├── src/               # Server source code
+│   ├── prisma/            # Database schema and migrations
+│   └── package.json       # Server dependencies
 ├── scripts/               # Build and automation scripts
 ├── plugins/               # Rojo Studio plugins
 ├── songs/                 # Songs submodule (song data and assets)
@@ -53,54 +67,62 @@ robeats-cs-scripts/
 
 ### Key Components
 
-#### Engine System (`src/engine/`)
-The core rhythm game engine powering RoBeats, featuring:
+#### Roblox Game (`roblox/`)
+The core rhythm game implementation:
+
+**Engine System (`roblox/src/engine/`)**
 - **AudioManager** - Music and sound effect management
 - **ScoreManager** - Score calculation and hit detection  
 - **NoteTrack System** - Note rendering and interaction (2D & 3D modes)
 - **Effects System** - Visual effects for notes and hits
 - **Replay System** - Recording and playback functionality
 
-#### State Management (`src/state/`)
+**State Management (`roblox/src/state/`)**
 - **Options** - User preferences and game settings
 - **Game** - Current game session state
 - **Transient** - Temporary runtime state
 
-#### GUI System (`src/gui/screens/`)
-Complete screen-based UI system:
+**GUI System (`roblox/src/gui/screens/`)**
 - **MainMenu** - Landing page with player stats and navigation
 - **SongSelect** - Song browser with search, filtering, and leaderboards
 - **Gameplay** - In-game HUD and scoring display
 - **Options** - Settings management with real-time preview
 - **Multiplayer** - Room creation and lobby management
 
-#### Shared Libraries (`src/shared/`)
-- **Calculator/Rating** - Performance rating calculations
-- **Countries** - Country codes and flag support
-- **Libraries/** - Utility libraries (signals, compression, etc.)
-- **Serialization/** - Data persistence and settings management
+#### API Server (`server/`)
+TypeScript/Node.js backend providing:
+- **Player Profiles** - User registration and statistics
+- **Score Submission** - Ranked score processing and validation
+- **Leaderboards** - Global and per-song rankings
+- **Rating System** - Performance rating calculations
+- **Redis Caching** - Fast leaderboard queries
+- **PostgreSQL Database** - Persistent data storage
 
 ## 🔧 Development Workflow
+
+### Full Development Environment
+
+Start both the API server and Roblox development environment:
+
+```bash
+# Start everything (server + Rojo)
+npm run dev
+
+# Or start components individually:
+npm run dev:server      # Start API server in development mode
+npm run serve:roblox    # Start Rojo server for Studio sync
+```
 
 ### Two-Way Sync Development
 
 For active GUI development with live Studio integration:
 
-**Windows:**
-```cmd
-# Command Prompt
-scripts\sync.bat
-
-# PowerShell (recommended)
-.\scripts\sync.ps1
-
-# Direct Lune command
-lune run scripts\studio-watcher.luau
-```
-
-**macOS/Linux:**
 ```bash
-./scripts/sync.sh
+# Start the two-way sync watcher
+npm run sync
+
+# Or use direct Lune command
+lune run scripts/studio-watcher.luau
 ```
 
 This workflow:
@@ -162,16 +184,32 @@ When you save in Studio, the system:
 - **Git tracks everything** - all changes show up in git diff for review
 - **Scripts are preserved** - LocalScripts, ModuleScripts maintain their source code
 
+### Build Commands
+
+```bash
+# Build server for production
+npm run build:server
+
+# Build Roblox place file  
+npm run build:roblox
+
+# Build song database
+npm run build:songs
+
+# Clean all build artifacts
+npm run clean
+```
+
 ### Standard Rojo Workflow
 
 For regular development without two-way sync:
 
 ```bash
 # Start Rojo server
-rojo serve default.project.json
+npm run serve:roblox
 
-# In another terminal, build place file
-rojo build default.project.json --output game.rbxl
+# Build place file
+npm run build:roblox
 ```
 
 ## 🎵 Songs Submodule
@@ -259,7 +297,42 @@ Maps source directories to Roblox services:
 - Check that elements copied to Dev have the `__BASEPATH` attribute
 - Verify the place file exists in the project root
 
+## 🔧 Monorepo Commands
+
+### Development
+```bash
+npm run dev              # Start both server and Roblox development
+npm run sync             # Two-way sync for GUI development
+```
+
+### Building
+```bash
+npm run build:server     # Build TypeScript server
+npm run build:roblox     # Build Roblox place file
+npm run build:songs      # Build song database
+npm run generate:types   # Generate API contracts
+```
+
+### Quality & Testing
+```bash
+npm run lint:server      # Lint server code
+npm run test:server      # Test server code
+npm run clean            # Clean all build artifacts
+```
+
+## 🚀 Deployment
+
+The monorepo includes CI/CD pipelines that:
+
+1. **Test & Build** - Validates both server and Roblox components
+2. **Generate Types** - Ensures API contracts are synchronized
+3. **Integration Tests** - Validates server/client communication
+4. **Security Scanning** - Checks for vulnerabilities
+5. **Automated Deployment** - Deploys to staging/production environments
+
 ## 📚 Additional Resources
 
 - **[Rojo Documentation](https://rojo.space/docs)** - Project management and syncing
 - **[Lune Documentation](https://lune-org.github.io/docs)** - Scripting and automation
+- **[Fastify Documentation](https://www.fastify.io/docs/latest/)** - Server framework
+- **[Prisma Documentation](https://www.prisma.io/docs)** - Database ORM
