@@ -20,23 +20,35 @@
     "Position": {
       "UDim2": [
         [
-          0,
+          0.4000941812992096,
           0
         ],
         [
-          0.029999999329447746,
+          0.19730915129184723,
           0
         ]
       ]
     },
+    "SelectionBehaviorDown": {
+      "Enum": 0
+    },
+    "SelectionBehaviorLeft": {
+      "Enum": 0
+    },
+    "SelectionBehaviorRight": {
+      "Enum": 0
+    },
+    "SelectionBehaviorUp": {
+      "Enum": 0
+    },
     "Size": {
       "UDim2": [
         [
-          1,
+          0.19915252923965454,
           0
         ],
         [
-          0.9700000286102295,
+          0.6049255728721619,
           0
         ]
       ]
@@ -44,6 +56,6 @@
     "SizeConstraint": {
       "Enum": 0
     },
-    "Visible": false
+    "Visible": true
   }
 }

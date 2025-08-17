@@ -1,23 +1,23 @@
 {
-  "className": "TextLabel",
+  "className": "TextButton",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      1,
-      1,
-      1
+      0.7803921699523926,
+      0.18431372940540314,
+      0.18431372940540314
     ],
-    "BackgroundTransparency": 1,
     "BorderColor3": [
-      0.10588236153125763,
-      0.16470588743686676,
-      0.20784315466880798
+      0,
+      0,
+      0
     ],
     "BorderMode": {
       "Enum": 0
     },
+    "BorderSizePixel": 2,
     "FontFace": {
       "family": "rbxasset://fonts/families/GothamSSm.json",
       "style": "Normal",
@@ -26,11 +26,11 @@
     "Position": {
       "UDim2": [
         [
-          0,
+          0.04275814816355705,
           0
         ],
         [
-          0.007396894507110119,
+          0.9065970182418823,
           0
         ]
       ]
@@ -50,11 +50,11 @@
     "Size": {
       "UDim2": [
         [
-          0.9987499713897705,
+          0.23689515888690948,
           0
         ],
         [
-          0.06185566633939743,
+          0.07491939514875412,
           0
         ]
       ]
@@ -62,13 +62,15 @@
     "SizeConstraint": {
       "Enum": 0
     },
-    "Text": "Global Leaderboard",
+    "Style": {
+      "Enum": 0
+    },
+    "Text": "Back",
     "TextColor3": [
-      1,
-      1,
-      1
+      0,
+      0,
+      0
     ],
-    "TextSize": 20,
-    "TextStrokeTransparency": 0
+    "TextSize": 22
   }
 }
