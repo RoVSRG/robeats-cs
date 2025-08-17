@@ -39,11 +39,13 @@ function SingleNote2D:new(_game, _track_index, _slot_index, _creation_time_ms, _
 		local _skin = _game:get_skin()
 		local proto = _skin.NoteProto
 
+		local base_z_index = math.floor(_creation_time_ms / 1000) % 100 + 10
+
 		_note_obj = _game._object_pool:depool(self.ClassName)
 		if not _note_obj then
 			_note_obj = proto:Clone()
 			_note_obj.Position = UDim2.new(0.5,0,-1,0);
-			_note_obj.ZIndex = 2
+			_note_obj.ZIndex = base_z_index
 		end
 		
 		_body = _note_obj

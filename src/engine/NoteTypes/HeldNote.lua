@@ -124,7 +124,7 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 
 	local function get_visual_tail_hit_time()
 		local ln_cut_ms = _game:get_ln_cut()
-		return _hit_time_ms + _duration_time_ms - ln_cut_ms
+		return _hit_time_ms + math.clamp(_duration_time_ms - ln_cut_ms, 0, math.huge)
 	end
 
 	local function tail_visible()

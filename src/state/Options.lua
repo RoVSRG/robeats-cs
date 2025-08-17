@@ -44,6 +44,14 @@ local Options = Val.scope({
 		min = -1000,
 		max = 1000,
 	}),
+	LnCut = Val.new(0):asOption({
+		type = "int",
+		displayName = "Long Note Cut (ms)",
+		category = "General",
+		increment = 10,
+		min = 0,
+		max = 500,
+	}),
 	HitOffset = Val.new(0):asOption({
 		type = "int",
 		displayName = "Hit Offset",
@@ -70,14 +78,6 @@ local Options = Val.scope({
 		increment = 1,
 		min = 0,
 		max = 100,
-	}),
-	LnCut = Val.new(0):asOption({
-		type = "int",
-		displayName = "Long Note Cut (ms)",
-		category = "2D",
-		increment = 10,
-		min = 0,
-		max = 500,
 	}),
 	Mods = Val.new({}), -- Array of active mods
 
