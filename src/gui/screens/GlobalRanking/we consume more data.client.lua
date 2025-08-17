@@ -12,7 +12,7 @@ if not SongDatabase.IsLoaded then
 	SongDatabase.Loaded.Event:Wait()
 end
 
-local function getYourScores()
+local function refreshTopPlayers()
 	local response = GetGlobalLeaderboard:InvokeServer()
 
 	if not response.success then
@@ -32,13 +32,14 @@ local function getYourScores()
 	local result = response.result
 	local players = result.players
 
-	for _, player in players do
+	for i, player in players do
 		local slotInstance = SlotTemplate:Clone()
 		local data = slotInstance.Data
 
 		-- TODO: Fill in these fields with appropriate data
-		data.Player.Text = player.name -- Player name
-		data.Primary.PrimaryText.Text = "" -- Primary display text
+		data.Player.Text = "#" .. i .. ". " .. player.name -- Player name
+		data.Primary.PrimaryText.Text =
+			string.format("Accuracy: %0.2f%% | # Played: %d", player.accuracy, player.playCount) -- Primary text
 		data.Primary.Rating.Text = string.format("%0.2f", player.rating) -- Rating/score value
 		data.ExtraData.Text = "" -- Additional information
 
@@ -55,5 +56,5 @@ script.Parent.BackButton.MouseButton1Click:Connect(function()
 	ScreenChief:Switch("MainMenu")
 end)
 
-Time.setInterval(getYourScores, 60)
-getYourScores()
+Time.setInterval(refreshTopPlayers, 60)
+refreshTopPlayers()

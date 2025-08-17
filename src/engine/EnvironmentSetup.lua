@@ -31,11 +31,15 @@ function EnvironmentSetup:initial_setup()
 		error("Environment folder not found in workspace")
 	end
 
-	_game_environment = environment:WaitForChild("GameEnvironment")
-	_game_environment.Parent = nil
+	local runtime_environment = Instance.new("Folder")
+	runtime_environment.Name = "_RuntimeEnvironment"
 
+	_game_environment = environment:WaitForChild("GameEnvironment")
 	_element_protos_folder = environment:WaitForChild("ElementProtos")
-	_element_protos_folder.Parent = game.ReplicatedStorage
+
+	for _, child in pairs(environment:GetChildren()) do
+		child.Parent = runtime_environment
+	end
 
 	_local_elements_folder = Instance.new("Folder")
 	_local_elements_folder.Name = "LocalElements"
@@ -231,7 +235,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 	center_part.CFrame =
 		CFrame.new(center_position.X, center_position.Y + floor_y_offset, center_position.Z + half_depth - SHIFT_BACK)
 	center_part.Material = Enum.Material.Neon
-	center_part.BrickColor = BrickColor.new("Black")
+	center_part.Color = Color3.new(0, 0, 0)
 	center_part.Anchored = true
 	center_part.CanCollide = true
 	center_part.Parent = floor_model
@@ -248,7 +252,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 		center_position.Z + half_depth - SHIFT_BACK
 	) * CFrame.Angles(0, math.rad(90), math.rad(-90))
 	left_wedge.Material = center_part.Material
-	left_wedge.BrickColor = center_part.BrickColor
+	left_wedge.Color = center_part.Color
 	left_wedge.Transparency = center_part.Transparency
 	left_wedge.Anchored = true
 	left_wedge.CanCollide = true
@@ -263,7 +267,7 @@ function EnvironmentSetup:create_dynamic_floor(center_position: Vector3, tracksy
 		center_position.Z + half_depth - SHIFT_BACK
 	) * CFrame.Angles(0, math.rad(-90), math.rad(90))
 	right_wedge.Material = center_part.Material
-	right_wedge.BrickColor = center_part.BrickColor
+	right_wedge.Color = center_part.Color
 	right_wedge.Transparency = center_part.Transparency
 	right_wedge.Anchored = true
 	right_wedge.CanCollide = true
