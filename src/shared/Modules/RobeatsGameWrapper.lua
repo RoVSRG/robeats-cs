@@ -380,26 +380,9 @@ function RobeatsGameWrapper:isFinished(): boolean
 	return self._state == "finished"
 end
 
--- Settings updates (only work during gameplay)
-
-function RobeatsGameWrapper:setVolume(musicVolume: number?, hitsoundVolume: number?)
-	if musicVolume then
-		Options.MusicVolume:set(musicVolume * 100)
-	end
-	if hitsoundVolume then
-		Options.HitsoundVolume:set(hitsoundVolume * 100)
-	end
-	
-	-- Update the audio manager if game is running
-	if self._game and self._game._audio_manager then
-		if musicVolume then
-			self._game._audio_manager:set_music_volume(musicVolume)
-		end
-		if hitsoundVolume and self._game._sfx_manager then
-			self._game._sfx_manager:set_volume(hitsoundVolume)
-		end
-	end
-end
+-- Settings updates
+-- Volume settings are now handled automatically through the Options system.
+-- Update Options.MusicVolume and Options.HitsoundVolume directly to change volumes.
 
 function RobeatsGameWrapper:getReplay(): any?
 	if self._game then

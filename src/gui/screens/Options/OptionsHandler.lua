@@ -68,14 +68,14 @@ function OptionsHandler:createIntOption(name, val, incrementVal, minVal, maxVal,
 		option.Display.Text = name
 
 		option.Increment.MouseButton1Click:Connect(function()
-			local newValue = val:get() + incrementVal
+			local newValue = math.floor(val:get() + incrementVal)
 			if newValue <= maxVal then
 				val:set(newValue)
 			end
 		end)
 
 		option.Decrement.MouseButton1Click:Connect(function()
-			local newValue = val:get() - incrementVal
+			local newValue = math.floor(val:get() - incrementVal)
 			if newValue >= minVal then
 				val:set(newValue)
 			end

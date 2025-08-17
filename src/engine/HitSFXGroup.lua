@@ -7,12 +7,13 @@ local HitSFXGroup = {}
 
 local __has_preloaded_sfxg_id = SPDict:new()
 
-function HitSFXGroup:new(_local_services, sfxg_id)
+function HitSFXGroup:new(_local_services, sfxg_id, hitsound_volume_multiplier)
 	local self = {}
 
 	local _i_hitfx = 1
 	local _hitfx = SPList:new()
 	local _volume = 0.35
+	local _volume_multiplier = hitsound_volume_multiplier or 1.0
 
 	function self:cons()
 		if sfxg_id == 0 then
@@ -51,14 +52,14 @@ function HitSFXGroup:new(_local_services, sfxg_id)
 		if __has_preloaded_sfxg_id:contains(sfxg_id) == false then
 			for i = 1, _hitfx:count() do
 				local itr_id = _hitfx:get(i)
-				_local_services._sfx_manager:preload(itr_id, 3, _volume)
+				_local_services._sfx_manager:preload(itr_id, 3, _volume * _volume_multiplier)
 			end
 			__has_preloaded_sfxg_id:add(sfxg_id, true)
 		end
 	end
 
 	function self:play_alternating()
-		_local_services._sfx_manager:play_sfx(_hitfx:get(_i_hitfx), _volume)
+		_local_services._sfx_manager:play_sfx(_hitfx:get(_i_hitfx), _volume * _volume_multiplier)
 		_i_hitfx = _i_hitfx + 1
 		if _i_hitfx > _hitfx:count() then
 			_i_hitfx = 1
@@ -66,7 +67,7 @@ function HitSFXGroup:new(_local_services, sfxg_id)
 	end
 
 	function self:play_first()
-		_local_services._sfx_manager:play_sfx(_hitfx:get(1), _volume)
+		_local_services._sfx_manager:play_sfx(_hitfx:get(1), _volume * _volume_multiplier)
 		_i_hitfx = 2
 		if _i_hitfx > _hitfx:count() then
 			_i_hitfx = 1

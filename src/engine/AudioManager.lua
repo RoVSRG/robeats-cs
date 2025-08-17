@@ -118,6 +118,7 @@ function AudioManager:new(_game)
 	local _pre_start_time_ms = 0
 	local _post_playing_time_ms = 0
 	local _audio_volume = 0.5
+	local _music_volume_multiplier = 1.0
 	local _hitsounds
 
 	function self:get_hitsounds()
@@ -140,7 +141,7 @@ function AudioManager:new(_game)
 		_current_audio_data = SongDatabase:GetSongByKey(_song_key)
 
 		local sfxg_id = _current_audio_data.AudioHitSFXGroup or 0 -- Default to 0 if not specified
-		_hit_sfx_group = HitSFXGroup:new(_game, sfxg_id)
+		_hit_sfx_group = HitSFXGroup:new(_game, sfxg_id, _config.HitsoundVolume or 1.0)
 		_hit_sfx_group:preload()
 
 		--Apply audio offset
@@ -151,6 +152,9 @@ function AudioManager:new(_game)
 		self:set_rate(_config.SongRate / 100)
 
 		_hitsounds = _config.Hitsounds
+		
+		--Apply music volume multiplier from options
+		_music_volume_multiplier = _config.MusicVolume or 1.0
 
 		--Add hit objects and perform note count calculations
 		-- For now, using the folder name method - this should be enhanced to handle song keys properly
@@ -351,7 +355,7 @@ function AudioManager:new(_game)
 
 			if _pre_start_time_ms >= _pre_countdown_time_ms then
 				-- _bgm.TimePosition = 0
-				_bgm.Volume = _audio_volume
+				_bgm.Volume = _audio_volume * _music_volume_multiplier
 				_bgm.PlaybackSpeed = _rate
 
 				_current_mode = AudioManager.Mode.Playing

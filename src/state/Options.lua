@@ -44,14 +44,6 @@ local Options = Val.scope({
 		min = -1000,
 		max = 1000,
 	}),
-	LnCut = Val.new(0):asOption({
-		type = "int",
-		displayName = "Long Note Cut (ms)",
-		category = "General",
-		increment = 10,
-		min = 0,
-		max = 500,
-	}),
 	HitOffset = Val.new(0):asOption({
 		type = "int",
 		displayName = "Hit Offset",
@@ -67,19 +59,6 @@ local Options = Val.scope({
 		increment = 1,
 		min = 0,
 		max = 10,
-	}),
-	LaneCoverEnabled = Val.new(false):asOption({
-		type = "bool",
-		displayName = "Lane Cover Enabled",
-		category = "General",
-	}),
-	LaneCoverPct = Val.new(0):asOption({
-		type = "int",
-		displayName = "Lane Cover Height",
-		category = "General",
-		increment = 1,
-		min = 0,
-		max = 100,
 	}),
 	Mods = Val.new({}), -- Array of active mods
 
@@ -103,6 +82,27 @@ local Options = Val.scope({
 	}),
 
 	-- Visual Settings - Effects
+	LnCut = Val.new(0):asOption({
+		type = "int",
+		displayName = "Long Note Cut (ms)",
+		category = "VisualEffects",
+		increment = 10,
+		min = 0,
+		max = 500,
+	}),
+	LaneCoverEnabled = Val.new(false):asOption({
+		type = "bool",
+		displayName = "Lane Cover Enabled",
+		category = "VisualEffects",
+	}),
+	LaneCoverPct = Val.new(0):asOption({
+		type = "int",
+		displayName = "Lane Cover Height",
+		category = "",
+		increment = 1,
+		min = 0,
+		max = 100,
+	}),
 	HideReceptorGlow = Val.new(false):asOption({
 		type = "bool",
 		displayName = "Hide Receptor Glow",
@@ -133,12 +133,36 @@ local Options = Val.scope({
 	}),
 
 	-- Judgement Visibility
-	ShowMarvelous = Val.new(true),
-	ShowPerfect = Val.new(true),
-	ShowGreat = Val.new(true),
-	ShowGood = Val.new(true),
-	ShowBad = Val.new(true),
-	ShowMiss = Val.new(true),
+	ShowMarvelous = Val.new(true):asOption({
+		type = "bool",
+		displayName = "Show Marvelous Judgements",
+		category = "VisualEffects",
+	}),
+	ShowPerfect = Val.new(true):asOption({
+		type = "bool",
+		displayName = "Show Perfect Judgements",
+		category = "VisualEffects",
+	}),
+	ShowGreat = Val.new(true):asOption({
+		type = "bool",
+		displayName = "Show Great Judgements",
+		category = "VisualEffects",
+	}),
+	ShowGood = Val.new(true):asOption({
+		type = "bool",
+		displayName = "Show Good Judgements",
+		category = "VisualEffects",
+	}),
+	ShowBad = Val.new(true):asOption({
+		type = "bool",
+		displayName = "Show Bad Judgements",
+		category = "VisualEffects",
+	}),
+	ShowMiss = Val.new(true):asOption({
+		type = "bool",
+		displayName = "Show Miss Judgements",
+		category = "VisualEffects",
+	}),
 
 	-- Audio Settings
 	Hitsounds = Val.new(true):asOption({

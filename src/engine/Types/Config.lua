@@ -20,6 +20,8 @@ export type GameConfig = {
 	GlobalAudioOffset: number?,
 	SongRate: number,
 	Hitsounds: boolean?,
+	HitsoundVolume: number?,
+	MusicVolume: number?,
 	NoteSpeed: number?,
 	
 	-- Timing Settings
