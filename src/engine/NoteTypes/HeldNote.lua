@@ -122,16 +122,21 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 		return _hit_time_ms + _duration_time_ms
 	end
 
+	local function get_visual_tail_hit_time()
+		local ln_cut_ms = _game:get_ln_cut()
+		return _hit_time_ms + _duration_time_ms - ln_cut_ms
+	end
+
 	local function tail_visible()
 		return not (
-			get_tail_hit_time()
+			get_visual_tail_hit_time()
 			> _game._audio_manager:get_current_time_ms() + _game._audio_manager:get_note_prebuffer_time_ms()
 		)
 	end
 
 	local function get_tail_t()
 		return 1
-			- (get_tail_hit_time() - _game._audio_manager:get_current_time_ms())
+			- (get_visual_tail_hit_time() - _game._audio_manager:get_current_time_ms())
 				/ _game._audio_manager:get_note_prebuffer_time_ms()
 	end
 

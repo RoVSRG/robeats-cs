@@ -73,11 +73,11 @@ local Options = Val.scope({
 	}),
 	LnCut = Val.new(0):asOption({
 		type = "int",
-		displayName = "Long Note Cut %",
+		displayName = "Long Note Cut (ms)",
 		category = "2D",
-		increment = 2,
+		increment = 10,
 		min = 0,
-		max = 100,
+		max = 500,
 	}),
 	Mods = Val.new({}), -- Array of active mods
 

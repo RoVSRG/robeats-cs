@@ -67,6 +67,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	local _ln_transparent = false
 	local _show_hit_lighting = true
 	local _hide_ln_tails = false
+	local _ln_cut = 0
 	local _judgement_visibility = {
 		[NoteResult.Marvelous] = true,
 		[NoteResult.Perfect] = true,
@@ -84,6 +85,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	_ln_transparent = Options.LnTransparency:get()
 	_show_hit_lighting = Options.ShowHitLighting:get()
 	_hide_ln_tails = Options.HideLnTails:get()
+	_ln_cut = Options.LnCut:get()
 	_is_upscroll = Options.Upscroll:get()
 	_get_2d_mode = Options.Use2DMode:get()
 	_note_color_affects_2d = Options.NoteColorAffects2D:get()
@@ -219,6 +221,13 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 	function self:set_ln_tails(val)
 		_hide_ln_tails = val
+	end
+
+	function self:get_ln_cut()
+		return _ln_cut
+	end
+	function self:set_ln_cut(val)
+		_ln_cut = val
 	end
 
 	function self:get_judgement_visibility()
