@@ -1,0 +1,41 @@
+{
+  "name": "robeats-cs-transactor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "prisma:generate": "prisma generate",
+    "tsc:build": "tsc -b",
+    "build": "npm run prisma:generate && tsc -b",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "imports": {
+    "#prisma": "./generated/prisma/index.js",
+    "#prisma/*": "./generated/prisma/*.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@prisma/client": "^6.13.0",
+    "dotenv": "^17.2.1",
+    "fastify": "^5.4.0",
+    "pg": "^8.16.3",
+    "prisma": "^6.13.0",
+    "redis": "^4.7.1",
+    "zod": "^4.0.10"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@types/pg": "^8.15.5",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}

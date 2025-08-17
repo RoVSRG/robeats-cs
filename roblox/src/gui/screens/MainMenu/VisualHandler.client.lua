@@ -35,16 +35,16 @@ end
 
 -- Example usage:
 -- You’d usually get this data from a remote call
- updateProfile({
-     Rank = 213,
-     Tier = 10,
-     TierName = "Legendary",
-     Rating = 0,
-     XP = 1400,
-     XPGoal = 2000,
-     NextTier = 11,
-     NextTierName = "Mythic"
- })
+updateProfile({
+	Rank = 213,
+	Tier = 10,
+	TierName = "Legendary",
+	Rating = 0,
+	XP = 1400,
+	XPGoal = 2000,
+	NextTier = 11,
+	NextTierName = "Mythic",
+})
 
 -- Players count logic
 Players.PlayerAdded:Connect(function()

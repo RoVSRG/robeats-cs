@@ -12,32 +12,32 @@
     },
 
     "ReplicatedStorage": {
-      "$path": "src/shared",
+      "$path": "roblox/src/shared",
       "$ignoreUnknownInstances": true,
       "Remotes": {
         "$className": "Folder",
         "Events": {
           "$className": "Folder",
-          "$path": "src/remotes/events"
+          "$path": "roblox/src/remotes/events"
         },
         "Functions": {
           "$className": "Folder",
-          "$path": "src/remotes/functions"
+          "$path": "roblox/src/remotes/functions"
         }
       },
       "Skins": {
-        "$path": "src/skins"
+        "$path": "roblox/src/skins"
       },
       "RobeatsGameCore": {
-        "$path": "src/engine"
+        "$path": "roblox/src/engine"
       },
       "State": {
-        "$path": "src/state"
+        "$path": "roblox/src/state"
       }
     },
 
     "ServerScriptService": {
-      "$path": "src/server"
+      "$path": "roblox/src/server"
     },
 
     "ServerStorage": {
@@ -54,7 +54,7 @@
 
     "Workspace": {
       "$ignoreUnknownInstances": true,
-      "$path": "src/workspace",
+      "$path": "roblox/src/workspace",
       "$properties": {
         "StreamingEnabled": false
       }
@@ -71,14 +71,14 @@
         "LoadCharacterAppearance": false
       },
       "StarterPlayerScripts": {
-        "$path": "src/client"
+        "$path": "roblox/src/client"
       }
     },
 
     "StarterGui": {
       "$ignoreUnknownInstances": true,
       "Screens": {
-        "$path": "src/gui/screens",
+        "$path": "roblox/src/gui/screens",
         "$ignoreUnknownInstances": false
       }
     }
