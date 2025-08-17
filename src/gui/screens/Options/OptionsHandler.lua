@@ -9,20 +9,20 @@ OptionsHandler.__index = OptionsHandler
 -- Create a new OptionsHandler instance with its own container frame
 function OptionsHandler.new(parent)
 	local self = setmetatable({}, OptionsHandler)
-	
+
 	-- Create the container frame
 	self.container = Instance.new("Frame")
 	self.container.Size = UDim2.new(1, 0, 1, 0)
 	self.container.BackgroundTransparency = 1
 	self.container.Name = "OptionContainer"
 	self.container.Parent = parent
-	
+
 	-- Add UIListLayout for automatic spacing
 	local listLayout = Instance.new("UIListLayout")
 	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	listLayout.Padding = UDim.new(0, 5)
 	listLayout.Parent = self.container
-	
+
 	return self
 end
 
@@ -50,11 +50,11 @@ local function withTemplate(container, templateName, callback, layoutOrder)
 	local option = Templates:FindFirstChild(templateName):Clone()
 
 	callback(option)
-	
+
 	if layoutOrder then
 		option.LayoutOrder = layoutOrder
 	end
-	
+
 	option.Parent = container
 	option.Visible = true
 end
@@ -188,9 +188,9 @@ function OptionsHandler:createKeybindOption(name, val, layoutOrder)
 	withTemplate(self.container, "KeybindOption", function(option)
 		option.Display.Text = name
 		option.Name = name
-		
+
 		local isListening = false
-		
+
 		local function updateKeyDisplay(keyCode)
 			if keyCode then
 				option.Key.Text = keyCode
@@ -198,36 +198,36 @@ function OptionsHandler:createKeybindOption(name, val, layoutOrder)
 				option.Key.Text = "NONE"
 			end
 		end
-		
+
 		option.Key.MouseButton1Click:Connect(function()
 			if isListening then
 				return
 			end
-			
+
 			isListening = true
 			option.Key.Text = "Press any key..."
 			option.Key.BackgroundColor3 = Color3.fromRGB(255, 167, 36)
-			
+
 			local connection
 			connection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
 				if gameProcessed then
 					return
 				end
-				
+
 				if input.UserInputType == Enum.UserInputType.Keyboard then
 					local keyName = input.KeyCode.Name
-					val:set(keyName)
+					val:set(keyName, true)
 					isListening = false
 					option.Key.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
 					connection:Disconnect()
 				end
 			end)
 		end)
-		
+
 		val:on(function(keyCode)
 			updateKeyDisplay(keyCode)
 		end)
-		
+
 		val:set(val:get(), true)
 	end, layoutOrder)
 end
@@ -251,9 +251,14 @@ end
 function OptionsHandler:autoRegisterOptions(categoryFilter)
 	local Options = require(game.ReplicatedStorage.State.Options)
 	local Val = require(game.ReplicatedStorage.Libraries.Val)
-	
+
 	for key, val in Options do
-		if typeof(val) == "table" and getmetatable(val) == Val and val._optionConfig and val._optionConfig.category == categoryFilter then
+		if
+			typeof(val) == "table"
+			and getmetatable(val) == Val
+			and val._optionConfig
+			and val._optionConfig.category == categoryFilter
+		then
 			self:createOptionFromConfig(val._optionConfig.displayName, val, val._optionConfig)
 		end
 	end
