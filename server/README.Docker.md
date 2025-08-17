@@ -1,47 +1,69 @@
-# RoBeats Server Docker Setup
+# Docker Setup Guide
 
-This document explains how to run the RoBeats server using Docker with PostgreSQL and Valkey.
+This project now supports full containerization with seamless switching between local and production databases.
+
+## Architecture
+
+- **Base Configuration** (`docker-compose.yml`): Contains the core app service definition
+- **Local Development** (`docker-compose.local.yml`): Adds PostgreSQL and Valkey containers
+- **Production** (`docker-compose.prod.yml`): Connects to DigitalOcean managed databases
+
+## Environment Files
+
+- **`.env`**: Production credentials (DigitalOcean databases) - **DO NOT COMMIT**
+- **`.env.local`**: Local development overrides
+- **`.env.docker`**: Container-specific settings
 
 ## Quick Start
 
-1. **Copy environment template:**
-   ```bash
-   cp .env.docker .env
-   ```
+### Local Development (with local databases)
+```bash
+# Start local containers (PostgreSQL + Valkey + App)
+npm run docker:local
 
-2. **Start all services:**
-   ```bash
-   npm run docker:up
-   ```
+# Push database schema
+npm run docker:db:push:local
 
-3. **View logs:**
-   ```bash
-   npm run docker:logs
-   ```
+# View logs
+npm run docker:local:logs
 
-4. **Stop services:**
-   ```bash
-   npm run docker:down
-   ```
+# Stop containers
+npm run docker:local:down
+```
 
-## Services
+### Production Mode (with DigitalOcean databases)
+```bash
+# Start production container (connects to DO databases)
+npm run docker:prod
 
-- **app** - RoBeats API server (Node.js/TypeScript)
-- **postgres** - PostgreSQL database
-- **valkey** - Redis-compatible cache for leaderboards
+# View logs  
+npm run docker:prod:logs
+
+# Stop container
+npm run docker:prod:down
+```
+
+### Development with Hot Reload
+```bash
+# Start with volume mounting for development
+npm run docker:local:dev
+```
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run docker:build` | Build the app container |
-| `npm run docker:up` | Start all services in detached mode |
-| `npm run docker:down` | Stop and remove containers |
-| `npm run docker:logs` | Follow app container logs |
-| `npm run docker:dev` | Start with development profile |
-| `npm run docker:reset` | Full reset - destroy volumes and rebuild |
-| `npm run docker:db:migrate` | Run Prisma migrations |
-| `npm run docker:db:reset` | Reset database with Prisma |
+### Simplified Commands
+- `npm run docker:local` - Start local development (PostgreSQL + Valkey + App)
+- `npm run docker:prod` - Start production (App only, connects to DO databases)
+- `npm run docker:dev` - Development mode with hot reload
+- `npm run docker:down` - Stop all containers
+- `npm run docker:build` - Build containers
+- `npm run docker:reset` - Reset with fresh build
+- `npm run docker:db:push` - Push database schema (auto-detects environment)
+- `npm run docker:db:migrate` - Run database migrations (auto-detects environment)
+
+### Logging
+- `npm run docker:local:logs` - View local app logs
+- `npm run docker:prod:logs` - View production app logs
 
 ## Development Workflow
 
