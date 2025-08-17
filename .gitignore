@@ -1,0 +1,26 @@
+# Project place file
+/robeats-cs-scripts.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+/*.rbxl
+
+# Rojo generated files
+/sourcemap.json
+
+# Aftman
+/.aftman
+
+# MacOS
+.DS_Store
+
+# VS Code
+.vscode/settings.json
+
+# Temporary files
+*.tmp
+*.temp
+
+/src/gui/screens/_test
