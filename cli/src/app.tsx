@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text} from 'ink';
+import {Text, Spacer, Box} from 'ink';
 
 type Props = {
 	name: string | undefined;
@@ -7,8 +7,16 @@ type Props = {
 
 export default function App({name = 'Stranger'}: Props) {
 	return (
-		<Text>
-			Hello, <Text color="green">{name}</Text>
-		</Text>
+		<Box flexDirection="column" borderStyle="round" width="100%" height="100%">
+			<Text>
+				RoBeats CS CLI
+			</Text>
+
+			<Spacer />
+
+			<Text>
+				Hello, <Text bold>{name}</Text>
+			</Text>
+		</Box>
 	);
 }

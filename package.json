@@ -26,7 +26,8 @@
     "test:server": "npm run test --workspace=server",
     "generate:types": "npm run generate:types --workspace=server",
     "clean": "rimraf server/dist roblox/build",
-    "postinstall": "echo 'Make sure you have Lune and Rojo installed globally for full functionality'"
+    "postinstall": "echo 'Make sure you have Lune and Rojo installed globally for full functionality'",
+    "cli": "npm start --workspace=cli"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
