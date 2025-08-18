@@ -11,17 +11,7 @@ function OptionsHandler.new(parent)
 	local self = setmetatable({}, OptionsHandler)
 
 	-- Create the container frame
-	self.container = Instance.new("Frame")
-	self.container.Size = UDim2.new(1, 0, 1, 0)
-	self.container.BackgroundTransparency = 1
-	self.container.Name = "OptionContainer"
-	self.container.Parent = parent
-
-	-- Add UIListLayout for automatic spacing
-	local listLayout = Instance.new("UIListLayout")
-	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	listLayout.Padding = UDim.new(0, 5)
-	listLayout.Parent = self.container
+	self.container = parent
 
 	return self
 end

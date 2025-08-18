@@ -1,0 +1,29 @@
+{
+  "className": "UIPadding",
+  "properties": {
+    "PaddingBottom": {
+      "UDim": [
+        0,
+        10
+      ]
+    },
+    "PaddingLeft": {
+      "UDim": [
+        0,
+        0
+      ]
+    },
+    "PaddingRight": {
+      "UDim": [
+        0,
+        15
+      ]
+    },
+    "PaddingTop": {
+      "UDim": [
+        0,
+        0
+      ]
+    }
+  }
+}

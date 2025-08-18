@@ -1,10 +1,13 @@
 {
-  "className": "Frame",
+  "className": "ScrollingFrame",
   "properties": {
     "AnchorPoint": [
       0.5,
       0.5
     ],
+    "AutomaticCanvasSize": {
+      "Enum": 2
+    },
     "AutomaticSize": {
       "Enum": 0
     },
@@ -23,6 +26,18 @@
       "Enum": 0
     },
     "BorderSizePixel": 0,
+    "CanvasSize": {
+      "UDim2": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
     "Position": {
       "UDim2": [
         [
