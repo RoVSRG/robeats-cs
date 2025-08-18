@@ -1,0 +1,13 @@
+{
+  "className": "UIFlexItem",
+  "properties": {
+    "FlexMode": {
+      "Enum": 1
+    },
+    "GrowRatio": 0,
+    "ItemLineAlignment": {
+      "Enum": 0
+    },
+    "ShrinkRatio": 0
+  }
+}

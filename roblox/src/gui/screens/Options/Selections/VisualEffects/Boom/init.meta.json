@@ -1,36 +1,37 @@
 {
-  "className": "TextButton",
+  "className": "TextLabel",
   "properties": {
     "AutomaticSize": {
       "Enum": 0
     },
     "BackgroundColor3": [
-      0.1568627506494522,
-      0.1568627506494522,
-      0.1568627506494522
+      1,
+      1,
+      1
     ],
+    "BackgroundTransparency": 1,
     "BorderColor3": [
-      0.10588236153125763,
-      0.16470588743686676,
-      0.20784315466880798
+      0,
+      0,
+      0
     ],
     "BorderMode": {
       "Enum": 0
     },
+    "BorderSizePixel": 0,
     "FontFace": {
       "family": "rbxasset://fonts/families/GothamSSm.json",
       "style": "Normal",
-      "weight": "Medium"
+      "weight": "Bold"
     },
-    "LayoutOrder": 1,
     "Position": {
       "UDim2": [
         [
-          0,
+          0.47147446870803833,
           0
         ],
         [
-          0.016968324780464172,
+          0.11978477239608765,
           0
         ]
       ]
@@ -50,31 +51,25 @@
     "Size": {
       "UDim2": [
         [
-          1,
-          0
+          0,
+          63
         ],
         [
-          0.07370305061340332,
-          0
+          0,
+          57
         ]
       ]
     },
     "SizeConstraint": {
       "Enum": 0
     },
-    "Style": {
-      "Enum": 0
-    },
-    "Text": "",
+    "Text": "💥",
     "TextColor3": [
-      1,
-      1,
-      1
+      0.8705883026123047,
+      0.8705883026123047,
+      0.8705883026123047
     ],
-    "TextSize": 18,
-    "TextWrapped": true,
-    "TextXAlignment": {
-      "Enum": 0
-    }
+    "TextSize": 71,
+    "TextTransparency": 0.4099999964237213
   }
 }
