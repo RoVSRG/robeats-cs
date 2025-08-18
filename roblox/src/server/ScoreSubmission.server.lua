@@ -1,4 +1,4 @@
-local Http = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Http"))
+local SDK = require(game.ReplicatedStorage:WaitForChild("src"):WaitForChild("shared"):WaitForChild("SDK"))
 local Function = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Function"))
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
 local Leaderstats = require(game.ServerScriptService:WaitForChild("Leaderstats"))
@@ -55,43 +55,37 @@ local submitScore = Function.create(function(player, scoreData, settings)
 		}),
 	}
 
-	-- Try synchronous request first
+	-- Try synchronous request first using SDK
+	local user = payload.user
+	local scorePayload = payload.payload
+	
 	local success, response = pcall(function()
-		return Http.post("/scores", {
-			json = payload,
-		})
+		return SDK.Scores.submit(user, scorePayload)
 	end)
 
-	if success and response.success then
+	if success and response and response.success then
 		-- Immediate success - apply profile data
-		local data = response.json()
-		if data and data.profile then
-			Leaderstats.update(player, data.profile)
-			Events.PlayerUpdated:Fire(player, data.profile)
+		if response.profile then
+			Leaderstats.update(player, response.profile)
+			Events.PlayerUpdated:Fire(player, response.profile)
 		end
 		print(player.Name .. " submitted a score (immediate)")
-	elseif success and not response.success then
-		-- HTTP request succeeded but server returned error (4xx, 5xx)
+	elseif success and response and not response.success then
+		-- Request succeeded but server returned error
 		-- Don't queue these as they likely won't succeed on retry
 		warn(
 			string.format(
-				"Score submission failed for %s: HTTP %d - %s",
+				"Score submission failed for %s: %s",
 				player.Name,
-				response.status.code,
-				response.body
+				response.error or "Unknown error"
 			)
 		)
 	else
 		-- Network/connection failure - queue with callback for retry
-		Queue.addToQueue(Http.post, "/scores", {
-			json = payload,
-		}, function(queuedResponse)
+		Queue.addToQueue(SDK.Scores.submit, user, scorePayload, function(queuedResponse)
 			-- Callback when queued request succeeds
-			if queuedResponse.success then
-				local data = queuedResponse.json()
-				if data and data.profile then
-					Events.PlayerUpdated:Fire(player, data.profile)
-				end
+			if queuedResponse and queuedResponse.success and queuedResponse.profile then
+				Events.PlayerUpdated:Fire(player, queuedResponse.profile)
 				print(player.Name .. " submitted a score (queued)")
 			end
 		end)
@@ -106,25 +100,18 @@ local getLeaderboard = Function.create(function(player, hash)
 		error("Invalid hash provided for leaderboard retrieval by " .. player.Name)
 	end
 
-	local result = Http.get("/scores/leaderboard", {
-		params = { hash = hash, userId = player.UserId },
-	})
-
-	return result.json()
+	local result = SDK.Scores.getLeaderboard(hash, player.UserId)
+	return result
 end)
 
 local getYourScores = Function.create(function(player)
-	local result = Http.get("/scores/user/best", {
-		params = { userId = player.UserId },
-	})
-
-	return result.json()
+	local result = SDK.Scores.getUserBest(player.UserId)
+	return result
 end)
 
 local getGlobalLeaderboard = Function.create(function(player)
-	local result = Http.get("/players/top")
-
-	return result.json()
+	local result = SDK.Players.getTop()
+	return result
 end)
 
 Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
@@ -135,12 +122,7 @@ Remotes.Functions.GetGlobalLeaderboard.OnServerInvoke = Protect.wrap(getGlobalLe
 game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
 
-	Queue.addToQueue(Http.post, "/players/join", {
-		json = {
-			userId = player.UserId,
-			name = player.Name,
-		},
-	})
+	Queue.addToQueue(SDK.Players.join, player.UserId, player.Name)
 
 	print("Player " .. player.Name .. " has joined.")
 end)

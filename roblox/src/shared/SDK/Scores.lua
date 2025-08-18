@@ -21,7 +21,7 @@ local function validateEnumGrade(value, name)
 end
 
 -- Auto-generated Scores SDK - DO NOT EDIT MANUALLY
--- Generated at: 2025-08-18T01:49:01.660Z
+-- Generated at: 2025-08-18T01:54:53.214Z
 
 local Http = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Http"))
 

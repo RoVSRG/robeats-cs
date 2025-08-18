@@ -8,7 +8,10 @@ import {
   updateLeaderboard,
   getPlayerRank,
 } from '../database/queries.js';
-import { PlayerJoinSchema, PlayerProfileQuerySchema } from '../contracts/player-contracts.js';
+import {
+  PlayerJoinSchema,
+  PlayerProfileQuerySchema,
+} from '../contracts/player-contracts.js';
 
 const playersRoutes: FastifyPluginAsync<
   { prisma: PrismaClient; kv: any } & { prefix?: string }
@@ -16,7 +19,6 @@ const playersRoutes: FastifyPluginAsync<
   const prisma = opts.prisma;
   const kv = opts.kv || (app as any).valkey;
   const LEADERBOARD_KEY = 'leaderboard:players:rating';
-
 
   app.post('/join', async (req, reply) => {
     const parsed = PlayerJoinSchema.safeParse((req as any).body);
