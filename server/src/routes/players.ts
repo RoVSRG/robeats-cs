@@ -1,6 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
 // import '../types/fastify.js';
-import { z } from 'zod';
 import type { PrismaClient } from '#prisma';
 import {
   getPlayerProfile,
@@ -9,6 +8,7 @@ import {
   updateLeaderboard,
   getPlayerRank,
 } from '../database/queries.js';
+import { PlayerJoinSchema, PlayerProfileQuerySchema } from '../contracts/player-contracts.js';
 
 const playersRoutes: FastifyPluginAsync<
   { prisma: PrismaClient; kv: any } & { prefix?: string }
@@ -17,13 +17,9 @@ const playersRoutes: FastifyPluginAsync<
   const kv = opts.kv || (app as any).valkey;
   const LEADERBOARD_KEY = 'leaderboard:players:rating';
 
-  const joinSchema = z.object({
-    userId: z.number().int().positive(),
-    name: z.string().min(1),
-  });
 
   app.post('/join', async (req, reply) => {
-    const parsed = joinSchema.safeParse((req as any).body);
+    const parsed = PlayerJoinSchema.safeParse((req as any).body);
     if (!parsed.success) {
       return reply.error(parsed.error.message || 'Validation failed', 400);
     }
@@ -107,9 +103,7 @@ const playersRoutes: FastifyPluginAsync<
 
   // GET /players?userId=xxx - profile with calculated rank
   app.get('/', async (req, reply) => {
-    const parsed = z
-      .object({ userId: z.string().regex(/^\d+$/) })
-      .safeParse((req as any).query);
+    const parsed = PlayerProfileQuerySchema.safeParse((req as any).query);
     if (!parsed.success) {
       return reply.error(parsed.error.message || 'Validation failed', 400);
     }

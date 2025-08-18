@@ -190,3 +190,27 @@ curl "http://localhost:3000/players/join?api_key=your_api_key_here" \
   -H "Content-Type: application/json" \
   -d '{"userId":123,"name":"TestUser"}'
 ```
+
+## Root-Level Commands
+
+From the project root (`C:\Users\stirm\Projects\robeats-cs\`), you can use:
+
+```bash
+# Server management from root
+npm run docker:local      # Start local development
+npm run docker:prod       # Start production 
+npm run docker:dev        # Development with hot reload
+npm run docker:down       # Stop all containers (now works properly!)
+npm run docker:build      # Build containers
+npm run docker:reset      # Reset with fresh build
+
+# Database management from root  
+npm run docker:db:push    # Push schema (auto-detects environment)
+npm run docker:db:migrate # Run migrations (auto-detects environment)
+
+# Logging from root
+npm run docker:logs:local # View local app logs
+npm run docker:logs:prod  # View production app logs
+```
+
+**Note:** The `docker:down` command now properly stops all containers across all profiles (local, prod, dev), fixing the previous issue where containers wouldn't stop completely.

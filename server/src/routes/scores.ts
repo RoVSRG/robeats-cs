@@ -1,5 +1,4 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { z } from 'zod';
 
 import { calculateOverallRating } from '../calculator/rating.js';
 import { calculateAverageAccuracy } from '../calculator/accuracy.js';
@@ -16,6 +15,11 @@ import {
   updateLeaderboard,
   getPlayerRank,
 } from '../database/queries.js';
+import {
+  ScoreSubmissionSchema,
+  LeaderboardQuerySchema,
+  UserBestScoresQuerySchema,
+} from '../contracts/score-contracts.js';
 
 const scoresRoutes: FastifyPluginAsync<
   { prisma: PrismaClient; kv: any } & { prefix?: string }
@@ -26,12 +30,7 @@ const scoresRoutes: FastifyPluginAsync<
   const GLOBAL_LEADERBOARD_KEY = 'leaderboard:players:rating';
 
   app.get('/leaderboard', async (req, reply) => {
-    const parsed = z
-      .object({
-        hash: z.string().min(1),
-        userId: z.string().transform((val) => parseInt(val)),
-      })
-      .safeParse((req as any).query);
+    const parsed = LeaderboardQuerySchema.safeParse((req as any).query);
 
     if (!parsed.success) {
       return reply.error(parsed.error.message || 'Validation failed', 400);
@@ -54,9 +53,7 @@ const scoresRoutes: FastifyPluginAsync<
 
   // User's best scores per song
   app.get('/user/best', async (req, reply) => {
-    const parsed = z
-      .object({ userId: z.string().transform((val) => parseInt(val)) })
-      .safeParse((req as any).query);
+    const parsed = UserBestScoresQuerySchema.safeParse((req as any).query);
 
     if (!parsed.success) {
       return reply.error(parsed.error.message || 'Validation failed', 400);
@@ -75,31 +72,7 @@ const scoresRoutes: FastifyPluginAsync<
 
   // Submit score
   app.post('/', async (req, reply) => {
-    const parsed = z
-      .object({
-        user: z.object({
-          userId: z.number().int().positive(),
-          name: z.string().min(1),
-        }),
-        payload: z.object({
-          hash: z.string().min(1),
-          rate: z.number().min(70).max(200),
-          score: z.number().int().nonnegative(),
-          accuracy: z.number().min(0).max(100),
-          combo: z.number().int().nonnegative(),
-          maxCombo: z.number().int().nonnegative(),
-          marvelous: z.number().int().nonnegative(),
-          perfect: z.number().int().nonnegative(),
-          great: z.number().int().nonnegative(),
-          good: z.number().int().nonnegative(),
-          bad: z.number().int().nonnegative(),
-          miss: z.number().int().nonnegative(),
-          grade: z.enum(['F', 'D', 'C', 'B', 'A', 'S', 'SS']),
-          rating: z.number().nonnegative(),
-          mean: z.number(),
-        }),
-      })
-      .safeParse((req as any).body);
+    const parsed = ScoreSubmissionSchema.safeParse((req as any).body);
 
     if (!parsed.success) {
       return reply.error('Validation failed', 400);
