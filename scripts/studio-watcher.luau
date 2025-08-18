@@ -16,7 +16,7 @@ end
 local CHECK_INTERVAL = 1.0
 local DEBOUNCE_TIME = 2.0
 
-local BASE_DIR = "src"
+local BASE_DIR = "roblox/src"
 local GUI_DIR = BASE_DIR .. "/gui"
 local SCREENS_DIR = GUI_DIR .. "/screens"
 
@@ -52,32 +52,32 @@ local function getModificationTime(path: string): number
 end
 
 local function extractAssetUriFromImageContent(imageContent: any): string?
-    local raw = tostring(imageContent)
+	local raw = tostring(imageContent)
 
-    -- Grab ALL Uri=... matches
-    local matches = {}
-    for uri in raw:gmatch("Uri=([%w%p]+)") do
-        table.insert(matches, uri)
-    end
+	-- Grab ALL Uri=... matches
+	local matches = {}
+	for uri in raw:gmatch("Uri=([%w%p]+)") do
+		table.insert(matches, uri)
+	end
 
-    -- No matches? return nil
-    if #matches == 0 then return nil end
+	-- No matches? return nil
+	if #matches == 0 then
+		return nil
+	end
 
-    -- Take the last match (deepest)
-    local lastUri = matches[#matches]
+	-- Take the last match (deepest)
+	local lastUri = matches[#matches]
 
-    -- Remove any leftover Content(Uri= wrappers
-    while lastUri:match("^Content%(Uri=") do
-        lastUri = lastUri:gsub("^Content%(Uri=", "")
-    end
+	-- Remove any leftover Content(Uri= wrappers
+	while lastUri:match("^Content%(Uri=") do
+		lastUri = lastUri:gsub("^Content%(Uri=", "")
+	end
 
-    -- Remove trailing ) or >
-    lastUri = lastUri:gsub("[)>]+$", "")
+	-- Remove trailing ) or >
+	lastUri = lastUri:gsub("[)>]+$", "")
 
-    return lastUri
+	return lastUri
 end
-
-
 
 -- === Rojo-compatible value serializer ===
 local function serializeValue(value: any, datatype: string): any
@@ -110,9 +110,9 @@ local function serializeValue(value: any, datatype: string): any
 				orientation = {
 					{ r00, r01, r02 },
 					{ r10, r11, r12 },
-					{ r20, r21, r22 }
-				}
-			}
+					{ r20, r21, r22 },
+				},
+			},
 		}
 	elseif datatype == "BrickColor" then
 		-- Rojo explicit format: { "BrickColor": Number }
@@ -132,15 +132,15 @@ local function serializeValue(value: any, datatype: string): any
 		return {
 			Ray = {
 				origin = { value.Origin.X, value.Origin.Y, value.Origin.Z },
-				direction = { value.Direction.X, value.Direction.Y, value.Direction.Z }
-			}
+				direction = { value.Direction.X, value.Direction.Y, value.Direction.Z },
+			},
 		}
 	elseif datatype == "Font" then
 		-- Rojo implicit format: { "family": string, "weight": string, "style": string }
 		return {
 			family = value.Family,
 			weight = value.Weight.Name,
-			style = value.Style.Name
+			style = value.Style.Name,
 		}
 	elseif datatype == "Tags" then
 		-- Rojo implicit format: array of strings
@@ -160,8 +160,8 @@ local function serializeValue(value: any, datatype: string): any
 					friction = value.Friction,
 					elasticity = value.Elasticity,
 					frictionWeight = value.FrictionWeight,
-					elasticityWeight = value.ElasticityWeight
-				}
+					elasticityWeight = value.ElasticityWeight,
+				},
 			}
 		end
 	elseif datatype == "Content" then
@@ -172,7 +172,7 @@ local function serializeValue(value: any, datatype: string): any
 		for _, keypoint in value.Keypoints do
 			table.insert(keypoints, {
 				time = keypoint.Time,
-				color = { keypoint.Value.R, keypoint.Value.G, keypoint.Value.B }
+				color = { keypoint.Value.R, keypoint.Value.G, keypoint.Value.B },
 			})
 		end
 		return { ColorSequence = { keypoints = keypoints } }
@@ -185,7 +185,7 @@ local function serializeValue(value: any, datatype: string): any
 			table.insert(keypoints, {
 				time = keypoint.Time,
 				value = keypoint.Value,
-				envelope = keypoint.Envelope
+				envelope = keypoint.Envelope,
 			})
 		end
 		return { NumberSequence = { keypoints = keypoints or {} } }
@@ -232,7 +232,7 @@ local function getFullPropertySet(className: string)
 
 	return {
 		properties = properties,
-		defaultProperties = defaults
+		defaultProperties = defaults,
 	}
 end
 
@@ -240,14 +240,14 @@ end
 local function getInstanceProperties(instance: any, forcedProps: { [string]: boolean }?): { [string]: any }
 	local className = instance.ClassName
 	local fullClassData = getFullPropertySet(className)
-	
+
 	local serializedProps = {}
 
 	for _, prop in fullClassData.properties do
 		local readSuccess, value = pcall(function()
 			return instance[prop.Name]
 		end)
-		
+
 		if readSuccess and value ~= nil then
 			-- Handle NaN values by treating them as the default
 			if type(value) == "number" and value ~= value then -- NaN check
@@ -297,34 +297,53 @@ end
 local function sanitizeFilename(name: string): string
 	-- Replace invalid Windows filename characters with underscores
 	-- Invalid chars: < > : " | ? * and control characters (0-31)
-	local sanitized = name:gsub('[<>:"|?*]', '_')
-	
+	local sanitized = name:gsub('[<>:"|?*]', "_")
+
 	-- Replace control characters (ASCII 0-31)
-	sanitized = sanitized:gsub('[\0-\31]', '_')
-	
+	sanitized = sanitized:gsub("[\0-\31]", "_")
+
 	-- Remove leading/trailing spaces and dots (Windows restriction)
-	sanitized = sanitized:gsub('^[%s%.]+', ''):gsub('[%s%.]+$', '')
-	
+	sanitized = sanitized:gsub("^[%s%.]+", ""):gsub("[%s%.]+$", "")
+
 	-- Ensure it's not empty
-	if sanitized == '' then
-		sanitized = 'unnamed'
+	if sanitized == "" then
+		sanitized = "unnamed"
 	end
-	
+
 	-- Handle reserved Windows names
 	local reservedNames = {
-		'CON', 'PRN', 'AUX', 'NUL',
-		'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-		'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+		"CON",
+		"PRN",
+		"AUX",
+		"NUL",
+		"COM1",
+		"COM2",
+		"COM3",
+		"COM4",
+		"COM5",
+		"COM6",
+		"COM7",
+		"COM8",
+		"COM9",
+		"LPT1",
+		"LPT2",
+		"LPT3",
+		"LPT4",
+		"LPT5",
+		"LPT6",
+		"LPT7",
+		"LPT8",
+		"LPT9",
 	}
-	
+
 	local upperName = sanitized:upper()
 	for _, reserved in reservedNames do
-		if upperName == reserved or upperName:match('^' .. reserved .. '%.') then
-			sanitized = '_' .. sanitized
+		if upperName == reserved or upperName:match("^" .. reserved .. "%.") then
+			sanitized = "_" .. sanitized
 			break
 		end
 	end
-	
+
 	return sanitized
 end
 
@@ -332,7 +351,7 @@ end
 local function exportInstance(instance, targetDir: string)
 	local name = sanitizeFilename(instance.Name)
 	local instanceDir = targetDir .. "/" .. name
-	
+
 	-- Ensure the target directory exists
 	if not fs.isDir(instanceDir) then
 		fs.writeDir(instanceDir)
@@ -392,13 +411,13 @@ local function scanDeletedChildren(parentInstance, targetDir: string)
 	if not fs.isDir(targetDir) then
 		return
 	end
-	
+
 	-- Safety check: only operate within the screens directory
 	if not targetDir:find("screens") then
 		print("⚠️ Safety check: skipping deletion outside screens directory")
 		return
 	end
-	
+
 	-- Get all directories in the target directory
 	local filesystemDirs = {}
 	for _, entry in fs.readDir(targetDir) do
@@ -407,14 +426,14 @@ local function scanDeletedChildren(parentInstance, targetDir: string)
 			filesystemDirs[entry] = true
 		end
 	end
-	
+
 	-- Create a set of sanitized instance names that should exist
 	local validInstanceNames = {}
 	for _, child in parentInstance:GetChildren() do
 		local sanitizedName = sanitizeFilename(child.Name)
 		validInstanceNames[sanitizedName] = child
 	end
-	
+
 	-- Find directories that don't have corresponding instances
 	for dirName, _ in filesystemDirs do
 		-- Only delete if the directory doesn't have a corresponding instance
@@ -435,24 +454,24 @@ end
 -- === Git diff checking ===
 local function displayGitDiffAfterSync()
 	print("🔍 Checking git diff after sync...")
-	
+
 	-- Show detailed diff statistics
-	local gitDiffStat = process.exec("git", {"diff", "--stat", "HEAD", "--", SCREENS_DIR})
+	local gitDiffStat = process.exec("git", { "diff", "--stat", "HEAD", "--", SCREENS_DIR })
 	if gitDiffStat.ok and #gitDiffStat.stdout > 0 then
 		print("📊 Changes summary:")
-		
+
 		-- Split output into lines and count them
 		local lines = {}
 		for line in gitDiffStat.stdout:gmatch("[^\r\n]+") do
 			table.insert(lines, line)
 		end
-		
+
 		-- Show first 10 entries
 		local maxEntries = 10
 		for i = 1, math.min(maxEntries, #lines) do
 			print(lines[i])
 		end
-		
+
 		-- Show count of remaining entries if there are more
 		if #lines > maxEntries then
 			local remaining = #lines - maxEntries
@@ -468,15 +487,14 @@ local function parseRobloxPath(path: string, up: number?)
 		table.insert(pathParts, part)
 	end
 
-    if up and up > 0 then
-        for i = 1, up do
-            table.remove(pathParts) -- Remove last part for each level up
-        end
-    end
+	if up and up > 0 then
+		for i = 1, up do
+			table.remove(pathParts) -- Remove last part for each level up
+		end
+	end
 
 	return pathParts
 end
-
 
 -- === Pull GUI from place file ===
 local function pullGuiFromPlace(path: string)
@@ -513,15 +531,21 @@ local function pullGuiFromPlace(path: string)
 
 		local basePath = dev:GetAttribute("__BASEPATH")
 		if not basePath then
-			warn("⚠️ Skipping sync - Dev container missing __BASEPATH attribute. Use the Workflow plugin to properly copy from StarterGui.Screens.")
+			warn(
+				"⚠️ Skipping sync - Dev container missing __BASEPATH attribute. Use the Workflow plugin to properly copy from StarterGui.Screens."
+			)
 			return
 		end
-		
+
 		local pathParts = parseRobloxPath(basePath)
 
 		-- Validate the path structure
 		if pathParts[1] ~= "game" or pathParts[2] ~= "StarterGui" or pathParts[3] ~= "Screens" then
-			warn("⚠️ Skipping sync - invalid __BASEPATH format: " .. basePath .. ". Expected: game.StarterGui.Screens.xxx")
+			warn(
+				"⚠️ Skipping sync - invalid __BASEPATH format: "
+					.. basePath
+					.. ". Expected: game.StarterGui.Screens.xxx"
+			)
 			return
 		end
 
@@ -548,7 +572,10 @@ local function pullGuiFromPlace(path: string)
 
 			print(childClone.Name, "->", targetPath)
 
-			print("📦 Exporting instance:", childName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")")
+			print(
+				"📦 Exporting instance:",
+				childName .. " (from " .. child.Name .. " via __BASEPATH to " .. targetPath .. ")"
+			)
 			exportInstance(childClone, targetPath)
 
 			print("🧹 Cleaning up orphaned directories...")
@@ -560,10 +587,10 @@ local function pullGuiFromPlace(path: string)
 	end
 
 	print("✅ GUI changes pulled successfully!")
-	
+
 	-- Display git diff after sync
 	displayGitDiffAfterSync()
-end-- === Watcher loop ===
+end -- === Watcher loop ===
 
 local function startWatching()
 	print("👀 Starting Studio place file watcher...")
@@ -597,7 +624,8 @@ local function startWatching()
 		end
 
 		local start = os.clock()
-		while os.clock() - start < CHECK_INTERVAL do end
+		while os.clock() - start < CHECK_INTERVAL do
+		end
 	end
 end
 
