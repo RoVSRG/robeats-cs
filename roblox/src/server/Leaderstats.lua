@@ -26,7 +26,7 @@ end
 function Leaderstats.update(player, profile)
 	local leaderstats = player:FindFirstChild("leaderstats")
 
-	if leaderstats then
+	if leaderstats and profile then
 		leaderstats.Rank.Value = "#" .. profile.rank
 		leaderstats.Rating.Value = profile.rating
 	end

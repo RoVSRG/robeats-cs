@@ -1,4 +1,4 @@
-local SDK = require(game.ReplicatedStorage:WaitForChild("src"):WaitForChild("shared"):WaitForChild("SDK"))
+local SDK = require(game.ReplicatedStorage:WaitForChild("SDK"))
 local Function = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Function"))
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
 local Leaderstats = require(game.ServerScriptService:WaitForChild("Leaderstats"))
@@ -31,7 +31,10 @@ local submitScore = Function.create(function(player, scoreData, settings)
 
 	-- Validate Overall Difficulty for ranked integrity
 	if settings.overallDifficulty ~= 8 then
-		error("Scores can only be submitted with Overall Difficulty 8 for ranked play. Current OD: " .. tostring(settings.overallDifficulty or "unknown"))
+		error(
+			"Scores can only be submitted with Overall Difficulty 8 for ranked play. Current OD: "
+				.. tostring(settings.overallDifficulty or "unknown")
+		)
 	end
 
 	-- Build payload to match your backend schema
@@ -58,7 +61,7 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	-- Try synchronous request first using SDK
 	local user = payload.user
 	local scorePayload = payload.payload
-	
+
 	local success, response = pcall(function()
 		return SDK.Scores.submit(user, scorePayload)
 	end)
@@ -73,13 +76,7 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	elseif success and response and not response.success then
 		-- Request succeeded but server returned error
 		-- Don't queue these as they likely won't succeed on retry
-		warn(
-			string.format(
-				"Score submission failed for %s: %s",
-				player.Name,
-				response.error or "Unknown error"
-			)
-		)
+		warn(string.format("Score submission failed for %s: %s", player.Name, response.error or "Unknown error"))
 	else
 		-- Network/connection failure - queue with callback for retry
 		Queue.addToQueue(SDK.Scores.submit, user, scorePayload, function(queuedResponse)
