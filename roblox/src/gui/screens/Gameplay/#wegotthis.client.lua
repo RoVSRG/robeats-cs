@@ -11,9 +11,12 @@ local _game = nil
 
 Screen.MAWindow.BackButton.MouseButton1Click:Connect(function()
 	local game = Game.currentGame:get()
-	
+
+	Game.results.score:set(game:getStats())
+	Game.results.open:set(true)
+
 	game:destroy()
-	
+
 	ScreenChief:Switch("SongSelect")
 end)
 
@@ -21,8 +24,6 @@ local function onGameCreated()
 	local Counters = Screen.MAWindow.Counters
 	local CompeteScreen = Screen.CompeteScreen
 	local LaneCover = Screen.LaneCover
-
-	
 
 	CompeteScreen.Player1.Visible = true
 	CompeteScreen.Player1.Avatar.Image = Pfp.getPfp(game.Players.LocalPlayer.UserId)
@@ -77,22 +78,22 @@ local function onGameCreated()
 		miss = 0,
 		score = 0,
 		combo = 0,
-		notesHit = 0
+		notesHit = 0,
 	})
-	
+
 	_game.scoreChanged:Connect(updateMAWindow)
-	
+
 	_game.updated:Connect(function(_, currentTime, songLength, progress)
 		Screen.TimeBar.PosBar.Size = UDim2.fromScale(progress, 1)
 		Screen.TimeBar.PosText.Text = Time.formatDuration((songLength - currentTime) * 1000)
 	end)
-	
+
 	_game.songFinished:Connect(function(score)
 		_game:destroy()
-		
+
 		Game.results.score:set(score)
 		Game.results.open:set(true)
-		
+
 		MainGui.IgnoreGuiInset = false
 		ScreenChief:Switch("SongSelect")
 	end)
@@ -102,7 +103,7 @@ Game.currentGame:on(function(value)
 	if not value then
 		return
 	end
-	
+
 	_game = value
 	onGameCreated()
 end)
