@@ -111,10 +111,16 @@ local getGlobalLeaderboard = Function.create(function(player)
 	return result
 end)
 
+local getProfile = Function.create(function(player)
+	local result = SDK.Players.getProfile(tostring(player.UserId))
+	return result
+end)
+
 Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
 Remotes.Functions.GetLeaderboard.OnServerInvoke = Protect.wrap(getLeaderboard)
 Remotes.Functions.GetYourScores.OnServerInvoke = Protect.wrap(getYourScores)
 Remotes.Functions.GetGlobalLeaderboard.OnServerInvoke = Protect.wrap(getGlobalLeaderboard)
+Remotes.Functions.GetProfile.OnServerInvoke = Protect.wrap(getProfile)
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
