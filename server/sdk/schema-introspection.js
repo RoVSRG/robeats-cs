@@ -15,10 +15,13 @@ export function introspectObjectSchema(schema) {
 
   const fields = {};
   let shape;
-  
+
   try {
     // Try to get the shape - it might be a function or already resolved
-    shape = typeof schema.def.shape === 'function' ? schema.def.shape() : schema.def.shape;
+    shape =
+      typeof schema.def.shape === 'function'
+        ? schema.def.shape()
+        : schema.def.shape;
   } catch (error) {
     return null;
   }
@@ -34,7 +37,7 @@ export function introspectObjectSchema(schema) {
   return {
     type: 'object',
     fields,
-    required: Object.keys(shape).filter(key => !isOptional(shape[key])),
+    required: Object.keys(shape).filter((key) => !isOptional(shape[key])),
   };
 }
 
@@ -45,10 +48,10 @@ function introspectFieldSchema(schema, fieldName = 'field') {
   if (!schema || !schema.def) {
     return { type: 'unknown', fieldName, zodType: 'no-def' };
   }
-  
+
   const def = schema.def;
   const typeName = def.typeName || def.type;
-  
+
   switch (typeName) {
     case 'ZodString':
       return introspectStringSchema(schema, fieldName);
@@ -111,7 +114,7 @@ function introspectFieldSchema(schema, fieldName = 'field') {
       if (schema.constructor.name === 'ZodBoolean') {
         return { type: 'boolean', fieldName };
       }
-      
+
       return { type: 'unknown', fieldName, zodType: typeName };
   }
 }
@@ -122,7 +125,7 @@ function introspectFieldSchema(schema, fieldName = 'field') {
 function introspectStringSchema(schema, fieldName) {
   const def = schema._def;
   const constraints = {};
-  
+
   if (def.checks) {
     for (const check of def.checks) {
       switch (check.kind) {
@@ -158,7 +161,7 @@ function introspectStringSchema(schema, fieldName) {
 function introspectNumberSchema(schema, fieldName) {
   const def = schema._def;
   const constraints = {};
-  
+
   if (def.checks) {
     for (const check of def.checks) {
       switch (check.kind) {
@@ -192,7 +195,7 @@ function introspectNumberSchema(schema, fieldName) {
  */
 function introspectEnumSchema(schema, fieldName) {
   const def = schema._def;
-  
+
   return {
     type: 'enum',
     fieldName,
@@ -204,7 +207,9 @@ function introspectEnumSchema(schema, fieldName) {
  * Check if a schema is optional
  */
 function isOptional(schema) {
-  return schema._def.typeName === 'ZodOptional' || schema.isOptional?.() === true;
+  return (
+    schema._def.typeName === 'ZodOptional' || schema.isOptional?.() === true
+  );
 }
 
 /**
@@ -212,9 +217,9 @@ function isOptional(schema) {
  */
 export function generateLuaValidation(fieldInfo) {
   const { type, fieldName, constraints = {}, optional, nullable } = fieldInfo;
-  
+
   let validation = '';
-  
+
   // Handle optional/nullable
   if (optional || nullable) {
     validation += `local function validate${capitalize(fieldName)}(value, name)\n`;
@@ -222,7 +227,7 @@ export function generateLuaValidation(fieldInfo) {
   } else {
     validation += `local function validate${capitalize(fieldName)}(value, name)\n`;
   }
-  
+
   switch (type) {
     case 'string':
       validation += `\tassert(type(value) == "string", name .. " must be a string")\n`;
@@ -238,7 +243,7 @@ export function generateLuaValidation(fieldInfo) {
         validation += `\tassert(string.match(value, "${luaPattern}"), name .. " format is invalid")\n`;
       }
       break;
-      
+
     case 'number':
       validation += `\tassert(type(value) == "number", name .. " must be a number")\n`;
       if (constraints.min !== undefined) {
@@ -253,16 +258,16 @@ export function generateLuaValidation(fieldInfo) {
         validation += `\tassert(value == math.floor(value), name .. " must be an integer")\n`;
       }
       break;
-      
+
     case 'boolean':
       validation += `\tassert(type(value) == "boolean", name .. " must be a boolean")\n`;
       break;
-      
+
     case 'enum':
-      validation += `\tlocal validValues = {${fieldInfo.values.map(v => `${v}=true`).join(', ')}}\n`;
+      validation += `\tlocal validValues = {${fieldInfo.values.map((v) => `${v}=true`).join(', ')}}\n`;
       validation += `\tassert(validValues[value], name .. " must be one of: ${fieldInfo.values.join(', ')}")\n`;
       break;
-      
+
     case 'array':
       validation += `\tassert(type(value) == "table", name .. " must be an array")\n`;
       validation += `\tfor i, item in ipairs(value) do\n`;
@@ -270,13 +275,13 @@ export function generateLuaValidation(fieldInfo) {
       validation += `\t\t-- TODO: Add element validation\n`;
       validation += `\tend\n`;
       break;
-      
+
     default:
       validation += `\t-- Unknown type: ${type}\n`;
   }
-  
+
   validation += `\treturn value\nend\n\n`;
-  
+
   return validation;
 }
 
@@ -295,15 +300,15 @@ export function convertEndpointPath(endpoint, pathParams) {
   if (!pathParams || Object.keys(pathParams).length === 0) {
     return `"${endpoint}"`;
   }
-  
+
   let luaPath = endpoint;
   for (const param of Object.keys(pathParams)) {
     luaPath = luaPath.replace(`{${param}}`, `" .. tostring(${param}) .. "`);
   }
-  
+
   // Clean up the string concatenation
   luaPath = `"${luaPath}"`;
   luaPath = luaPath.replace(/^"" .. /, '').replace(/ .. ""$/, '');
-  
+
   return luaPath;
 }
