@@ -44,7 +44,7 @@
       "$ignoreUnknownInstances": true,
       "Plugins": {
         "$className": "Folder",
-        "$path": "plugins"
+        "$path": "roblox/plugins"
       },
       "Songs": {
         "$className": "Folder",
