@@ -4,7 +4,8 @@
   "description": "RoBeats Community Server - A comprehensive Roblox rhythm game with API server",
   "private": true,
   "workspaces": [
-    "server"
+    "server",
+    "cli"
   ],
   "scripts": {
     "dev:server": "npm run dev --workspace=server",
