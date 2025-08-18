@@ -131,7 +131,7 @@ export async function start(
   });
 
   app.get('/', async (_req, reply) => {
-    return reply.send({ status: 'ok' });
+    return reply.send({ status: 'ok1' });
   });
 
   app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {

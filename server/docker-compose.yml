@@ -1,16 +1,15 @@
-# RoBeats Server - Unified Docker Compose Configuration
+# RoBeats Server - Base Docker Compose Configuration
 # Usage:
-#   Local:      docker-compose --profile local up
-#   Production: docker-compose --profile prod up  
-#   Dev mode:   docker-compose --profile dev up (includes local databases)
+#   Development: docker-compose up (uses override.yml automatically)  
+#   Production:  docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 services:
-  # PostgreSQL Database - Local Development Only
+  # PostgreSQL Database - Development Only  
   postgres:
     image: postgres:16-alpine
     container_name: robeats-postgres
     restart: unless-stopped
-    profiles: ["local", "dev"]
+    profiles: ["dev"]
     environment:
       POSTGRES_DB: robeats
       POSTGRES_USER: robeats
@@ -25,12 +24,12 @@ services:
       timeout: 5s
       retries: 5
 
-  # Valkey - Local Development Only
+  # Valkey - Development Only
   valkey:
     image: valkey/valkey:7.2-alpine
     container_name: robeats-valkey
     restart: unless-stopped
-    profiles: ["local", "dev"]
+    profiles: ["dev"]
     command: valkey-server --appendonly yes --appendfsync everysec
     volumes:
       - valkey_data:/data
@@ -42,46 +41,15 @@ services:
       timeout: 3s
       retries: 5
 
-  # RoBeats API Server - Local Development
-  app-local:
+  # RoBeats API Server - Base Configuration
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: robeats-server-local
+    container_name: robeats-server
     restart: unless-stopped
-    profiles: ["local"]
     env_file:
       - .env.docker
-      - .env.local
-    environment:
-      - NODE_ENV=development
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      valkey:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # RoBeats API Server - Production
-  app-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: robeats-server-prod
-    restart: unless-stopped
-    profiles: ["prod"]
-    env_file:
-      - .env.docker
-      - .env
-    environment:
-      - NODE_ENV=production
     ports:
       - "3000:3000"
     healthcheck:
@@ -90,32 +58,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-  # Development server with hot reload
-  app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: robeats-server-dev
-    restart: unless-stopped
-    profiles: ["dev"]
-    env_file:
-      - .env.docker
-      - .env.local
-    environment:
-      - NODE_ENV=development
-    command: npm run dev
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/dist
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      valkey:
-        condition: service_healthy
 
 volumes:
   postgres_data:
