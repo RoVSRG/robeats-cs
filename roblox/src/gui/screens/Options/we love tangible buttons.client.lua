@@ -29,3 +29,5 @@ BackButton.MouseButton1Click:Connect(function()
 end)
 
 setupPageButtons()
+
+switchPage("General")
