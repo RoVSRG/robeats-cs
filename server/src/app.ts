@@ -111,21 +111,6 @@ export async function start(
     }
   });
 
-  // Decorate for downstream routes
-  (app as any).valkey = valkey;
-  (app as any).prisma = prisma;
-
-  await app.register(scoresRoutes as any, {
-    prisma,
-    kv: valkey,
-    prefix: '/scores',
-  });
-  await app.register(playersRoutes as any, {
-    prisma,
-    kv: valkey,
-    prefix: '/players',
-  });
-
   // Add reply decorators for consistent response structure
   app.decorateReply('success', function (data: any = {}) {
     return this.send({ success: true, ...data });
@@ -139,7 +124,7 @@ export async function start(
     origin: true,
   });
 
-  // Register Swagger plugin
+  // Register Swagger plugin BEFORE routes
   await app.register(fastifySwagger, {
     openapi: {
       openapi: '3.0.0',
@@ -180,8 +165,24 @@ export async function start(
     transformSpecificationClone: true,
   });
 
+  // Decorate for downstream routes
+  (app as any).valkey = valkey;
+  (app as any).prisma = prisma;
+
+  // Register routes AFTER Swagger plugins
+  await app.register(scoresRoutes as any, {
+    prisma,
+    kv: valkey,
+    prefix: '/scores',
+  });
+  await app.register(playersRoutes as any, {
+    prisma,
+    kv: valkey,
+    prefix: '/players',
+  });
+
   app.get('/', async (_req, reply) => {
-    return reply.send({ status: 'ok' });
+    return reply.send({ status: 'ok1' });
   });
 
   app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
