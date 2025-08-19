@@ -19,10 +19,6 @@ export const PlayerProfileSchema = Type.Object({
   rank: Type.Union([Type.Number(), Type.Null()]),
 });
 
-export const PlayerProfileResponseSchema = Type.Object({
-  profile: PlayerProfileSchema,
-});
+export const PlayerProfileResponseSchema = PlayerProfileSchema;
 
-export const PlayersTopResponseSchema = Type.Object({
-  players: Type.Array(PlayerProfileSchema),
-});
+export const PlayersTopResponseSchema = Type.Array(PlayerProfileSchema);

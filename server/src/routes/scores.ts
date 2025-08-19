@@ -1,5 +1,4 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { Type } from '@sinclair/typebox';
 import type { Static } from '@sinclair/typebox';
 
 import { calculateOverallRating } from '../calculator/rating.js';
@@ -18,13 +17,28 @@ import {
   getPlayerRank,
 } from '../queries/score.js';
 
-const ErrorResponseSchema = Type.Object({
-  error: Type.String(),
-});
+import {
+  LeaderboardQuerySchema,
+  UserBestScoresQuerySchema,
+  ScoreSubmissionSchema,
+  LeaderboardResponseSchema,
+  UserBestScoresResponseSchema,
+  ScoreSubmissionResponseSchema,
+  UserHistoryResponseSchema,
+  LeaderboardEntrySchema,
+  ScoreSchema,
+} from '../schemas/score-schema.js';
 
-const UnauthorizedResponseSchema = Type.Object({
-  error: Type.String(),
-});
+import {
+  PlayerSchema,
+} from '../schemas/player-schema.js';
+
+import {
+  ErrorResponseSchema,
+  UnauthorizedResponseSchema,
+} from '../schemas/replies.js';
+
+import { Type } from '@sinclair/typebox';
 
 // Path parameters schema
 const UserHistoryParamsSchema = Type.Object({
@@ -37,7 +51,7 @@ type ScoreSubmissionRequest = Static<typeof ScoreSubmissionSchema>;
 type LeaderboardQuery = Static<typeof LeaderboardQuerySchema>;
 type UserBestScoresQuery = Static<typeof UserBestScoresQuerySchema>;
 type ScoreEntry = Static<typeof LeaderboardEntrySchema>;
-type PlayerProfileResponse = Static<typeof PlayerSchema>;
+type PlayerProfile = Static<typeof PlayerSchema>;
 type UserHistoryParams = Static<typeof UserHistoryParamsSchema>;
 
 const scoresRoutes: FastifyPluginAsync<
@@ -75,10 +89,10 @@ const scoresRoutes: FastifyPluginAsync<
           getBestScore(prisma, hash, userIdNum),
         ]);
 
-        return reply.success({ best, leaderboard });
+        return { best, leaderboard };
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );
@@ -109,10 +123,10 @@ const scoresRoutes: FastifyPluginAsync<
 
         console.log(result);
 
-        return reply.success({ scores: result });
+        return result;
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );
@@ -194,10 +208,10 @@ const scoresRoutes: FastifyPluginAsync<
 
         // Step 6: Return updated profile
         const profile = formatPlayerProfile(updatedPlayer);
-        return reply.success({ profile: { ...profile, rank } });
+        return { ...profile, rank };
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );
@@ -248,10 +262,10 @@ const scoresRoutes: FastifyPluginAsync<
           ...r,
           player_id: r.player_id != null ? String(r.player_id) : null,
         }));
-        return reply.success({ scores: safe });
+        return { scores: safe };
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );

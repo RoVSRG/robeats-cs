@@ -46,14 +46,29 @@ export const PlayerSchema = Type.Object({
   rank: Type.Union([Type.Number(), Type.Null()]),
 });
 
-export const ScoreSubmissionResponseSchema = Type.Object({
-  profile: PlayerSchema,
+export const ScoreSubmissionResponseSchema = PlayerSchema;
+
+// Leaderboard entry with player information
+export const LeaderboardEntrySchema = Type.Object({
+  score: Type.Number({ minimum: 0 }),
+  accuracy: Type.Number({ minimum: 0, maximum: 100 }),
+  grade: GradeEnum,
+  max_combo: Type.Number({ minimum: 0 }),
+  marvelous: Type.Number({ minimum: 0 }),
+  perfect: Type.Number({ minimum: 0 }),
+  great: Type.Number({ minimum: 0 }),
+  good: Type.Number({ minimum: 0 }),
+  bad: Type.Number({ minimum: 0 }),
+  miss: Type.Number({ minimum: 0 }),
+  rate: Type.Number({ minimum: 70, maximum: 200 }),
+  created_at: Type.Date(),
+  mean: Type.Number(),
+  player_id: Type.String(),
 });
 
 export const LeaderboardResponseSchema = Type.Object({
-  success: Type.Boolean(),
-  best: Type.Union([ScoreSchema, Type.Object({ player_id: Type.String() })]),
-  leaderboard: Type.Array(ScoreSchema),
+  best: Type.Union([LeaderboardEntrySchema, Type.Null()]),
+  leaderboard: Type.Array(LeaderboardEntrySchema),
 });
 
 export const ScoreSubmissionSchema = Type.Object({
@@ -64,8 +79,27 @@ export const ScoreSubmissionSchema = Type.Object({
   payload: ScoreSchema,
 });
 
-export const UserBestScoresResponseSchema = Type.Object({
-  scores: Type.Array(
-    Type.Union([ScoreSchema, Type.Object({ hash: Type.String() })])
-  ),
+// Score with hash for user's best scores
+export const ScoreWithHashSchema = Type.Object({
+  score: Type.Number({ minimum: 0 }),
+  accuracy: Type.Number({ minimum: 0, maximum: 100 }),
+  grade: GradeEnum,
+  max_combo: Type.Number({ minimum: 0 }),
+  marvelous: Type.Number({ minimum: 0 }),
+  perfect: Type.Number({ minimum: 0 }),
+  great: Type.Number({ minimum: 0 }),
+  good: Type.Number({ minimum: 0 }),
+  bad: Type.Number({ minimum: 0 }),
+  miss: Type.Number({ minimum: 0 }),
+  rate: Type.Number({ minimum: 70, maximum: 200 }),
+  created_at: Type.Date(),
+  mean: Type.Number(),
+  hash: Type.String(),
+});
+
+export const UserBestScoresResponseSchema = Type.Array(ScoreWithHashSchema);
+
+// User history response (direct array of scores)
+export const UserHistoryResponseSchema = Type.Object({
+  scores: Type.Array(ScoreSchema),
 });

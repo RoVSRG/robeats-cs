@@ -21,7 +21,6 @@ import {
 
 import {
   ErrorResponseSchema,
-  SuccessResponseSchema,
   UnauthorizedResponseSchema,
 } from '../schemas/replies.js';
 
@@ -46,7 +45,7 @@ const playersRoutes: FastifyPluginAsync<
         description: 'Register or update a player in the system',
         body: PlayerJoinSchema,
         response: {
-          200: SuccessResponseSchema,
+          200: { type: 'null' },
           400: ErrorResponseSchema,
           401: UnauthorizedResponseSchema,
           500: ErrorResponseSchema,
@@ -71,10 +70,10 @@ const playersRoutes: FastifyPluginAsync<
           );
         }
 
-        return reply.success();
+        return reply.status(200).send();
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );
@@ -101,7 +100,7 @@ const playersRoutes: FastifyPluginAsync<
         });
 
         if (!entries || entries.length === 0) {
-          return reply.success({ players: [] });
+          return [];
         }
 
         const userIds = entries
@@ -139,10 +138,10 @@ const playersRoutes: FastifyPluginAsync<
           };
         });
 
-        return reply.success({ players });
+        return players;
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );
@@ -172,7 +171,7 @@ const playersRoutes: FastifyPluginAsync<
       try {
         const profile = await getPlayerProfile(prisma, userIdNum);
         if (!profile) {
-          return reply.error('Player not found', 404);
+          return reply.status(404).send({ error: 'Player not found' });
         }
 
         const rating = Number(profile.rating ?? 0);
@@ -189,10 +188,10 @@ const playersRoutes: FastifyPluginAsync<
         const rank = await getPlayerRank(kv, LEADERBOARD_KEY, userIdNum);
 
         const safeProfile = formatPlayerProfile(profile);
-        return reply.success({ profile: { ...safeProfile, rank } });
+        return { ...safeProfile, rank };
       } catch (err: any) {
         (req as any).log.error(err);
-        return reply.error(err.message, 500);
+        return reply.status(500).send({ error: err.message });
       }
     }
   );
