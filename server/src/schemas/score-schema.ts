@@ -34,7 +34,6 @@ export const ScoreSchema = Type.Object({
   rate: Type.Number({ minimum: 70, maximum: 200 }),
   created_at: Type.Date(),
   mean: Type.Number(),
-  hash: Type.String({ minLength: 1 }),
 });
 
 // Player Profile Schema
@@ -53,7 +52,7 @@ export const ScoreSubmissionResponseSchema = Type.Object({
 
 export const LeaderboardResponseSchema = Type.Object({
   success: Type.Boolean(),
-  best: Type.Union([ScoreSchema, Type.Null()]),
+  best: Type.Union([ScoreSchema, Type.Object({ player_id: Type.String() })]),
   leaderboard: Type.Array(ScoreSchema),
 });
 
@@ -66,9 +65,7 @@ export const ScoreSubmissionSchema = Type.Object({
 });
 
 export const UserBestScoresResponseSchema = Type.Object({
-  scores: Type.Array(LeaderboardEntrySchema),
-});
-
-export const UserHistoryResponseSchema = Type.Object({
-  scores: Type.Array(PersonalScoreEntrySchema),
+  scores: Type.Array(
+    Type.Union([ScoreSchema, Type.Object({ hash: Type.String() })])
+  ),
 });

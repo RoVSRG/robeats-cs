@@ -20,11 +20,9 @@ export const PlayerProfileSchema = Type.Object({
 });
 
 export const PlayerProfileResponseSchema = Type.Object({
-  success: Type.Boolean(),
   profile: PlayerProfileSchema,
 });
 
 export const PlayersTopResponseSchema = Type.Object({
-  success: Type.Boolean(),
   players: Type.Array(PlayerProfileSchema),
 });

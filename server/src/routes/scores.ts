@@ -16,7 +16,7 @@ import {
   formatPlayerProfile,
   updateLeaderboard,
   getPlayerRank,
-} from '../database/queries.js';
+} from '../queries/score.js';
 
 const ErrorResponseSchema = Type.Object({
   error: Type.String(),

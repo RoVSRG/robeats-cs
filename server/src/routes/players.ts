@@ -1,25 +1,29 @@
 import type { FastifyPluginAsync } from 'fastify';
 
-import { Type } from '@sinclair/typebox';
-
 import type { Static } from '@sinclair/typebox';
 import type { PrismaClient } from '#prisma';
 
 import {
-  getPlayerProfile,
-  upsertPlayer,
   formatPlayerProfile,
   updateLeaderboard,
   getPlayerRank,
-} from '../database/queries.js';
+} from '../queries/score.js';
+
+import { getPlayerProfile, upsertPlayer } from '../queries/player.js';
 
 import {
   PlayerJoinSchema,
   PlayerProfileSchema,
   PlayerProfileQuerySchema,
+  PlayersTopResponseSchema,
+  PlayerProfileResponseSchema,
 } from '../schemas/player-schema.js';
 
-import { ErrorResponseSchema } from '../schemas/replies.js';
+import {
+  ErrorResponseSchema,
+  SuccessResponseSchema,
+  UnauthorizedResponseSchema,
+} from '../schemas/replies.js';
 
 // Type definitions
 type PlayerJoinRequest = Static<typeof PlayerJoinSchema>;
