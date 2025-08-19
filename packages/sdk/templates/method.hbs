@@ -1,8 +1,8 @@
 {{#if paramDocs}}
-{{#each paramDocs}}-- @param {{name}} {{type}}{{#if required}} (required){{/if}}{{#if description}} - {{{description}}}{{/if}}
+{{#each paramDocs}}-- @param {{name}} {{{type}}}{{#if required}} (required){{/if}}{{#if description}} - {{{description}}}{{/if}}
 {{/each}}{{/if}}
 {{#if returnTypeAlias}}-- @return {{returnTypeAlias}}{{#if returnDescription}} - {{{returnDescription}}}{{/if}}{{/if}}
-function {{moduleName}}.{{name}}({{#if signatureParams}}{{signatureParams}}{{else}}{{#each params}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}){{#if returnTypeAlias}}: {{returnTypeAlias}}{{/if}}
+function {{moduleName}}.{{name}}({{#if signatureParams}}{{{signatureParams}}}{{else}}{{#each params}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}){{#if returnTypeAlias}}: {{returnTypeAlias}}{{/if}}
 {{#each validations}}
 	{{{this}}}
 {{/each}}

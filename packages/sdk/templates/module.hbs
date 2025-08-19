@@ -11,7 +11,7 @@ local {{moduleName}} = {}
 {{#if typeAliases}}
 -- Type Aliases
 {{#each typeAliases}}
-export type {{aliasName}} = {{definition}}
+export type {{aliasName}} = {{{definition}}}
 {{/each}}
 
 {{/if}}

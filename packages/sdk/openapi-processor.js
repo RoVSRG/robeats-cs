@@ -219,10 +219,9 @@ export function generateLuaValidation(paramName, schema) {
         );
       }
       if (schema.pattern) {
+        const luaPattern = regexToLuaPattern(schema.pattern);
         validations.push(
-          `assert(string.match(${paramName}, "${escapePattern(
-            schema.pattern
-          )}"), "${paramName} format is invalid")`
+          `assert(string.match(${paramName}, "${luaPattern}"), "${paramName} format is invalid")`
         );
       }
       break;
@@ -296,6 +295,20 @@ function escapePattern(pattern) {
     .replace(/"/g, '\\"')
     .replace(/\^/g, "^")
     .replace(/\$/g, "$");
+}
+
+/**
+ * Convert a JS-style regex (subset) to a Lua pattern (best-effort)
+ * Supports \d, \w, \s shorthands and basic anchors.
+ */
+function regexToLuaPattern(pattern) {
+  let p = pattern;
+  // Remove leading ^ and trailing $ remain as-is (Lua uses same)
+  // Translate common escapes
+  p = p.replace(/\\d/g, "%d").replace(/\\w/g, "%w").replace(/\\s/g, "%s");
+  // Escape any remaining unescaped quotes
+  p = p.replace(/"/g, '\\"');
+  return p;
 }
 
 /**

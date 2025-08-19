@@ -155,11 +155,20 @@ function openApiSchemaToLuauType(schema) {
   }
 
   if (schema.oneOf || schema.anyOf || schema.allOf) {
-    // Simplify composite schemas
     const list = schema.oneOf || schema.anyOf || schema.allOf || [];
     if (list.length > 0) {
-      return list.map((s) => openApiSchemaToLuauType(s)).join(" | ");
+      const parts = list.map((s) => openApiSchemaToLuauType(s));
+      if (parts.includes("any")) return "any";
+      return dedupe(parts).join(" | ");
     }
+  }
+
+  // Nullable flag
+  if (schema.nullable) {
+    const base = { ...schema };
+    delete base.nullable;
+    const t = openApiSchemaToLuauType(base);
+    return dedupe([t, "nil"]).join(" | ");
   }
 
   switch (schema.type) {
@@ -173,7 +182,7 @@ function openApiSchemaToLuauType(schema) {
     case "boolean":
       return "boolean";
     case "array":
-      return `${openApiSchemaToLuauType(schema.items || { type: "any" })}[]`;
+      return `{${openApiSchemaToLuauType(schema.items || { type: "any" })}}`;
     case "object":
       if (schema.properties) {
         const fields = Object.entries(schema.properties).map(([k, v]) => {
@@ -190,6 +199,18 @@ function openApiSchemaToLuauType(schema) {
     default:
       return "any";
   }
+}
+
+function dedupe(arr) {
+  const seen = new Set();
+  const out = [];
+  for (const v of arr) {
+    if (!seen.has(v)) {
+      seen.add(v);
+      out.push(v);
+    }
+  }
+  return out;
 }
 
 /**
