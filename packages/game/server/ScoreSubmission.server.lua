@@ -63,7 +63,7 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	local scorePayload = payload.payload
 
 	local success, response = pcall(function()
-		return SDK.Scores.submit(user, scorePayload)
+		return SDK.Scores.postScores(user, scorePayload)
 	end)
 
 	if success and response and response.success then
@@ -102,7 +102,7 @@ local getLeaderboard = Function.create(function(player, hash)
 end)
 
 local getYourScores = Function.create(function(player)
-	local result = SDK.Scores.getUserBest(player.UserId)
+	local result = SDK.Scores.getScoresUserBest(player.UserId)
 	return result
 end)
 

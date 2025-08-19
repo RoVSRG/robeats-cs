@@ -8,7 +8,7 @@
  * @param {string} serverUrl - Base URL of the server (e.g., 'http://localhost:3000')
  * @returns {Promise<Object>} OpenAPI specification object
  */
-export async function fetchOpenApiSpec(serverUrl = 'http://localhost:3000') {
+export async function fetchOpenApiSpec(serverUrl = "http://localhost:3000") {
   const swaggerUrl = `${serverUrl}/docs/json`;
 
   try {
@@ -24,18 +24,20 @@ export async function fetchOpenApiSpec(serverUrl = 'http://localhost:3000') {
 
     if (!spec.openapi && !spec.swagger) {
       throw new Error(
-        'Invalid OpenAPI specification: missing openapi/swagger field'
+        "Invalid OpenAPI specification: missing openapi/swagger field"
       );
     }
 
     console.log(
-      `✅ Successfully fetched OpenAPI ${spec.openapi || spec.swagger} specification`
+      `✅ Successfully fetched OpenAPI ${
+        spec.openapi || spec.swagger
+      } specification`
     );
     console.log(`📋 Found ${Object.keys(spec.paths || {}).length} paths`);
 
     return spec;
   } catch (error) {
-    if (error.code === 'ECONNREFUSED' || error.cause?.code === 'ECONNREFUSED') {
+    if (error.code === "ECONNREFUSED" || error.cause?.code === "ECONNREFUSED") {
       throw new Error(
         `❌ Cannot connect to server at ${serverUrl}\n` +
           `💡 Make sure the server is running with: npm run dev`
@@ -54,18 +56,18 @@ export function groupEndpointsByTags(openApiSpec) {
   const groups = {};
 
   if (!openApiSpec.paths) {
-    console.warn('⚠️  No paths found in OpenAPI specification');
+    console.warn("⚠️  No paths found in OpenAPI specification");
     return groups;
   }
 
   for (const [path, pathItem] of Object.entries(openApiSpec.paths)) {
-    if (!pathItem || typeof pathItem !== 'object') continue;
+    if (!pathItem || typeof pathItem !== "object") continue;
 
     // Process each HTTP method for this path
     for (const [method, operation] of Object.entries(pathItem)) {
-      if (!operation || typeof operation !== 'object') continue;
+      if (!operation || typeof operation !== "object") continue;
       if (
-        !['get', 'post', 'put', 'patch', 'delete'].includes(
+        !["get", "post", "put", "patch", "delete"].includes(
           method.toLowerCase()
         )
       )
@@ -77,9 +79,9 @@ export function groupEndpointsByTags(openApiSpec) {
         moduleName = capitalize(operation.tags[0]);
       } else {
         // Derive module name from path (e.g., /players/join -> Players)
-        const pathSegments = path.split('/').filter(Boolean);
+        const pathSegments = path.split("/").filter(Boolean);
         moduleName =
-          pathSegments.length > 0 ? capitalize(pathSegments[0]) : 'Default';
+          pathSegments.length > 0 ? capitalize(pathSegments[0]) : "Default";
       }
 
       if (!groups[moduleName]) {
@@ -89,6 +91,7 @@ export function groupEndpointsByTags(openApiSpec) {
       groups[moduleName].push({
         path,
         method: method.toUpperCase(),
+        description: operation.description || "",
         operation: {
           ...operation,
           operationId:
@@ -100,7 +103,7 @@ export function groupEndpointsByTags(openApiSpec) {
 
   console.log(
     `📂 Grouped endpoints into modules:`,
-    Object.keys(groups).join(', ')
+    Object.keys(groups).join(", ")
   );
   return groups;
 }
@@ -114,18 +117,18 @@ export function groupEndpointsByTags(openApiSpec) {
 function generateOperationId(method, path) {
   // Convert /players/join -> playersJoin, /scores/{id} -> scoresById
   const cleanPath = path
-    .split('/')
+    .split("/")
     .filter(Boolean)
     .map((segment) => {
       // Replace path parameters with 'By' + parameter name
-      if (segment.startsWith('{') && segment.endsWith('}')) {
+      if (segment.startsWith("{") && segment.endsWith("}")) {
         const paramName = segment.slice(1, -1);
-        return 'By' + capitalize(paramName);
+        return "By" + capitalize(paramName);
       }
       return segment;
     })
     .map((segment, index) => (index === 0 ? segment : capitalize(segment)))
-    .join('');
+    .join("");
 
   return method.toLowerCase() + capitalize(cleanPath);
 }
@@ -148,16 +151,16 @@ export function extractParameters(operation) {
     for (const param of operation.parameters) {
       const paramInfo = {
         name: param.name,
-        type: param.schema?.type || 'string',
+        type: param.schema?.type || "string",
         required: param.required || false,
         description: param.description,
         schema: param.schema,
       };
 
-      if (param.in === 'path') {
+      if (param.in === "path") {
         result.path.push(paramInfo);
         result.allParams.push(paramInfo);
-      } else if (param.in === 'query') {
+      } else if (param.in === "query") {
         result.query.push(paramInfo);
         result.allParams.push(paramInfo);
       }
@@ -165,8 +168,8 @@ export function extractParameters(operation) {
   }
 
   // Extract request body parameters
-  if (operation.requestBody?.content?.['application/json']?.schema) {
-    const bodySchema = operation.requestBody.content['application/json'].schema;
+  if (operation.requestBody?.content?.["application/json"]?.schema) {
+    const bodySchema = operation.requestBody.content["application/json"].schema;
     result.body = {
       schema: bodySchema,
       required: operation.requestBody.required || false,
@@ -179,7 +182,7 @@ export function extractParameters(operation) {
       )) {
         result.allParams.push({
           name: propName,
-          type: propSchema.type || 'unknown',
+          type: propSchema.type || "unknown",
           required: bodySchema.required?.includes(propName) || false,
           schema: propSchema,
           isBodyParam: true,
@@ -203,7 +206,7 @@ export function generateLuaValidation(paramName, schema) {
   const validations = [];
 
   switch (schema.type) {
-    case 'string':
+    case "string":
       validations.push(`validateString(${paramName}, "${paramName}")`);
       if (schema.minLength) {
         validations.push(
@@ -217,13 +220,15 @@ export function generateLuaValidation(paramName, schema) {
       }
       if (schema.pattern) {
         validations.push(
-          `assert(string.match(${paramName}, "${escapePattern(schema.pattern)}"), "${paramName} format is invalid")`
+          `assert(string.match(${paramName}, "${escapePattern(
+            schema.pattern
+          )}"), "${paramName} format is invalid")`
         );
       }
       break;
 
-    case 'integer':
-    case 'number':
+    case "integer":
+    case "number":
       validations.push(`validateNumber(${paramName}, "${paramName}")`);
       if (schema.minimum !== undefined) {
         validations.push(
@@ -235,18 +240,18 @@ export function generateLuaValidation(paramName, schema) {
           `assert(${paramName} <= ${schema.maximum}, "${paramName} must be <= ${schema.maximum}")`
         );
       }
-      if (schema.type === 'integer') {
+      if (schema.type === "integer") {
         validations.push(
           `assert(${paramName} == math.floor(${paramName}), "${paramName} must be an integer")`
         );
       }
       break;
 
-    case 'boolean':
+    case "boolean":
       validations.push(`validateBoolean(${paramName}, "${paramName}")`);
       break;
 
-    case 'object':
+    case "object":
       validations.push(
         `assert(type(${paramName}) == "table", "${paramName} must be a table")`
       );
@@ -255,22 +260,26 @@ export function generateLuaValidation(paramName, schema) {
     default:
       // Handle enums (TypeBox unions become enums in OpenAPI)
       if (schema.enum && Array.isArray(schema.enum)) {
-        const enumValues = schema.enum.map((v) => `"${v}"`).join(', ');
+        const enumValues = schema.enum.map((v) => `"${v}"`).join(", ");
         validations.push(
-          `local validValues = {${schema.enum.map((v) => `["${v}"]=true`).join(', ')}}`
+          `local validValues = {${schema.enum
+            .map((v) => `["${v}"]=true`)
+            .join(", ")}}`
         );
         validations.push(
           `assert(validValues[${paramName}], "${paramName} must be one of: ${enumValues}")`
         );
       } else {
         validations.push(
-          `-- TODO: Add validation for ${paramName} (${schema.type || 'unknown'})`
+          `-- TODO: Add validation for ${paramName} (${
+            schema.type || "unknown"
+          })`
         );
       }
   }
 
   return validations.length > 0
-    ? validations.join('\n\t')
+    ? validations.join("\n\t")
     : `-- No validation needed for ${paramName}`;
 }
 
@@ -283,10 +292,10 @@ function escapePattern(pattern) {
   // Basic conversion from regex to Lua pattern
   // This is a simplified conversion - may need enhancement for complex patterns
   return pattern
-    .replace(/\\/g, '\\\\')
+    .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"')
-    .replace(/\^/g, '^')
-    .replace(/\$/g, '$');
+    .replace(/\^/g, "^")
+    .replace(/\$/g, "$");
 }
 
 /**
@@ -296,7 +305,7 @@ function escapePattern(pattern) {
  * @returns {string} Lua string with parameter interpolation
  */
 export function buildLuaUrl(path, pathParams = []) {
-  if (!pathParams.length || !path.includes('{')) {
+  if (!pathParams.length || !path.includes("{")) {
     return `"${path}"`;
   }
 
@@ -312,9 +321,9 @@ export function buildLuaUrl(path, pathParams = []) {
 
   // Clean up the string concatenation
   luaUrl = `"${luaUrl}"`
-    .replace(/^"" \.\. /, '') // Remove empty string at start
-    .replace(/ \.\. ""$/, '') // Remove empty string at end
-    .replace(/" \.\. "/g, ''); // Remove unnecessary string breaks
+    .replace(/^"" \.\. /, "") // Remove empty string at start
+    .replace(/ \.\. ""$/, "") // Remove empty string at end
+    .replace(/" \.\. "/g, ""); // Remove unnecessary string breaks
 
   return luaUrl;
 }
@@ -338,14 +347,14 @@ export function extractResponseSchema(operation) {
 
   // Look for 200 response first, then any 2xx response
   const successResponse =
-    operation.responses['200'] ||
-    operation.responses['201'] ||
-    Object.values(operation.responses).find((r) => r && typeof r === 'object');
+    operation.responses["200"] ||
+    operation.responses["201"] ||
+    Object.values(operation.responses).find((r) => r && typeof r === "object");
 
-  if (!successResponse?.content?.['application/json']?.schema) return null;
+  if (!successResponse?.content?.["application/json"]?.schema) return null;
 
   return {
-    schema: successResponse.content['application/json'].schema,
+    schema: successResponse.content["application/json"].schema,
     description: successResponse.description,
   };
 }

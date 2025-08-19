@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "SDK Generator for RoBeats CS - Generates Roblox Lua SDK from OpenAPI spec",
   "type": "module",
-  "main": "src/generate-types.js",
+  "main": "generate-types.js",
   "scripts": {
-    "generate": "node src/generate-types.js"
+  "generate": "node generate-types.js"
   },
   "dependencies": {
     "handlebars": "^4.7.8"

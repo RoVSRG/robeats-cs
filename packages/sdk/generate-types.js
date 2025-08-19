@@ -53,6 +53,7 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
   // Build parameter list and validation code
   const params = [];
   const validations = [];
+  const paramDocs = [];
 
   // Add all parameters to the method signature
   for (const param of parameters.allParams) {
@@ -65,6 +66,14 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
     if (validation && !validation.includes("-- No validation")) {
       validations.push(validation);
     }
+
+    // Build param documentation entry
+    paramDocs.push({
+      name: param.name,
+      type: openApiSchemaToLuauType(param.schema),
+      description: param.description || undefined,
+      required: param.required || false,
+    });
   }
 
   // Build query parameters object
@@ -88,6 +97,12 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
 
   // Extract response information for documentation
   const responseSchema = extractResponseSchema(operation);
+  let returnType = null;
+  let returnDescription = null;
+  if (responseSchema) {
+    returnType = openApiSchemaToLuauType(responseSchema.schema);
+    returnDescription = responseSchema.description || undefined;
+  }
 
   return {
     moduleName,
@@ -96,6 +111,7 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
       operation.summary || operation.description || `${method} ${path}`,
     params,
     validations,
+    paramDocs,
     url,
     queryParams: Object.keys(queryParams).length > 0 ? queryParams : null,
     requestBody: Object.keys(requestBody).length > 0 ? requestBody : null,
@@ -106,7 +122,56 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
           hasSchema: true,
         }
       : null,
+    returnType,
+    returnDescription,
   };
+}
+
+/**
+ * Convert an OpenAPI schema to a Luau type annotation (best-effort)
+ * @param {Object} schema
+ * @returns {string}
+ */
+function openApiSchemaToLuauType(schema) {
+  if (!schema) return "any";
+
+  // Enum -> union of string literal types
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    const values = schema.enum.map((v) => JSON.stringify(String(v)));
+    return values.join(" | ");
+  }
+
+  if (schema.oneOf || schema.anyOf || schema.allOf) {
+    // Simplify composite schemas
+    const list = schema.oneOf || schema.anyOf || schema.allOf || [];
+    if (list.length > 0) {
+      return list.map((s) => openApiSchemaToLuauType(s)).join(" | ");
+    }
+  }
+
+  switch (schema.type) {
+    case "string":
+      if (schema.format === "date-time" || schema.format === "date")
+        return "string";
+      return "string";
+    case "integer":
+    case "number":
+      return "number";
+    case "boolean":
+      return "boolean";
+    case "array":
+      return `${openApiSchemaToLuauType(schema.items || { type: "any" })}[]`;
+    case "object":
+      if (schema.properties) {
+        const fields = Object.entries(schema.properties).map(([k, v]) => {
+          return `${k}: ${openApiSchemaToLuauType(v)}`;
+        });
+        return `{ ${fields.join(", ")} }`;
+      }
+      return "{ [any]: any }";
+    default:
+      return "any";
+  }
 }
 
 /**
