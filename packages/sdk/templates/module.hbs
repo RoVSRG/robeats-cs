@@ -8,6 +8,14 @@ local API_KEY = _G.ROBEATS_API_KEY or error("API_KEY not set. Set _G.ROBEATS_API
 
 local {{moduleName}} = {}
 
+{{#if typeAliases}}
+-- Type Aliases
+{{#each typeAliases}}
+export type {{aliasName}} = {{definition}}
+{{/each}}
+
+{{/if}}
+
 {{#each methods}}
 {{> method}}
 

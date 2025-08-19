@@ -107,7 +107,8 @@ local getYourScores = Function.create(function(player)
 end)
 
 local getGlobalLeaderboard = Function.create(function(player)
-	local result = SDK.Players.getTop()
+	local result = SDK.Players.getPlayersTop()
+
 	return result
 end)
 

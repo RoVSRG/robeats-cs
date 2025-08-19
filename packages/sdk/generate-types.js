@@ -54,6 +54,7 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
   const params = [];
   const validations = [];
   const paramDocs = [];
+  const paramSigParts = [];
 
   // Add all parameters to the method signature
   for (const param of parameters.allParams) {
@@ -74,6 +75,16 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
       description: param.description || undefined,
       required: param.required || false,
     });
+
+    // Build signature part with Luau typing if available
+    const luauType = openApiSchemaToLuauType(param.schema);
+    if (luauType && luauType !== "any") {
+      paramSigParts.push(
+        `${param.name}: ${luauType}${param.required ? "" : "?"}`
+      );
+    } else {
+      paramSigParts.push(param.name);
+    }
   }
 
   // Build query parameters object
@@ -112,6 +123,7 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
     params,
     validations,
     paramDocs,
+    signatureParams: paramSigParts.join(", "),
     url,
     queryParams: Object.keys(queryParams).length > 0 ? queryParams : null,
     requestBody: Object.keys(requestBody).length > 0 ? requestBody : null,
@@ -124,6 +136,7 @@ function buildMethodDataFromOpenAPI(moduleName, endpoint) {
       : null,
     returnType,
     returnDescription,
+    returnTypeAnnotation: returnType ? (returnType ? null : null) : null,
   };
 }
 
@@ -164,7 +177,12 @@ function openApiSchemaToLuauType(schema) {
     case "object":
       if (schema.properties) {
         const fields = Object.entries(schema.properties).map(([k, v]) => {
-          return `${k}: ${openApiSchemaToLuauType(v)}`;
+          // Optional property if not in required list
+          const opt =
+            Array.isArray(schema.required) && !schema.required.includes(k)
+              ? "?"
+              : "";
+          return `${k}${opt}: ${openApiSchemaToLuauType(v)}`;
         });
         return `{ ${fields.join(", ")} }`;
       }
@@ -226,10 +244,29 @@ function generateMethodName(method, path) {
  */
 async function generateSDKModuleFromOpenAPI(moduleName, endpoints) {
   const methods = [];
+  const typeAliasesMap = new Map();
 
   // Process each endpoint
   for (const endpoint of endpoints) {
     const methodData = buildMethodDataFromOpenAPI(moduleName, endpoint);
+
+    // Create a type alias for return type if available
+    if (methodData.returnType) {
+      const baseAlias = capitalize(methodData.name);
+      let aliasName = `${baseAlias}Response`;
+
+      // Ensure uniqueness if collisions
+      let counter = 2;
+      while (
+        typeAliasesMap.has(aliasName) &&
+        typeAliasesMap.get(aliasName) !== methodData.returnType
+      ) {
+        aliasName = `${baseAlias}Response${counter++}`;
+      }
+
+      typeAliasesMap.set(aliasName, methodData.returnType);
+      methodData.returnTypeAlias = aliasName;
+    }
     methods.push(methodData);
   }
 
@@ -241,6 +278,9 @@ async function generateSDKModuleFromOpenAPI(moduleName, endpoints) {
     moduleName,
     timestamp: new Date().toISOString(),
     methods,
+    typeAliases: Array.from(typeAliasesMap.entries()).map(
+      ([aliasName, definition]) => ({ aliasName, definition })
+    ),
   };
 
   return moduleTemplate(moduleData);

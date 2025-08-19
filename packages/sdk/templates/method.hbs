@@ -1,8 +1,8 @@
 {{#if paramDocs}}
 {{#each paramDocs}}-- @param {{name}} {{type}}{{#if required}} (required){{/if}}{{#if description}} - {{{description}}}{{/if}}
 {{/each}}{{/if}}
-{{#if returnType}}-- @return {{returnType}}{{#if returnDescription}} - {{{returnDescription}}}{{/if}}{{/if}}
-function {{moduleName}}.{{name}}({{#each params}}{{this}}{{#unless @last}}, {{/unless}}{{/each}})
+{{#if returnTypeAlias}}-- @return {{returnTypeAlias}}{{#if returnDescription}} - {{{returnDescription}}}{{/if}}{{/if}}
+function {{moduleName}}.{{name}}({{#if signatureParams}}{{signatureParams}}{{else}}{{#each params}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}){{#if returnTypeAlias}}: {{returnTypeAlias}}{{/if}}
 {{#each validations}}
 	{{{this}}}
 {{/each}}
@@ -31,8 +31,9 @@ function {{moduleName}}.{{name}}({{#each params}}{{this}}{{#unless @last}}, {{/u
 
 	local response = Http.{{httpMethod}}(config.url, config)
 
-	if not response.success then
-		error("Failed to {{name}}: " .. tostring(response.body))
+	if not response.success or (response.statusCode and response.statusCode ~= 200) then
+		local bodyStr = response.body and tostring(response.body) or "<no body>"
+		error("HTTP " .. tostring(response.statusCode) .. " while calling {{name}}: " .. bodyStr)
 	end
 
 	return response.json()
