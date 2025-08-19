@@ -80,7 +80,7 @@ local function processDevChild(child: any, basePath: string): boolean
 	-- Clean up orphaned directories
 	print("🧹 Cleaning up orphaned directories...")
 	local instancePath = Paths.buildInstancePath(targetPath, childName)
-	local cleanupResult = Cleanup.cleanOrphanedDirectories(childClone, instancePath)
+	local cleanupResult = Cleanup.cleanOrphanedDirectories(child, instancePath)
 	
 	if #cleanupResult.errors > 0 then
 		print(string.format("⚠️ Cleanup had %d errors for %s", #cleanupResult.errors, childName))

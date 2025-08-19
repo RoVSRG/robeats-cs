@@ -12,7 +12,7 @@ local Cleanup = {}
 export type CleanupResult = {
 	deleted: { string },
 	skipped: { string },
-	errors: { string }
+	errors: { string },
 }
 
 -- Create a new cleanup result
@@ -20,7 +20,7 @@ local function newCleanupResult(): CleanupResult
 	return {
 		deleted = {},
 		skipped = {},
-		errors = {}
+		errors = {},
 	}
 end
 
@@ -53,27 +53,27 @@ end
 -- Get all directories in a target path
 local function getDirectoriesInPath(targetDir: string): { string }
 	local directories = {}
-	
+
 	if not fs.isDir(targetDir) then
 		return directories
 	end
-	
+
 	local success, entries = pcall(function()
 		return fs.readDir(targetDir)
 	end)
-	
+
 	if not success then
 		logCleanupAction("ERROR", targetDir, "Failed to read directory")
 		return directories
 	end
-	
+
 	for _, entry in entries do
 		local entryPath = targetDir .. "/" .. entry
 		if fs.isDir(entryPath) then
 			table.insert(directories, entry)
 		end
 	end
-	
+
 	return directories
 end
 
@@ -82,7 +82,7 @@ local function safeRemoveDirectory(dirPath: string, result: CleanupResult): bool
 	local success, error = pcall(function()
 		fs.removeDir(dirPath)
 	end)
-	
+
 	if success then
 		table.insert(result.deleted, dirPath)
 		logCleanupAction("DELETED", dirPath, "orphaned directory")
@@ -97,22 +97,22 @@ end
 -- Clean orphaned directories in a target directory
 function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string): CleanupResult
 	local result = newCleanupResult()
-	
+
 	-- Safety check: only operate within the screens directory
 	if not Paths.isWithinScreensDir(targetDir) then
 		table.insert(result.errors, "Safety check failed: path outside screens directory")
 		logCleanupAction("SKIPPED", targetDir, "outside screens directory")
 		return result
 	end
-	
+
 	-- Check if target directory exists
 	if not fs.isDir(targetDir) then
 		logCleanupAction("SKIPPED", targetDir, "directory does not exist")
 		return result
 	end
-	
+
 	print(string.format("🔍 Scanning for orphaned directories in: %s", targetDir))
-	
+
 	-- Build set of valid names from instances
 	local validNames = buildValidNameSet(parentInstance)
 	local validCount = 0
@@ -120,11 +120,11 @@ function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string
 		validCount = validCount + 1
 	end
 	print(string.format("📊 Found %d valid instances in parent", validCount))
-	
+
 	-- Get all directories in target path
 	local fsDirectories = getDirectoriesInPath(targetDir)
 	print(string.format("📊 Found %d directories on filesystem", #fsDirectories))
-	
+
 	-- Check each directory
 	for _, dirName in fsDirectories do
 		if validNames[dirName] then
@@ -132,10 +132,10 @@ function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string
 			local correspondingInstance = validNames[dirName]
 			local subdirPath = targetDir .. "/" .. dirName
 			logCleanupAction("VALID", subdirPath, "has corresponding instance")
-			
+
 			-- Recursively clean subdirectories
 			local subResult = Cleanup.cleanOrphanedDirectories(correspondingInstance, subdirPath)
-			
+
 			-- Merge sub-results
 			for _, deleted in subResult.deleted do
 				table.insert(result.deleted, deleted)
@@ -150,20 +150,26 @@ function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string
 			-- Directory is orphaned - mark for deletion
 			local dirPath = targetDir .. "/" .. dirName
 			logCleanupAction("ORPHANED", dirPath, "no corresponding instance")
-			
+
 			-- Attempt to remove the orphaned directory
 			safeRemoveDirectory(dirPath, result)
 		end
 	end
-	
+
 	-- Summary
 	if #result.deleted > 0 or #result.skipped > 0 or #result.errors > 0 then
-		print(string.format("🧹 Cleanup summary - Deleted: %d, Skipped: %d, Errors: %d", 
-			#result.deleted, #result.skipped, #result.errors))
+		print(
+			string.format(
+				"🧹 Cleanup summary - Deleted: %d, Skipped: %d, Errors: %d",
+				#result.deleted,
+				#result.skipped,
+				#result.errors
+			)
+		)
 	else
 		print("✅ No orphaned directories found")
 	end
-	
+
 	return result
 end
 
@@ -175,14 +181,14 @@ function Cleanup.printResults(result: CleanupResult)
 			print("  " .. path)
 		end
 	end
-	
+
 	if #result.skipped > 0 then
 		print("⏭️ Skipped directories:")
 		for _, path in result.skipped do
 			print("  " .. path)
 		end
 	end
-	
+
 	if #result.errors > 0 then
 		print("❌ Errors:")
 		for _, error in result.errors do
