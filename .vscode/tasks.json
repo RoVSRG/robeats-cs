@@ -5,7 +5,7 @@
       "label": "Two-Way Sync",
       "type": "shell",
       "command": "lune",
-      "args": ["run", "scripts/studio-watcher.luau"],
+      "args": ["run", "scripts/watcher"],
       "group": {
         "kind": "build",
         "isDefault": true
