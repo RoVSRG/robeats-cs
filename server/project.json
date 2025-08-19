@@ -3,27 +3,6 @@
   "sourceRoot": "server/src",
   "projectType": "application",
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run build",
-        "cwd": "server"
-      }
-    },
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run dev",
-        "cwd": "server"
-      }
-    },
-    "start": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run start",
-        "cwd": "server"
-      }
-    },
     "lint": {
       "executor": "nx:run-commands",
       "options": {
@@ -52,7 +31,7 @@
         "cwd": "server"
       }
     },
-    "sdk-generate": {
+    "sdk:generate": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npm run sdk-generate",

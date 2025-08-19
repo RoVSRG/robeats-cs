@@ -66,6 +66,7 @@ export async function start(
   prisma: StartOptions['prisma'],
   valkey: StartOptions['valkey']
 ): Promise<void> {
+  console.log('Creating Fastify instance...');
   const app: FastifyInstance = fastify({
     // logger: true,
   });
@@ -211,12 +212,10 @@ export async function start(
     return reply.send({ status: 'ok1' });
   });
 
-  app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
-    if (err) {
-      app.log.error(err);
-      process.exit(1);
-    }
-    app.log.info(`Server listening at ${address}`);
+  try {
+    console.log('Attempting to start server on port 3000...');
+    const address = await app.listen({ port: 3000, host: '0.0.0.0' });
+    console.log(`✓ Server listening at ${address}`);
 
     // Start leaderboard seeding in background after server is ready
     Promise.resolve()
@@ -225,5 +224,8 @@ export async function start(
         const message = error instanceof Error ? error.message : String(error);
         console.error('Background seeding failed:', message);
       });
-  });
+  } catch (err) {
+    console.error('✗ Failed to start server:', err);
+    process.exit(1);
+  }
 }

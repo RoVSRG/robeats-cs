@@ -76,10 +76,14 @@ async function connectToValkey() {
       console.error('Failed to connect to Valkey:', message);
     }
 
+    console.log('Importing app module...');
     const { start } = await import('./app.js');
+    console.log('Starting application...');
     await start(prisma as any, valkey as any);
+    console.log('Application started successfully');
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error('Error connecting to the database:', message);
+    console.error('Error starting application:', message);
+    process.exit(1);
   }
 })();

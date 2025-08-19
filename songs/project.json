@@ -1,0 +1,12 @@
+{
+    "name": "songs",
+    "targets": {
+        "build": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "lune run songs/build.luau",
+                "cwd": ""
+            }
+        }
+    }
+}

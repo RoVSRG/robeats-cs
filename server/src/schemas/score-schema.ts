@@ -33,7 +33,7 @@ export const ScoreSchema = Type.Object({
   bad: Type.Number({ minimum: 0 }),
   miss: Type.Number({ minimum: 0 }),
   rate: Type.Number({ minimum: 70, maximum: 200 }),
-  created_at: Type.Date(),
+  created_at: Type.String({ format: 'date-time' }),
   mean: Type.Number(),
 });
 
@@ -62,7 +62,7 @@ export const LeaderboardEntrySchema = Type.Object({
   bad: Type.Number({ minimum: 0 }),
   miss: Type.Number({ minimum: 0 }),
   rate: Type.Number({ minimum: 70, maximum: 200 }),
-  created_at: Type.Date(),
+  created_at: Type.String({ format: 'date-time' }),
   mean: Type.Number(),
   player_id: Type.String(),
 });
@@ -96,7 +96,7 @@ export const ScoreWithHashSchema = Type.Object({
   bad: Type.Number({ minimum: 0 }),
   miss: Type.Number({ minimum: 0 }),
   rate: Type.Number({ minimum: 70, maximum: 200 }),
-  created_at: Type.Date(),
+  created_at: Type.String({ format: 'date-time' }),
   mean: Type.Number(),
   hash: Type.String(),
 });

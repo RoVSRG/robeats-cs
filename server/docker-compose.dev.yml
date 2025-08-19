@@ -1,6 +1,9 @@
 services:
   api:
     profiles: ["local"]
+    env_file:
+      - .env
+      - .env.local
     command: npm run dev
     volumes:
       - ./server:/app
