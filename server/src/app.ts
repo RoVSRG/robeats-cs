@@ -103,11 +103,11 @@ export async function start(
 
     // Extract Bearer token from Authorization header
     const authHeader = request.headers.authorization as string | undefined;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return reply.code(401).send({ 
-        success: false, 
-        error: 'Authorization header with Bearer token required' 
+      return reply.code(401).send({
+        success: false,
+        error: 'Authorization header with Bearer token required',
       });
     }
 
@@ -115,9 +115,9 @@ export async function start(
     const validApiKey = process.env.API_KEY;
 
     if (!token || token !== validApiKey) {
-      return reply.code(401).send({ 
-        success: false, 
-        error: 'Invalid authentication token' 
+      return reply.code(401).send({
+        success: false,
+        error: 'Invalid authentication token',
       });
     }
   });

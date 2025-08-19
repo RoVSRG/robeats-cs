@@ -30,7 +30,6 @@ model Score {
   hash       String
   score      Int       @default(0)
   accuracy   Float     @default(100)
-  combo      Int       @default(0)
   max_combo  Int       @default(0)
   marvelous  Int       @default(0)
   perfect    Int       @default(0)

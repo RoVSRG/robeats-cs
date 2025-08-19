@@ -10,12 +10,12 @@ import {
   getBestScore,
   getLeaderboard,
   getUserBestScores,
-  upsertPlayer,
-  updatePlayerRating,
   formatPlayerProfile,
   updateLeaderboard,
   getPlayerRank,
 } from '../queries/score.js';
+
+import { upsertPlayer, updatePlayerRating } from '../queries/player.js';
 
 import {
   LeaderboardQuerySchema,
@@ -28,10 +28,6 @@ import {
   LeaderboardEntrySchema,
   ScoreSchema,
 } from '../schemas/score-schema.js';
-
-import {
-  PlayerSchema,
-} from '../schemas/player-schema.js';
 
 import {
   ErrorResponseSchema,
@@ -50,8 +46,6 @@ const UserHistoryParamsSchema = Type.Object({
 type ScoreSubmissionRequest = Static<typeof ScoreSubmissionSchema>;
 type LeaderboardQuery = Static<typeof LeaderboardQuerySchema>;
 type UserBestScoresQuery = Static<typeof UserBestScoresQuerySchema>;
-type ScoreEntry = Static<typeof LeaderboardEntrySchema>;
-type PlayerProfile = Static<typeof PlayerSchema>;
 type UserHistoryParams = Static<typeof UserHistoryParamsSchema>;
 
 const scoresRoutes: FastifyPluginAsync<
@@ -149,7 +143,7 @@ const scoresRoutes: FastifyPluginAsync<
       },
     },
     async (req, reply) => {
-      const { user, payload } = req.body as ScoreSubmissionRequest;
+      const { user, payload, map } = req.body as ScoreSubmissionRequest;
 
       try {
         // Step 1: Ensure player exists
@@ -159,11 +153,10 @@ const scoresRoutes: FastifyPluginAsync<
         await prisma.score.create({
           data: {
             player_id: player.id,
-            hash: payload.hash,
+            hash: map.hash,
             score: payload.score,
             accuracy: payload.accuracy,
-            combo: payload.combo,
-            max_combo: payload.maxCombo,
+            max_combo: payload.max_combo,
             marvelous: payload.marvelous,
             perfect: payload.perfect,
             great: payload.great,

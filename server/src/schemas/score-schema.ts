@@ -21,6 +21,7 @@ export const GradeEnum = Type.Union([
 ]);
 
 export const ScoreSchema = Type.Object({
+  rating: Type.Number({ minimum: 0 }),
   score: Type.Number({ minimum: 0 }),
   accuracy: Type.Number({ minimum: 0, maximum: 100 }),
   grade: GradeEnum,
@@ -75,6 +76,9 @@ export const ScoreSubmissionSchema = Type.Object({
   user: Type.Object({
     userId: Type.Integer({ minimum: 1 }),
     name: Type.String({ minLength: 1 }),
+  }),
+  map: Type.Object({
+    hash: Type.String({ minLength: 1 }),
   }),
   payload: ScoreSchema,
 });
