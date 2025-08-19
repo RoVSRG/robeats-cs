@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env                      # shared defaults
+      - .env.${ENV:-local}        # pick .env.local by default; .env.prod in prod
+    environment:
+      # Passthrough: if env gives a URL, use it; else default to local services
+      DATABASE_URL: ${DATABASE_URL:-postgresql://robeats:robeats_password_change_in_production@db:5432/robeats}
+      VALKEY_URL:   ${VALKEY_URL:-redis://valkey:6379}
+      NODE_ENV:     ${NODE_ENV:-development}
+      PORT:         ${PORT:-3000}
+    ports:
+      - "3000:3000"
+    # Only depend on dev infra when the local profile is active
+    profiles: ["", "local"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', r=>process.exit(r.statusCode===200?0:1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  default:
+    name: robeats-network

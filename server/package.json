@@ -13,12 +13,16 @@
     "lint": "eslint src --ext .ts,.js --fix",
     "lint:check": "eslint src --ext .ts,.js",
     "test": "echo \"Warning: no tests specified\" && exit 0",
-    "docker": "docker-compose --profile dev up",
-    "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d",
-    "docker:down": "docker-compose --profile dev down && docker-compose -f docker-compose.yml -f docker-compose.prod.yml down",
-    "docker:reset": "docker-compose --profile dev down -v && docker-compose build --no-cache",
-    "docker:build-prod": "docker compose -f docker-compose.yml -f docker-compose.prod.yml build app",
-    "docker:refresh-prod": "npm run docker:build-prod && npm run docker:down && npm run docker:prod"
+    "dev:up": "docker compose --profile local up -d",
+    "dev:down": "docker compose --profile local down -v",
+    "dev:logs": "docker compose logs -f api",
+
+    "prod:up": "docker compose up -d",
+    "prod:down": "docker compose down",
+    "prod:rebuild": "docker compose up -d --build",
+
+    "db:migrate": "docker compose run --rm api npm run prisma:migrate-deploy",
+    "test:in-docker": "docker compose run --rm api npm test"
   },
   "keywords": [],
   "author": "",
