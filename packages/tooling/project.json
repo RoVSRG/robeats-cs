@@ -1,12 +1,22 @@
 {
-    "name": "tooling",
-    "targets": {
-        "watch": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "lune run packages/tooling/watcher",
-                "cwd": "."
-            }
-        }
+  "name": "tooling",
+  "sourceRoot": "packages/tooling",
+  "projectType": "library",
+  "targets": {
+    "watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "lune run watcher",
+        "cwd": "packages/tooling"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'Tooling package built'",
+        "cwd": "packages/tooling"
+      }
     }
+  },
+  "tags": ["scope:tooling", "type:library"]
 }

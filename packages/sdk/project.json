@@ -1,0 +1,24 @@
+{
+  "name": "sdk",
+  "sourceRoot": "packages/sdk/src",
+  "projectType": "library",
+  "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node src/generate-types.js",
+        "cwd": "packages/sdk"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["generate"],
+      "options": {
+        "command": "echo 'SDK generated successfully'",
+        "cwd": "packages/sdk"
+      },
+      "outputs": ["{projectRoot}/dist"]
+    }
+  },
+  "tags": ["scope:sdk", "type:library"]
+}
