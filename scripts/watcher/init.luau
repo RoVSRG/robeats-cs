@@ -9,5 +9,4 @@ local success = Watcher.startWatching()
 
 if not success then
 	print("❌ Failed to start watcher")
-	os.exit(1)
 end

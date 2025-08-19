@@ -36,17 +36,17 @@ end
 -- Build a set of valid filesystem names from instances
 local function buildValidNameSet(parentInstance: any): { [string]: any }
 	local validNames = {}
-	
+
 	for _, child in parentInstance:GetChildren() do
 		local sanitizedName = Encoding.sanitizeFilename(child.Name)
 		validNames[sanitizedName] = child
-		
+
 		-- Log the mapping for debugging
 		if sanitizedName ~= child.Name then
 			print(string.format("📋 Name mapping: '%s' -> '%s'", child.Name, sanitizedName))
 		end
 	end
-	
+
 	return validNames
 end
 
@@ -111,19 +111,11 @@ function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string
 		return result
 	end
 
-	print(string.format("🔍 Scanning for orphaned directories in: %s", targetDir))
-
 	-- Build set of valid names from instances
 	local validNames = buildValidNameSet(parentInstance)
-	local validCount = 0
-	for _ in pairs(validNames) do
-		validCount = validCount + 1
-	end
-	print(string.format("📊 Found %d valid instances in parent", validCount))
 
 	-- Get all directories in target path
 	local fsDirectories = getDirectoriesInPath(targetDir)
-	print(string.format("📊 Found %d directories on filesystem", #fsDirectories))
 
 	-- Check each directory
 	for _, dirName in fsDirectories do
@@ -131,7 +123,6 @@ function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string
 			-- Directory has a corresponding instance - recurse into it
 			local correspondingInstance = validNames[dirName]
 			local subdirPath = targetDir .. "/" .. dirName
-			logCleanupAction("VALID", subdirPath, "has corresponding instance")
 
 			-- Recursively clean subdirectories
 			local subResult = Cleanup.cleanOrphanedDirectories(correspondingInstance, subdirPath)
@@ -166,8 +157,6 @@ function Cleanup.cleanOrphanedDirectories(parentInstance: any, targetDir: string
 				#result.errors
 			)
 		)
-	else
-		print("✅ No orphaned directories found")
 	end
 
 	return result
