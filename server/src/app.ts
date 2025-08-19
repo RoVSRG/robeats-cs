@@ -87,27 +87,38 @@ export async function start(
     }
   });
 
-  // API Key middleware - check all requests for api_key query parameter
+  // API Key middleware - check all requests for Bearer token in Authorization header
   app.addHook('preHandler', async (request, reply) => {
-    // Skip API key check for the root health check endpoint (ignore query string)
+    // Skip API key check for public endpoints
     const pathOnly = request.url?.split('?')[0] || '';
-
-    console.log(pathOnly);
 
     if (
       pathOnly === '/' ||
       pathOnly.startsWith('/documentation') ||
       pathOnly.startsWith('/docs')
     ) {
-      request.log.info('Skipping API key check for health check endpoint');
+      request.log.info('Skipping API key check for public endpoint');
       return;
     }
 
-    const apiKey = (request.query as any).api_key as string | undefined;
+    // Extract Bearer token from Authorization header
+    const authHeader = request.headers.authorization as string | undefined;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return reply.code(401).send({ 
+        success: false, 
+        error: 'Authorization header with Bearer token required' 
+      });
+    }
+
+    const token = authHeader.slice(7); // Remove 'Bearer ' prefix
     const validApiKey = process.env.API_KEY;
 
-    if (!apiKey || apiKey !== validApiKey) {
-      return reply.code(404).send({ error: 'Not found' });
+    if (!token || token !== validApiKey) {
+      return reply.code(401).send({ 
+        success: false, 
+        error: 'Invalid authentication token' 
+      });
     }
   });
 
@@ -137,6 +148,21 @@ export async function start(
         {
           url: 'http://localhost:3000',
           description: 'Development server',
+        },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'API_KEY',
+            description: 'Enter your API key as a Bearer token',
+          },
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
         },
       ],
     },
