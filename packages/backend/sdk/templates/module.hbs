@@ -1,0 +1,15 @@
+-- Auto-generated {{moduleName}} SDK - DO NOT EDIT MANUALLY
+-- Generated at: {{timestamp}}
+
+local Http = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Http"))
+
+-- API Key configuration - Set this to your server API key
+local API_KEY = _G.ROBEATS_API_KEY or error("API_KEY not set. Set _G.ROBEATS_API_KEY before using SDK")
+
+local {{moduleName}} = {}
+
+{{#each methods}}
+{{> method}}
+
+{{/each}}
+return {{moduleName}}

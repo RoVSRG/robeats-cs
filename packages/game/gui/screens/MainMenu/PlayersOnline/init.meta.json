@@ -1,0 +1,83 @@
+{
+  "className": "TextLabel",
+  "properties": {
+    "AnchorPoint": [
+      1,
+      0
+    ],
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      1,
+      1,
+      1
+    ],
+    "BackgroundTransparency": 1,
+    "BorderColor3": [
+      0.10588236153125763,
+      0.16470588743686676,
+      0.20784315466880798
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Medium"
+    },
+    "Position": {
+      "UDim2": [
+        [
+          0.9900000095367432,
+          0
+        ],
+        [
+          0.9100000262260437,
+          0
+        ]
+      ]
+    },
+    "SelectionBehaviorDown": {
+      "Enum": 0
+    },
+    "SelectionBehaviorLeft": {
+      "Enum": 0
+    },
+    "SelectionBehaviorRight": {
+      "Enum": 0
+    },
+    "SelectionBehaviorUp": {
+      "Enum": 0
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.20000000298023224,
+          0
+        ],
+        [
+          0.029999999329447746,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Text": "20 players online",
+    "TextColor3": [
+      1,
+      1,
+      1
+    ],
+    "TextScaled": true,
+    "TextSize": 14,
+    "TextStrokeTransparency": 0.75,
+    "TextWrapped": true,
+    "TextXAlignment": {
+      "Enum": 1
+    }
+  }
+}

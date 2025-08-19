@@ -1,0 +1,65 @@
+{
+  "className": "Frame",
+  "properties": {
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.08235294371843338,
+      0.08235294371843338,
+      0.08235294371843338
+    ],
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "LayoutOrder": 1,
+    "Position": {
+      "UDim2": [
+        [
+          0,
+          0
+        ],
+        [
+          3.439635776203431e-8,
+          0
+        ]
+      ]
+    },
+    "SelectionBehaviorDown": {
+      "Enum": 0
+    },
+    "SelectionBehaviorLeft": {
+      "Enum": 0
+    },
+    "SelectionBehaviorRight": {
+      "Enum": 0
+    },
+    "SelectionBehaviorUp": {
+      "Enum": 0
+    },
+    "Size": {
+      "UDim2": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Tags": [
+      "Template"
+    ]
+  }
+}

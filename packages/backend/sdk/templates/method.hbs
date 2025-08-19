@@ -1,0 +1,36 @@
+-- {{{description}}}
+function {{moduleName}}.{{name}}({{#each params}}{{this}}{{#unless @last}}, {{/unless}}{{/each}})
+{{#each validations}}
+	{{{this}}}
+{{/each}}
+
+	local config = {
+		url = {{{url}}},
+		headers = {
+			Authorization = "Bearer " .. API_KEY,
+			["Content-Type"] = "application/json"
+		},
+{{#if queryParams}}
+		params = {
+{{#each queryParams}}
+			{{@key}} = tostring({{this}}),
+{{/each}}
+		},
+{{/if}}
+{{#if requestBody}}
+		json = {
+{{#each requestBody}}
+			{{@key}} = {{this}},
+{{/each}}
+		},
+{{/if}}
+	}
+
+	local response = Http.{{httpMethod}}(config.url, config)
+
+	if not response.success then
+		error("Failed to {{name}}: " .. tostring(response.body))
+	end
+
+	return response.json()
+end

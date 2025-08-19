@@ -1,0 +1,78 @@
+{
+  "className": "TextButton",
+  "properties": {
+    "Active": false,
+    "AutomaticSize": {
+      "Enum": 0
+    },
+    "BackgroundColor3": [
+      0.250980406999588,
+      0.760784387588501,
+      0.3529411852359772
+    ],
+    "BorderColor3": [
+      0,
+      0,
+      0
+    ],
+    "BorderMode": {
+      "Enum": 0
+    },
+    "BorderSizePixel": 0,
+    "FontFace": {
+      "family": "rbxasset://fonts/families/GothamSSm.json",
+      "style": "Normal",
+      "weight": "Medium"
+    },
+    "Position": {
+      "UDim2": [
+        [
+          0.01886792480945587,
+          0
+        ],
+        [
+          0.8867924809455872,
+          0
+        ]
+      ]
+    },
+    "SelectionBehaviorDown": {
+      "Enum": 0
+    },
+    "SelectionBehaviorLeft": {
+      "Enum": 0
+    },
+    "SelectionBehaviorRight": {
+      "Enum": 0
+    },
+    "SelectionBehaviorUp": {
+      "Enum": 0
+    },
+    "Size": {
+      "UDim2": [
+        [
+          0.37735849618911743,
+          0
+        ],
+        [
+          0.09433962404727936,
+          0
+        ]
+      ]
+    },
+    "SizeConstraint": {
+      "Enum": 0
+    },
+    "Style": {
+      "Enum": 0
+    },
+    "Text": "Transfer Host",
+    "TextColor3": [
+      0,
+      0,
+      0
+    ],
+    "TextSize": 12,
+    "Visible": false
+  }
+}

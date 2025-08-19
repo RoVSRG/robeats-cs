@@ -12,49 +12,49 @@
     },
 
     "ReplicatedStorage": {
-      "$path": "roblox/src/shared",
+      "$path": "packages/game/shared",
       "$ignoreUnknownInstances": true,
       "Remotes": {
         "$className": "Folder",
         "Events": {
           "$className": "Folder",
-          "$path": "roblox/src/remotes/events"
+          "$path": "packages/game/remotes/events"
         },
         "Functions": {
           "$className": "Folder",
-          "$path": "roblox/src/remotes/functions"
+          "$path": "packages/game/remotes/functions"
         }
       },
       "Skins": {
-        "$path": "roblox/src/skins"
+        "$path": "packages/skins"
       },
       "RobeatsGameCore": {
-        "$path": "roblox/src/engine"
+        "$path": "packages/game/engine"
       },
       "State": {
-        "$path": "roblox/src/state"
+        "$path": "packages/game/state"
       }
     },
 
     "ServerScriptService": {
-      "$path": "roblox/src/server"
+      "$path": "packages/game/server"
     },
 
     "ServerStorage": {
       "$ignoreUnknownInstances": true,
       "Plugins": {
         "$className": "Folder",
-        "$path": "roblox/plugins"
+        "$path": "packages/game/plugins"
       },
       "Songs": {
         "$className": "Folder",
-        "$path": "songs/dist"
+        "$path": "packages/songs/dist"
       }
     },
 
     "Workspace": {
       "$ignoreUnknownInstances": true,
-      "$path": "roblox/src/workspace",
+      "$path": "packages/game/workspace",
       "$properties": {
         "StreamingEnabled": false
       }
@@ -71,14 +71,14 @@
         "LoadCharacterAppearance": false
       },
       "StarterPlayerScripts": {
-        "$path": "roblox/src/client"
+        "$path": "packages/game/client"
       }
     },
 
     "StarterGui": {
       "$ignoreUnknownInstances": true,
       "Screens": {
-        "$path": "roblox/src/gui/screens",
+        "$path": "packages/game/gui/screens",
         "$ignoreUnknownInstances": false
       }
     }

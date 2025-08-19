@@ -1,0 +1,57 @@
+{
+  "className": "UIGradient",
+  "properties": {
+    "Color": {
+      "ColorSequence": {
+        "keypoints": [
+          {
+            "color": [
+              0.8509799838066101,
+              0.09803920239210129,
+              1
+            ],
+            "time": 0
+          },
+          {
+            "color": [
+              0.6117650270462036,
+              0.5450980067253113,
+              0.8274509906768799
+            ],
+            "time": 0.5
+          },
+          {
+            "color": [
+              0.34509798884391785,
+              0.784313976764679,
+              0.6941180229187012
+            ],
+            "time": 1
+          }
+        ]
+      }
+    },
+    "Enabled": true,
+    "Offset": [
+      0,
+      0
+    ],
+    "Rotation": 0,
+    "Transparency": {
+      "NumberSequence": {
+        "keypoints": [
+          {
+            "envelope": 0,
+            "time": 0,
+            "value": 0
+          },
+          {
+            "envelope": 0,
+            "time": 1,
+            "value": 0
+          }
+        ]
+      }
+    }
+  }
+}

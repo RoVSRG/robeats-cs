@@ -1,0 +1,33 @@
+{
+  "className": "UIListLayout",
+  "properties": {
+    "FillDirection": {
+      "Enum": 1
+    },
+    "HorizontalAlignment": {
+      "Enum": 1
+    },
+    "HorizontalFlex": {
+      "Enum": 2
+    },
+    "ItemLineAlignment": {
+      "Enum": 2
+    },
+    "Padding": {
+      "UDim": [
+        0.004999999888241291,
+        1
+      ]
+    },
+    "SortOrder": {
+      "Enum": 2
+    },
+    "VerticalAlignment": {
+      "Enum": 1
+    },
+    "VerticalFlex": {
+      "Enum": 4
+    },
+    "Wraps": false
+  }
+}

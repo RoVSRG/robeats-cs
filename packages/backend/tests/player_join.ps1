@@ -1,0 +1,1 @@
+http POST :3000/players/join userId:=1234567 name="kispy"

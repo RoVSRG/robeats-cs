@@ -1,0 +1,54 @@
+services:
+  api:
+    profiles: ["local"]
+    env_file:
+      - .env
+      - .env.local
+    command: npm run dev
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      db:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: robeats
+      POSTGRES_USER: robeats
+      POSTGRES_PASSWORD: robeats_password_change_in_production
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U robeats -d robeats"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    # Don’t expose 5432 unless you want host access
+    # ports:
+    #   - "5432:5432"
+    profiles: ["local"]
+
+  valkey:
+    image: valkey/valkey:7.2-alpine
+    command: valkey-server --appendonly yes --appendfsync everysec
+    restart: unless-stopped
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    # ports:
+    #   - "6379:6379"
+    profiles: ["local"]
+
+volumes:
+  pg_data:
+  valkey_data:
