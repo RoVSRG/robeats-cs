@@ -117,7 +117,7 @@ function Sync.pullFromDevContainer(dev: any): SyncResult
 		result.error = string.format(
 			"Invalid __BASEPATH format: %s. Expected: game.StarterGui.Screens.xxx (%s)",
 			basePath,
-			pathError
+			pathError or ""
 		)
 		return result
 	end

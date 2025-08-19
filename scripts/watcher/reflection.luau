@@ -9,6 +9,13 @@ function Reflection.getFullPropertySet(className: string)
 
 	local currentClass = reflectionDB:GetClass(className)
 
+	if not currentClass then
+		return {
+			properties = properties,
+			defaultProperties = defaults,
+		}
+	end
+
 	while currentClass.Superclass do
 		if currentClass.Name == "Instance" then
 			break
