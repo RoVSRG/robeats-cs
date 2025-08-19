@@ -1,10 +1,18 @@
 local sdkModule = script.Parent:FindFirstChild("_sdk_bin")
 
+local sdk = {}
+
 if not sdkModule then
 	warn(
 		"SDK module not found. Please run `npm run sdk:generate` to generate the SDK. Online features will be disabled."
 	)
-	return
+
+	sdk.online = false
+
+	return sdk
 end
 
-return require(sdkModule)
+sdk = require(sdkModule) :: any
+sdk.online = true
+
+return sdk
