@@ -4,8 +4,8 @@
     {
       "label": "Two-Way Sync",
       "type": "shell",
-      "command": "lune",
-      "args": ["run", "scripts/watcher"],
+      "command": "nx",
+      "args": ["run", "tooling/watch"],
       "group": {
         "kind": "build",
         "isDefault": true

@@ -1,0 +1,12 @@
+{
+    "name": "game",
+    "targets": {
+        "build": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "mkdir dist && rojo build default.project.json --output dist/robeats-cs-full.rbxl",
+                "cwd": ""
+            }
+        }
+    }
+}
