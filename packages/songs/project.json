@@ -6,10 +6,10 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "lune run build.luau",
-        "cwd": "packages/songs"
+        "command": "lune run packages/songs/build.luau",
+        "cwd": "."
       },
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{projectRoot}/packages/songs/dist"]
     },
     "clean": {
       "executor": "nx:run-commands",
