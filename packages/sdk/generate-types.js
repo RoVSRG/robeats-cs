@@ -5,35 +5,37 @@
  * This dynamically reads OpenAPI schemas and creates type-safe API wrappers
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import Handlebars from 'handlebars';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import Handlebars from "handlebars";
 import {
   fetchOpenApiSpec,
   groupEndpointsByTags,
   extractParameters,
   generateLuaValidation,
   buildLuaUrl,
-  extractResponseSchema
-} from './openapi-processor.js';
+  extractResponseSchema,
+} from "./openapi-processor.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const serverDir = path.resolve(__dirname, '..');
-const robloxDir = path.resolve(__dirname, '../../roblox');
+const robloxDir = path.resolve(__dirname, "../../packages/game");
 
 // Load and compile Handlebars templates
-const templatesDir = path.resolve(__dirname, 'templates');
+const templatesDir = path.resolve(__dirname, "templates");
 const validationsTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templatesDir, 'validations.hbs'), 'utf8')
+  fs.readFileSync(path.join(templatesDir, "validations.hbs"), "utf8")
 );
 const moduleTemplate = Handlebars.compile(
-  fs.readFileSync(path.join(templatesDir, 'module.hbs'), 'utf8')
+  fs.readFileSync(path.join(templatesDir, "module.hbs"), "utf8")
 );
 
 // Register the method template as a partial
-const methodTemplateSource = fs.readFileSync(path.join(templatesDir, 'method.hbs'), 'utf8');
-Handlebars.registerPartial('method', methodTemplateSource);
+const methodTemplateSource = fs.readFileSync(
+  path.join(templatesDir, "method.hbs"),
+  "utf8"
+);
+Handlebars.registerPartial("method", methodTemplateSource);
 
 /**
  * Build method data from OpenAPI operation for template rendering
@@ -44,62 +46,66 @@ Handlebars.registerPartial('method', methodTemplateSource);
 function buildMethodDataFromOpenAPI(moduleName, endpoint) {
   const { path, method, operation } = endpoint;
   const parameters = extractParameters(operation);
-  
+
   // Generate method name from operationId or path
-  const methodName = operation.operationId || 
-    generateMethodName(method, path);
-  
+  const methodName = operation.operationId || generateMethodName(method, path);
+
   // Build parameter list and validation code
   const params = [];
   const validations = [];
-  
+
   // Add all parameters to the method signature
   for (const param of parameters.allParams) {
     if (!params.includes(param.name)) {
       params.push(param.name);
     }
-    
+
     // Generate validation code for this parameter
     const validation = generateLuaValidation(param.name, param.schema);
-    if (validation && !validation.includes('-- No validation')) {
+    if (validation && !validation.includes("-- No validation")) {
       validations.push(validation);
     }
   }
-  
+
   // Build query parameters object
   const queryParams = {};
   for (const param of parameters.query) {
     queryParams[param.name] = param.name;
   }
-  
+
   // Build request body object
   const requestBody = {};
   if (parameters.body && parameters.body.schema?.properties) {
-    for (const [propName] of Object.entries(parameters.body.schema.properties)) {
+    for (const [propName] of Object.entries(
+      parameters.body.schema.properties
+    )) {
       requestBody[propName] = propName;
     }
   }
-  
+
   // Build URL with path parameter substitution
   const url = buildLuaUrl(path, parameters.path);
-  
+
   // Extract response information for documentation
   const responseSchema = extractResponseSchema(operation);
-  
+
   return {
     moduleName,
     name: methodName,
-    description: operation.summary || operation.description || `${method} ${path}`,
+    description:
+      operation.summary || operation.description || `${method} ${path}`,
     params,
     validations,
     url,
     queryParams: Object.keys(queryParams).length > 0 ? queryParams : null,
     requestBody: Object.keys(requestBody).length > 0 ? requestBody : null,
     httpMethod: method.toLowerCase(),
-    responseInfo: responseSchema ? {
-      description: responseSchema.description,
-      hasSchema: true
-    } : null
+    responseInfo: responseSchema
+      ? {
+          description: responseSchema.description,
+          hasSchema: true,
+        }
+      : null,
   };
 }
 
@@ -115,31 +121,36 @@ function generateMethodName(method, path) {
   // POST /players/join -> joinPlayer
   // GET /scores/leaderboard -> getScoresLeaderboard
   // POST /scores -> submitScore
-  
-  const segments = path.split('/').filter(Boolean);
-  
-  if (method.toLowerCase() === 'post' && segments.length === 2) {
+
+  const segments = path.split("/").filter(Boolean);
+
+  if (method.toLowerCase() === "post" && segments.length === 2) {
     // POST /players/join -> join
     return segments[1];
-  } else if (method.toLowerCase() === 'post' && segments.length === 1) {
+  } else if (method.toLowerCase() === "post" && segments.length === 1) {
     // POST /scores -> submit
-    return 'submit';
-  } else if (method.toLowerCase() === 'get' && segments.length > 1) {
+    return "submit";
+  } else if (method.toLowerCase() === "get" && segments.length > 1) {
     // GET /scores/leaderboard -> getLeaderboard
     // GET /players/top -> getTop
-    const action = segments.slice(1).map(capitalize).join('');
-    return 'get' + action;
-  } else if (method.toLowerCase() === 'get') {
+    const action = segments.slice(1).map(capitalize).join("");
+    return "get" + action;
+  } else if (method.toLowerCase() === "get") {
     // GET /players -> get
-    return 'get';
+    return "get";
   }
-  
+
   // Fallback: method + capitalized segments
-  return method.toLowerCase() + segments.map(s => {
-    // Skip path parameters in method name
-    if (s.startsWith('{') && s.endsWith('}')) return '';
-    return capitalize(s);
-  }).join('');
+  return (
+    method.toLowerCase() +
+    segments
+      .map((s) => {
+        // Skip path parameters in method name
+        if (s.startsWith("{") && s.endsWith("}")) return "";
+        return capitalize(s);
+      })
+      .join("")
+  );
 }
 
 /**
@@ -164,7 +175,7 @@ async function generateSDKModuleFromOpenAPI(moduleName, endpoints) {
   const moduleData = {
     moduleName,
     timestamp: new Date().toISOString(),
-    methods
+    methods,
   };
 
   return moduleTemplate(moduleData);
@@ -174,7 +185,8 @@ async function generateSDKModuleFromOpenAPI(moduleName, endpoints) {
  * Generate basic validation functions using template
  */
 function generateBasicValidations() {
-  return validationsTemplate() + '\\n\\n';
+  // Use real newlines so the generated Lua files don't contain literal \n characters
+  return validationsTemplate() + "\n\n";
 }
 
 /**
@@ -183,15 +195,15 @@ function generateBasicValidations() {
  * @returns {string} Main SDK module code
  */
 function generateMainSDK(moduleNames) {
-  let mainCode = `-- Auto-generated SDK - DO NOT EDIT MANUALLY\\n`;
-  mainCode += `-- Generated at: ${new Date().toISOString()}\\n\\n`;
-  mainCode += `local SDK = {}\\n\\n`;
+  let mainCode = `-- Auto-generated SDK - DO NOT EDIT MANUALLY\n`;
+  mainCode += `-- Generated at: ${new Date().toISOString()}\n\n`;
+  mainCode += `local SDK = {}\n\n`;
 
   for (const moduleName of moduleNames) {
-    mainCode += `SDK.${moduleName} = require(script.${moduleName})\\n`;
+    mainCode += `SDK.${moduleName} = require(script.${moduleName})\n`;
   }
 
-  mainCode += `\\nreturn SDK\\n`;
+  mainCode += `\nreturn SDK\n`;
   return mainCode;
 }
 
@@ -200,82 +212,85 @@ function generateMainSDK(moduleNames) {
  */
 async function generateSDK() {
   try {
-    console.log('🚀 Starting OpenAPI-based SDK generation...');
+    console.log("🚀 Starting OpenAPI-based SDK generation...");
 
     // Fetch OpenAPI specification from running server
-    const serverUrl = process.env.SERVER_URL || 'http://localhost:3000';
+    const serverUrl = process.env.SERVER_URL || "http://localhost:3000";
     let openApiSpec;
-    
+
     try {
       openApiSpec = await fetchOpenApiSpec(serverUrl);
     } catch (error) {
       console.error(error.message);
-      console.log('\\n💡 Troubleshooting:');
-      console.log('   1. Start the server: npm run dev');
-      console.log('   2. Wait for server to be ready');
-      console.log('   3. Run SDK generation: npm run sdk-generate');
-      console.log('   4. Or set SERVER_URL env var: SERVER_URL=http://other:port npm run sdk-generate');
+      console.log("\\n💡 Troubleshooting:");
+      console.log("   1. Start the server: npm run dev");
+      console.log("   2. Wait for server to be ready");
+      console.log("   3. Run SDK generation: npm run sdk-generate");
+      console.log(
+        "   4. Or set SERVER_URL env var: SERVER_URL=http://other:port npm run sdk-generate"
+      );
       process.exit(1);
     }
 
     // Create SDK output directory
-    const sdkDir = path.join(robloxDir, 'src', 'shared', 'SDK');
+    const sdkDir = path.join(robloxDir, "shared", "_sdk_bin");
     fs.mkdirSync(sdkDir, { recursive: true });
     console.log(`📁 SDK output directory: ${sdkDir}`);
 
     // Group endpoints by tags/modules
     const moduleGroups = groupEndpointsByTags(openApiSpec);
-    
+
     if (Object.keys(moduleGroups).length === 0) {
-      console.warn('⚠️  No endpoints found to generate SDK');
+      console.warn("⚠️  No endpoints found to generate SDK");
       return;
     }
 
     // Generate SDK modules for each group
     for (const [moduleName, endpoints] of Object.entries(moduleGroups)) {
-      console.log(`🔧 Generating ${moduleName} module (${endpoints.length} endpoints)...`);
-      
+      console.log(
+        `🔧 Generating ${moduleName} module (${endpoints.length} endpoints)...`
+      );
+
       const sdkCode = await generateSDKModuleFromOpenAPI(moduleName, endpoints);
       const moduleCode = generateBasicValidations() + sdkCode;
 
       const modulePath = path.join(sdkDir, `${moduleName}.lua`);
       fs.writeFileSync(modulePath, moduleCode);
       console.log(`✅ Generated ${moduleName} SDK: ${modulePath}`);
-      
+
       // Log generated methods for each module
-      const methodNames = endpoints.map(e => 
-        e.operation.operationId || generateMethodName(e.method, e.path)
+      const methodNames = endpoints.map(
+        (e) => e.operation.operationId || generateMethodName(e.method, e.path)
       );
-      console.log(`   📋 Methods: ${methodNames.join(', ')}`);
+      console.log(`   📋 Methods: ${methodNames.join(", ")}`);
     }
 
     // Generate main SDK module
     const moduleNames = Object.keys(moduleGroups);
     const mainSDK = generateMainSDK(moduleNames);
-    const mainPath = path.join(sdkDir, 'init.lua');
+    const mainPath = path.join(sdkDir, "init.lua");
     fs.writeFileSync(mainPath, mainSDK);
     console.log(`✅ Generated main SDK: ${mainPath}`);
 
-    console.log('\\n🎉 OpenAPI-based SDK generation complete!');
-    console.log('\\n📚 Generated SDK structure:');
-    console.log('   📦 SDK/');
+    console.log("\n🎉 OpenAPI-based SDK generation complete!");
+    console.log("\n📚 Generated SDK structure:");
+    console.log("   📦 SDK/");
     for (const moduleName of moduleNames) {
       console.log(`   ├── ${moduleName}.lua`);
     }
-    console.log('   └── init.lua');
-    
-    console.log('\\n📝 Usage example:');
-    console.log('   local SDK = require(game.ReplicatedStorage.SDK)');
-    if (moduleNames.includes('Players')) {
+    console.log("   └── init.lua");
+
+    console.log("\\n📝 Usage example:");
+    console.log("   local SDK = require(game.ReplicatedStorage.SDK)");
+    if (moduleNames.includes("Players")) {
       console.log('   local profile = SDK.Players.get("12345")');
     }
-    if (moduleNames.includes('Scores')) {
-      console.log('   local success = SDK.Scores.submit(userInfo, scoreData)');
+    if (moduleNames.includes("Scores")) {
+      console.log("   local success = SDK.Scores.submit(userInfo, scoreData)");
     }
-    
   } catch (error) {
-    console.error('❌ Error generating SDK:', error);
-    console.error('Stack trace:', error.stack);
+    console.error("❌ Error generating SDK:", error);
+    console.error("Stack trace:", error.stack);
     process.exit(1);
   }
 }
@@ -298,4 +313,8 @@ if (scriptPath === runPath) {
   generateSDK();
 }
 
-export { generateSDK, buildMethodDataFromOpenAPI, generateSDKModuleFromOpenAPI };
+export {
+  generateSDK,
+  buildMethodDataFromOpenAPI,
+  generateSDKModuleFromOpenAPI,
+};
