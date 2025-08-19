@@ -8,6 +8,7 @@
     "prisma:generate": "prisma generate",
     "tsc:build": "tsc -b",
     "build": "npm run prisma:generate && tsc -b",
+    "sdk-generate": "node sdk/generate-types.js",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts,.js --fix",
     "lint:check": "eslint src --ext .ts,.js",

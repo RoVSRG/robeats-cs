@@ -148,6 +148,9 @@ const scoresRoutes: FastifyPluginAsync<
 
   app.get('/leaderboard', {
     schema: {
+      tags: ['Scores'],
+      summary: 'Get song leaderboard',
+      description: 'Get leaderboard for a specific song with user\'s best score',
       querystring: LeaderboardQuerySchema,
       response: {
         200: LeaderboardResponseSchema,
@@ -175,6 +178,9 @@ const scoresRoutes: FastifyPluginAsync<
   // User's best scores per song
   app.get('/user/best', {
     schema: {
+      tags: ['Scores'],
+      summary: 'Get user best scores',
+      description: 'Get user\'s best scores across all songs',
       querystring: UserBestScoresQuerySchema,
       response: {
         200: UserBestScoresResponseSchema,
@@ -198,6 +204,9 @@ const scoresRoutes: FastifyPluginAsync<
   // Submit score
   app.post('/', {
     schema: {
+      tags: ['Scores'],
+      summary: 'Submit score',
+      description: 'Submit a score for a song and update player rating',
       body: ScoreSubmissionSchema,
       response: {
         200: ScoreSubmissionResponseSchema,
@@ -293,6 +302,9 @@ const scoresRoutes: FastifyPluginAsync<
   // "Your scores" history
   app.get('/:playerId/:songKey', {
     schema: {
+      tags: ['Scores'],
+      summary: 'Get user score history',
+      description: 'Get user\'s score history for a specific song',
       params: UserHistoryParamsSchema,
       response: {
         200: UserHistoryResponseSchema,

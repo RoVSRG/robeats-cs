@@ -91,7 +91,14 @@ export async function start(
   app.addHook('preHandler', async (request, reply) => {
     // Skip API key check for the root health check endpoint (ignore query string)
     const pathOnly = request.url?.split('?')[0] || '';
-    if (pathOnly === '/') {
+
+    console.log(pathOnly);
+
+    if (
+      pathOnly === '/' ||
+      pathOnly.startsWith('/documentation') ||
+      pathOnly.startsWith('/docs')
+    ) {
       request.log.info('Skipping API key check for health check endpoint');
       return;
     }
@@ -158,17 +165,23 @@ export async function start(
       deepLinking: false,
     },
     uiHooks: {
-      onRequest: function (request: any, reply: any, next: any) { next() },
-      preHandler: function (request: any, reply: any, next: any) { next() }
+      onRequest: function (request: any, reply: any, next: any) {
+        next();
+      },
+      preHandler: function (request: any, reply: any, next: any) {
+        next();
+      },
     },
     staticCSP: true,
     transformStaticCSP: (header: any) => header,
-    transformSpecification: (swaggerObject: any, request: any, reply: any) => { return swaggerObject },
-    transformSpecificationClone: true
+    transformSpecification: (swaggerObject: any, request: any, reply: any) => {
+      return swaggerObject;
+    },
+    transformSpecificationClone: true,
   });
 
   app.get('/', async (_req, reply) => {
-    return reply.send({ status: 'ok1' });
+    return reply.send({ status: 'ok' });
   });
 
   app.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {

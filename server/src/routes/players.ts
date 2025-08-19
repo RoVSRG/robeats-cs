@@ -66,6 +66,9 @@ const playersRoutes: FastifyPluginAsync<
 
   app.post('/join', {
     schema: {
+      tags: ['Players'],
+      summary: 'Join player',
+      description: 'Register or update a player in the system',
       body: PlayerJoinSchema,
       response: {
         200: SuccessResponseSchema,
@@ -101,6 +104,9 @@ const playersRoutes: FastifyPluginAsync<
   // GET /players/top - top 100 players by rating, enriched with profile data
   app.get('/top', {
     schema: {
+      tags: ['Players'],
+      summary: 'Get top players',
+      description: 'Get top 100 players by rating with profile data',
       response: {
         200: PlayersTopResponseSchema,
         500: ErrorResponseSchema,
@@ -161,6 +167,9 @@ const playersRoutes: FastifyPluginAsync<
   // GET /players?userId=xxx - profile with calculated rank
   app.get('/', {
     schema: {
+      tags: ['Players'],
+      summary: 'Get player profile',
+      description: 'Get player profile with calculated rank',
       querystring: PlayerProfileQuerySchema,
       response: {
         200: PlayerProfileResponseSchema,
