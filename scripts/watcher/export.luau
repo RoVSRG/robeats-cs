@@ -11,7 +11,7 @@ local Export = {}
 
 -- Encode data to JSON with pretty formatting
 local function encodeJson(data: any): string
-	return serde.encode("json", data, { pretty = true })
+	return serde.encode("json", data, true)
 end
 
 -- Get instance properties for serialization
