@@ -1,0 +1,99 @@
+{
+  "name": "server",
+  "sourceRoot": "server/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run build",
+        "cwd": "server"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev",
+        "cwd": "server"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run start",
+        "cwd": "server"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run lint",
+        "cwd": "server"
+      }
+    },
+    "lint:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run lint:check",
+        "cwd": "server"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run test",
+        "cwd": "server"
+      }
+    },
+    "prisma:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run prisma:generate",
+        "cwd": "server"
+      }
+    },
+    "sdk-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run sdk-generate",
+        "cwd": "server"
+      }
+    },
+    "dev:up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev:up",
+        "cwd": "server"
+      }
+    },
+    "dev:down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev:down",
+        "cwd": "server"
+      }
+    },
+    "prod:up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run prod:up",
+        "cwd": "server"
+      }
+    },
+    "prod:down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run prod:down",
+        "cwd": "server"
+      }
+    },
+    "prod:rebuild": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run prod:rebuild",
+        "cwd": "server"
+      }
+    }
+  },
+  "tags": ["scope:server", "type:application"]
+}
