@@ -189,7 +189,39 @@ function Export.exportInstance(instance: any, targetDir: string): boolean
 		return false
 	end
 	
-	-- Process all children
+	-- Check for naming conflicts among children before processing
+	local nameConflicts = {}
+	local seenNames = {}
+	
+	for _, child in ipairs(instance:GetChildren()) do
+		local sanitizedName = Encoding.sanitizeFilename(child.Name)
+		
+		if seenNames[sanitizedName] then
+			-- Conflict detected
+			if not nameConflicts[sanitizedName] then
+				nameConflicts[sanitizedName] = { seenNames[sanitizedName] }
+			end
+			table.insert(nameConflicts[sanitizedName], child)
+		else
+			seenNames[sanitizedName] = child
+		end
+	end
+	
+	-- If conflicts exist, report them and abort to prevent filesystem corruption
+	if next(nameConflicts) then
+		print(string.format("🚨 NAMING CONFLICTS DETECTED in %s:", instance.Name))
+		for conflictName, conflictingInstances in pairs(nameConflicts) do
+			print(string.format("  ⚠️ Multiple instances with sanitized name '%s':", conflictName))
+			for _, conflictInstance in conflictingInstances do
+				print(string.format("    - %s (%s)", conflictInstance.Name, conflictInstance.ClassName))
+			end
+		end
+		print("🛑 ABORTING export and cleanup to prevent filesystem corruption!")
+		print("🔧 Please rename conflicting instances in Studio and try again.")
+		return false
+	end
+	
+	-- Process all children (no conflicts detected)
 	local childCount = 0
 	for _, child in ipairs(instance:GetChildren()) do
 		childCount = childCount + 1
