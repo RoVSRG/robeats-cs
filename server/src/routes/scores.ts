@@ -1,4 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import type { Static } from '@sinclair/typebox';
 
 import { calculateOverallRating } from '../calculator/rating.js';
 import { calculateAverageAccuracy } from '../calculator/accuracy.js';
@@ -15,11 +17,126 @@ import {
   updateLeaderboard,
   getPlayerRank,
 } from '../database/queries.js';
-import {
-  ScoreSubmissionSchema,
-  LeaderboardQuerySchema,
-  UserBestScoresQuerySchema,
-} from '../contracts/score-contracts.js';
+
+// Score Submission Schema
+const ScoreSubmissionSchema = Type.Object({
+  user: Type.Object({
+    userId: Type.Integer({ minimum: 1 }),
+    name: Type.String({ minLength: 1 }),
+  }),
+  payload: Type.Object({
+    hash: Type.String({ minLength: 1 }),
+    rate: Type.Number({ minimum: 70, maximum: 200 }),
+    score: Type.Integer({ minimum: 0 }),
+    accuracy: Type.Number({ minimum: 0, maximum: 100 }),
+    combo: Type.Integer({ minimum: 0 }),
+    maxCombo: Type.Integer({ minimum: 0 }),
+    marvelous: Type.Integer({ minimum: 0 }),
+    perfect: Type.Integer({ minimum: 0 }),
+    great: Type.Integer({ minimum: 0 }),
+    good: Type.Integer({ minimum: 0 }),
+    bad: Type.Integer({ minimum: 0 }),
+    miss: Type.Integer({ minimum: 0 }),
+    grade: Type.Union([Type.Literal('F'), Type.Literal('D'), Type.Literal('C'), Type.Literal('B'), Type.Literal('A'), Type.Literal('S'), Type.Literal('SS')]),
+    rating: Type.Number({ minimum: 0 }),
+    mean: Type.Number(),
+  }),
+});
+
+// Leaderboard Query Schema
+const LeaderboardQuerySchema = Type.Object({
+  hash: Type.String({ minLength: 1 }),
+  userId: Type.String({ pattern: '^\\d+$' }),
+});
+
+// User Best Scores Query Schema
+const UserBestScoresQuerySchema = Type.Object({
+  userId: Type.String({ pattern: '^\\d+$' }),
+});
+
+// Score Entry Schema (for leaderboard responses)
+const ScoreEntrySchema = Type.Object({
+  playerId: Type.String(),
+  name: Type.String(),
+  score: Type.Number(),
+  accuracy: Type.Number(),
+  grade: Type.String(),
+  rating: Type.Number(),
+  rank: Type.Number(),
+});
+
+// Player Profile Schema 
+const PlayerProfileResponseSchema = Type.Object({
+  userId: Type.Number(),
+  name: Type.String(),
+  rating: Type.Number(),
+  accuracy: Type.Union([Type.Number(), Type.Null()]),
+  playCount: Type.Union([Type.Number(), Type.Null()]),
+  rank: Type.Union([Type.Number(), Type.Null()]),
+});
+
+// Response schemas
+const SuccessResponseSchema = Type.Object({
+  success: Type.Boolean(),
+});
+
+const ScoreSubmissionResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  profile: PlayerProfileResponseSchema,
+});
+
+const LeaderboardResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  best: Type.Union([ScoreEntrySchema, Type.Null()]),
+  leaderboard: Type.Array(ScoreEntrySchema),
+});
+
+const UserBestScoresResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  scores: Type.Array(ScoreEntrySchema),
+});
+
+const UserHistoryResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  scores: Type.Array(Type.Object({
+    player_id: Type.String(),
+    hash: Type.String(),
+    score: Type.Number(),
+    accuracy: Type.Number(),
+    combo: Type.Number(),
+    max_combo: Type.Number(),
+    marvelous: Type.Number(),
+    perfect: Type.Number(),
+    great: Type.Number(),
+    good: Type.Number(),
+    bad: Type.Number(),
+    miss: Type.Number(),
+    grade: Type.String(),
+    rating: Type.Number(),
+    rate: Type.Number(),
+    mean: Type.Number(),
+    created_at: Type.String(),
+  })),
+});
+
+const ErrorResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  error: Type.String(),
+});
+
+// Path parameters schema
+const UserHistoryParamsSchema = Type.Object({
+  playerId: Type.String(),
+  songKey: Type.String(),
+});
+
+// Type definitions
+type ScoreSubmissionRequest = Static<typeof ScoreSubmissionSchema>;
+type LeaderboardQuery = Static<typeof LeaderboardQuerySchema>;
+type UserBestScoresQuery = Static<typeof UserBestScoresQuerySchema>;
+type ScoreEntry = Static<typeof ScoreEntrySchema>;
+type PlayerProfileResponse = Static<typeof PlayerProfileResponseSchema>;
+type UserHistoryParams = Static<typeof UserHistoryParamsSchema>;
 
 const scoresRoutes: FastifyPluginAsync<
   { prisma: PrismaClient; kv: any } & { prefix?: string }
@@ -29,19 +146,23 @@ const scoresRoutes: FastifyPluginAsync<
 
   const GLOBAL_LEADERBOARD_KEY = 'leaderboard:players:rating';
 
-  app.get('/leaderboard', async (req, reply) => {
-    const parsed = LeaderboardQuerySchema.safeParse((req as any).query);
-
-    if (!parsed.success) {
-      return reply.error(parsed.error.message || 'Validation failed', 400);
-    }
-
-    const { hash, userId } = parsed.data;
+  app.get('/leaderboard', {
+    schema: {
+      querystring: LeaderboardQuerySchema,
+      response: {
+        200: LeaderboardResponseSchema,
+        400: ErrorResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
+    const { hash, userId } = req.query as LeaderboardQuery;
+    const userIdNum = parseInt(userId);
 
     try {
       const [leaderboard, best] = await Promise.all([
         getLeaderboard(prisma, hash),
-        getBestScore(prisma, hash, userId),
+        getBestScore(prisma, hash, userIdNum),
       ]);
 
       return reply.success({ best, leaderboard });
@@ -52,17 +173,21 @@ const scoresRoutes: FastifyPluginAsync<
   });
 
   // User's best scores per song
-  app.get('/user/best', async (req, reply) => {
-    const parsed = UserBestScoresQuerySchema.safeParse((req as any).query);
-
-    if (!parsed.success) {
-      return reply.error(parsed.error.message || 'Validation failed', 400);
-    }
-
-    const { userId } = parsed.data;
+  app.get('/user/best', {
+    schema: {
+      querystring: UserBestScoresQuerySchema,
+      response: {
+        200: UserBestScoresResponseSchema,
+        400: ErrorResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
+    const { userId } = req.query as UserBestScoresQuery;
+    const userIdNum = parseInt(userId);
 
     try {
-      const result = await getUserBestScores(prisma, userId);
+      const result = await getUserBestScores(prisma, userIdNum);
       return reply.success({ scores: result });
     } catch (err: any) {
       (req as any).log.error(err);
@@ -71,14 +196,17 @@ const scoresRoutes: FastifyPluginAsync<
   });
 
   // Submit score
-  app.post('/', async (req, reply) => {
-    const parsed = ScoreSubmissionSchema.safeParse((req as any).body);
-
-    if (!parsed.success) {
-      return reply.error('Validation failed', 400);
-    }
-
-    const { user, payload } = parsed.data;
+  app.post('/', {
+    schema: {
+      body: ScoreSubmissionSchema,
+      response: {
+        200: ScoreSubmissionResponseSchema,
+        400: ErrorResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
+    const { user, payload } = req.body as ScoreSubmissionRequest;
 
     try {
       // Step 1: Ensure player exists
@@ -162,14 +290,17 @@ const scoresRoutes: FastifyPluginAsync<
     }
   }
 
-  // “Your scores” history
-  app.get<{
-    Params: { playerId: string; songKey: string };
-  }>('/:playerId/:songKey', async (req, reply) => {
-    const { playerId, songKey } = (req.params || {}) as {
-      playerId: string;
-      songKey: string;
-    };
+  // "Your scores" history
+  app.get('/:playerId/:songKey', {
+    schema: {
+      params: UserHistoryParamsSchema,
+      response: {
+        200: UserHistoryResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
+    const { playerId, songKey } = req.params as UserHistoryParams;
 
     try {
       const rows = await prisma.score.findMany({

@@ -2,6 +2,8 @@ import fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 // import './types/fastify.js';
 import fastifyCors from '@fastify/cors';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUI from '@fastify/swagger-ui';
 
 // Keep NodeNext-style explicit extensions for runtime ESM resolution
 import scoresRoutes from './routes/scores.js';
@@ -128,6 +130,41 @@ export async function start(
 
   await app.register(fastifyCors, {
     origin: true,
+  });
+
+  // Register Swagger plugin
+  await app.register(fastifySwagger, {
+    openapi: {
+      openapi: '3.0.0',
+      info: {
+        title: 'Robeats API',
+        description: 'API for Robeats score submission and leaderboards',
+        version: '1.0.0',
+      },
+      servers: [
+        {
+          url: 'http://localhost:3000',
+          description: 'Development server',
+        },
+      ],
+    },
+  });
+
+  // Register Swagger UI
+  await app.register(fastifySwaggerUI, {
+    routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'full',
+      deepLinking: false,
+    },
+    uiHooks: {
+      onRequest: function (request: any, reply: any, next: any) { next() },
+      preHandler: function (request: any, reply: any, next: any) { next() }
+    },
+    staticCSP: true,
+    transformStaticCSP: (header: any) => header,
+    transformSpecification: (swaggerObject: any, request: any, reply: any) => { return swaggerObject },
+    transformSpecificationClone: true
   });
 
   app.get('/', async (_req, reply) => {

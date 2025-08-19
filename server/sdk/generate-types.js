@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Generate Roblox Lua SDK from server API contracts
- * This dynamically reads Zod schemas and creates type-safe API wrappers
+ * Generate Roblox Lua SDK from server API Swagger/OpenAPI specification
+ * This dynamically reads OpenAPI schemas and creates type-safe API wrappers
  */
 
 import fs from 'fs';
@@ -10,10 +10,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Handlebars from 'handlebars';
 import {
-  introspectObjectSchema,
+  introspectOpenApiSchema,
   generateLuaValidation,
   convertEndpointPath,
-} from './schema-introspection.js';
+} from './openapi-introspection.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverDir = path.resolve(__dirname, '..');

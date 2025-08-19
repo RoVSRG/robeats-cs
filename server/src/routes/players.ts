@@ -1,4 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { Type } from '@sinclair/typebox';
+import type { Static } from '@sinclair/typebox';
 // import '../types/fastify.js';
 import type { PrismaClient } from '#prisma';
 import {
@@ -8,10 +10,52 @@ import {
   updateLeaderboard,
   getPlayerRank,
 } from '../database/queries.js';
-import {
-  PlayerJoinSchema,
-  PlayerProfileQuerySchema,
-} from '../contracts/player-contracts.js';
+
+// Player Join Schema
+const PlayerJoinSchema = Type.Object({
+  userId: Type.Integer({ minimum: 1 }),
+  name: Type.String({ minLength: 1 }),
+});
+
+// Player Profile Query Schema
+const PlayerProfileQuerySchema = Type.Object({
+  userId: Type.String({ pattern: '^\\d+$' }),
+});
+
+// Player Profile Response Schema
+const PlayerProfileSchema = Type.Object({
+  userId: Type.Number(),
+  name: Type.String(),
+  rating: Type.Number(),
+  accuracy: Type.Union([Type.Number(), Type.Null()]),
+  playCount: Type.Union([Type.Number(), Type.Null()]),
+  rank: Type.Union([Type.Number(), Type.Null()]),
+});
+
+// Response schemas
+const SuccessResponseSchema = Type.Object({
+  success: Type.Boolean(),
+});
+
+const PlayerProfileResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  profile: PlayerProfileSchema,
+});
+
+const PlayersTopResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  players: Type.Array(PlayerProfileSchema),
+});
+
+const ErrorResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  error: Type.String(),
+});
+
+// Type definitions
+type PlayerJoinRequest = Static<typeof PlayerJoinSchema>;
+type PlayerProfileQuery = Static<typeof PlayerProfileQuerySchema>;
+type PlayerProfile = Static<typeof PlayerProfileSchema>;
 
 const playersRoutes: FastifyPluginAsync<
   { prisma: PrismaClient; kv: any } & { prefix?: string }
@@ -20,13 +64,17 @@ const playersRoutes: FastifyPluginAsync<
   const kv = opts.kv || (app as any).valkey;
   const LEADERBOARD_KEY = 'leaderboard:players:rating';
 
-  app.post('/join', async (req, reply) => {
-    const parsed = PlayerJoinSchema.safeParse((req as any).body);
-    if (!parsed.success) {
-      return reply.error(parsed.error.message || 'Validation failed', 400);
-    }
-
-    const { userId, name } = parsed.data;
+  app.post('/join', {
+    schema: {
+      body: PlayerJoinSchema,
+      response: {
+        200: SuccessResponseSchema,
+        400: ErrorResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
+    const { userId, name } = req.body as PlayerJoinRequest;
 
     try {
       await upsertPlayer(prisma, userId, name);
@@ -51,7 +99,14 @@ const playersRoutes: FastifyPluginAsync<
   });
 
   // GET /players/top - top 100 players by rating, enriched with profile data
-  app.get('/top', async (req, reply) => {
+  app.get('/top', {
+    schema: {
+      response: {
+        200: PlayersTopResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
     try {
       const entries = await kv.zRangeWithScores(LEADERBOARD_KEY, 0, 99, {
         REV: true,
@@ -104,16 +159,22 @@ const playersRoutes: FastifyPluginAsync<
   });
 
   // GET /players?userId=xxx - profile with calculated rank
-  app.get('/', async (req, reply) => {
-    const parsed = PlayerProfileQuerySchema.safeParse((req as any).query);
-    if (!parsed.success) {
-      return reply.error(parsed.error.message || 'Validation failed', 400);
-    }
-
-    const userId = parseInt(parsed.data.userId);
+  app.get('/', {
+    schema: {
+      querystring: PlayerProfileQuerySchema,
+      response: {
+        200: PlayerProfileResponseSchema,
+        400: ErrorResponseSchema,
+        404: ErrorResponseSchema,
+        500: ErrorResponseSchema,
+      },
+    },
+  }, async (req, reply) => {
+    const { userId } = req.query as PlayerProfileQuery;
+    const userIdNum = parseInt(userId);
 
     try {
-      const profile = await getPlayerProfile(prisma, userId);
+      const profile = await getPlayerProfile(prisma, userIdNum);
       if (!profile) {
         return reply.error('Player not found', 404);
       }
@@ -121,7 +182,7 @@ const playersRoutes: FastifyPluginAsync<
       const rating = Number(profile.rating ?? 0);
       // Ensure leaderboard reflects current rating
       try {
-        await updateLeaderboard(kv, LEADERBOARD_KEY, userId, rating);
+        await updateLeaderboard(kv, LEADERBOARD_KEY, userIdNum, rating);
       } catch (e: any) {
         (req as any).log.error(
           e,
@@ -129,7 +190,7 @@ const playersRoutes: FastifyPluginAsync<
         );
       }
 
-      const rank = await getPlayerRank(kv, LEADERBOARD_KEY, userId);
+      const rank = await getPlayerRank(kv, LEADERBOARD_KEY, userIdNum);
 
       const safeProfile = formatPlayerProfile(profile);
       return reply.success({ profile: { ...safeProfile, rank } });
