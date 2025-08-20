@@ -1,12 +1,25 @@
 -- {{operation.summary}}{{#if operation.description}} - {{operation.description}}{{/if}}
+-- Path: {{operation.path}} ({{operation.method}})
+{{#if operation._configParams}}
+-- Params:
+{{#each operation._configParams}}
+--   {{this.name}} ({{this.from}}) : {{this.luaType}}{{#if this.required}} (required){{/if}}
+{{/each}}
+{{/if}}
 {{#if operation._responseTypeDecl}}
 {{operation._responseTypeDecl}}
 {{else}}
 type {{capitalize id}}Response = any -- fallback when schema unsupported
 {{/if}}
 
-function {{tag}}.{{id}}(config: any): {{capitalize id}}Response
-    config = config or {}
+{{#if operation._configTypeDecl}}
+{{operation._configTypeDecl}}
+function {{tag}}.{{id}}(config: {{operation._configTypeName}}): {{capitalize id}}Response
+    config = config or ({} :: any)
+{{else}}
+function {{tag}}.{{id}}(): {{capitalize id}}Response
+    local config = nil
+{{/if}}
     local path = "{{operation.path}}"
     -- Path params substitution
     {{#if operation.parameters}}

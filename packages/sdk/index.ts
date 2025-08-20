@@ -76,6 +76,10 @@ interface ExtendedOperation extends OperationObject {
     pathParams: { name: string; type: string; required: boolean }[];
   };
   _responseTypeDecl?: string;
+  _configTypeDecl?: string;
+  _configTypeName?: string;
+  _configParams?: { name: string; luaType: string; required: boolean; from: string }[];
+  _omitConfig?: boolean;
 }
 
 function getLuaFunction(
@@ -172,6 +176,36 @@ async function main() {
         }
       } catch (e) {
         // ignore
+      }
+      // Build config type from params + body
+      const configParams: { name: string; luaType: string; required: boolean; from: string }[] = [];
+      (operation.parameters || []).forEach((p) => {
+        configParams.push({
+          name: p.name,
+          luaType: getLuaTypeString(p.schema),
+          required: !!p.required,
+          from: p.in,
+        });
+      });
+      const bodySchema = (operation.requestBody as any)?.content?.["application/json"]?.schema as SchemaObject | undefined;
+      if (bodySchema) {
+        configParams.push({
+          name: "body",
+          luaType: getLuaTypeString(bodySchema),
+          required: !!(operation.requestBody as any)?.required,
+          from: "body",
+        });
+      }
+      if (configParams.length === 0) {
+        (operation as any)._omitConfig = true;
+      } else {
+        const configTypeName = `${opId}Config`;
+        (operation as any)._configTypeName = configTypeName;
+        (operation as any)._configParams = configParams;
+        const fields = configParams
+          .map((cp) => `  ${cp.name}: ${cp.luaType}${cp.required ? "" : "?"},`)
+          .join("\n");
+        (operation as any)._configTypeDecl = `type ${configTypeName} = {\n${fields}\n}`;
       }
       fnChunks.push(getLuaFunction(tag, opId, operation));
     }
