@@ -5,7 +5,7 @@
   "type": "module",
   "main": "generate-types.js",
   "scripts": {
-    "generate": "tsx generate-types.ts"
+    "generate": "tsx index.ts"
   },
   "dependencies": {
     "handlebars": "^4.7.8"

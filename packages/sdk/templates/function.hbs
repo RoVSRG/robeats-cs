@@ -1,0 +1,59 @@
+-- {{operation.summary}}{{#if operation.description}} - {{operation.description}}{{/if}}
+{{#if operation._responseTypeDecl}}
+{{operation._responseTypeDecl}}
+{{else}}
+type {{capitalize id}}Response = any -- fallback when schema unsupported
+{{/if}}
+
+function {{tag}}.{{id}}(config: any): {{capitalize id}}Response
+    config = config or {}
+    local path = "{{operation.path}}"
+    -- Path params substitution
+    {{#if operation.parameters}}
+    {{#each operation.parameters}}
+    {{#if (eq this.in "path")}}
+    do
+        local value = config["{{this.name}}"]; if value == nil then error("Missing required path param: {{this.name}}", 2) end
+    -- Replace {paramName} occurrences in the path
+    path = string.gsub(path, "{{brace this.name}}", tostring(value))
+    end
+    {{/if}}
+    {{/each}}
+    {{/if}}
+
+    local query = {}
+    {{#if operation.parameters}}
+    {{#each operation.parameters}}
+    {{#if (eq this.in "query")}}
+    do
+        local value = config["{{this.name}}"]
+        {{#if this.required}}if value == nil then error("Missing required query param: {{this.name}}", 2) end{{/if}}
+        if value ~= nil then query["{{this.name}}"] = tostring(value) end
+    end
+    {{/if}}
+    {{/each}}
+    {{/if}}
+
+    local body = nil
+    {{#if operation.requestBody}}
+    body = config.body
+    if body == nil {{#if operation.requestBody.required}}then error("Missing required request body", 2){{/if}} end
+    {{/if}}
+
+    local httpConfig = { params = query }
+    {{#if operation.requestBody}}
+    httpConfig.json = body
+    {{/if}}
+
+    local response = Http.{{operation.method}}(path, httpConfig)
+    if not response.success then
+        error("HTTP request failed ({{operation.method}} " .. path .. "): " .. tostring(response.status.code), 2)
+    end
+    local ok, decoded = pcall(function()
+        return response.json()
+    end)
+    if ok then
+        return decoded
+    end
+    return nil
+end

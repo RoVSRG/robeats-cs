@@ -49,6 +49,8 @@ export interface ResponseObject {
 }
 
 export interface OperationObject {
+  path: string;
+  method: "get" | "post" | "put" | "patch" | "delete" | "options" | "head";
   operationId?: string;
   description?: string;
   tags?: string[];
@@ -69,17 +71,6 @@ export interface OpenApiSpec {
   swagger?: string; // v2
   paths?: Record<string, PathItemObject>;
   // Additional fields ignored for now
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Derived Internal Types                                                    */
-/* -------------------------------------------------------------------------- */
-
-export interface GroupedEndpoint {
-  path: string;
-  method: HttpMethod;
-  description: string;
-  operation: OperationObject; // guaranteed to have operationId post-processing
 }
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -151,47 +142,9 @@ export async function fetchOpenApiSpec(
           `💡 Make sure the server is running with: npm run dev`
       );
     }
+
     throw new Error(`❌ Failed to fetch OpenAPI spec: ${error.message}`);
   }
-}
-
-/**
- * Group OpenAPI endpoints by tags to create SDK modules
- * @param {Object} openApiSpec - OpenAPI specification
- * @returns {Object} Grouped endpoints by module name
- */
-export function groupEndpointsByTags(openApiSpec: OpenApiSpec): EndpointGroups {
-  const groups: EndpointGroups = {};
-
-  if (!openApiSpec.paths) {
-    console.warn("⚠️  No paths found in OpenAPI specification");
-    return groups;
-  }
-
-  Object.entries(openApiSpec.paths).forEach(([path, data]) => {
-    if (!data) return;
-
-    (["get", "post", "put", "patch", "delete"] as const).forEach((method) => {
-      const operation = data[method];
-      if (!operation) return;
-
-      const moduleName = deriveModuleName(path, operation);
-
-      groups[moduleName] ||= [];
-      groups[moduleName].push({
-        path,
-        method: method.toUpperCase() as HttpMethod,
-        description: operation.description || "",
-        operation: {
-          ...operation,
-          operationId:
-            operation.operationId || generateOperationId(method, path),
-        },
-      });
-    });
-  });
-
-  return groups;
 }
 
 /**
@@ -200,7 +153,7 @@ export function groupEndpointsByTags(openApiSpec: OpenApiSpec): EndpointGroups {
  * @param {string} path - API path
  * @returns {string} Generated operation ID
  */
-function generateOperationId(method: string, path: string): string {
+export function generateOperationId(method: string, path: string): string {
   // Convert /players/join -> playersJoin, /scores/{id} -> scoresById
   const cleanPath = path
     .split("/")
@@ -220,109 +173,10 @@ function generateOperationId(method: string, path: string): string {
 }
 
 /**
- * Extract parameters from OpenAPI operation
- * @param {Object} operation - OpenAPI operation object
- * @returns {Object} Categorized parameters
- */
-export function extractParameters(
-  operation: OperationObject
-): ExtractedParametersResult {
-  const result: ExtractedParametersResult = {
-    path: [],
-    query: [],
-    body: null,
-    allParams: [],
-  };
-
-  // Extract path and query parameters
-  if (operation.parameters) {
-    operation.parameters.forEach((param) => {
-      const info: ExtractedParameterInfo = {
-        name: param.name,
-        type: param.schema?.type || "string",
-        required: !!param.required,
-        description: param.description,
-        schema: param.schema,
-      };
-      if (param.in === "path") {
-        result.path.push(info);
-        result.allParams.push(info);
-      } else if (param.in === "query") {
-        result.query.push(info);
-        result.allParams.push(info);
-      }
-    });
-  }
-
-  // Extract request body parameters
-  if (operation.requestBody?.content?.["application/json"]?.schema) {
-    const bodySchema =
-      operation.requestBody.content["application/json"]!.schema!;
-    result.body = {
-      schema: bodySchema,
-      required: operation.requestBody.required || false,
-    };
-
-    // If body has properties, add them to allParams for validation generation
-    if (bodySchema.properties) {
-      Object.entries(bodySchema.properties).forEach(
-        ([propName, propSchema]) => {
-          const s = propSchema as SchemaObject;
-          result.allParams.push({
-            name: propName,
-            type: s.type || "unknown",
-            required: bodySchema.required?.includes(propName) || false,
-            schema: s,
-            isBodyParam: true,
-          });
-        }
-      );
-    }
-  }
-
-  return result;
-}
-
-/**
  * Capitalize first letter of a string
  * @param {string} str - String to capitalize
  * @returns {string} Capitalized string
  */
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Extract response schema information from OpenAPI operation
- * @param {Object} operation - OpenAPI operation
- * @returns {Object|null} Response schema info
- */
-export function extractResponseSchema(
-  operation: OperationObject
-): ResponseSchemaInfo | null {
-  if (!operation.responses) return null;
-
-  // Look for 200 response first, then any 2xx response
-  const successResponse =
-    operation.responses["200"] ||
-    operation.responses["201"] ||
-    Object.values(operation.responses).find((r) => r && typeof r === "object");
-
-  if (!successResponse?.content?.["application/json"]?.schema) return null;
-
-  return {
-    schema: successResponse.content["application/json"]!.schema!,
-    description: successResponse.description,
-  };
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Small Pure Helpers                                                        */
-/* -------------------------------------------------------------------------- */
-
-function deriveModuleName(path: string, operation: OperationObject): string {
-  if (operation.tags && operation.tags.length)
-    return capitalize(operation.tags[0]);
-  const firstSegment = path.split("/").filter(Boolean)[0];
-  return firstSegment ? capitalize(firstSegment) : "Default";
 }
