@@ -113,7 +113,7 @@ local getGlobalLeaderboard = Function.create(function(player)
 end)
 
 local getProfile = Function.create(function(player)
-	local result = SDK.Players.getProfile(tostring(player.UserId))
+	local result = SDK.Players.getPlayers(tostring(player.UserId))
 	return result
 end)
 

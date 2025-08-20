@@ -33,7 +33,7 @@ local function loadApiKey()
 	local success, result = pcall(function()
 		return SECRETS:GetAsync("API_KEY")
 	end)
-	
+
 	if success and result then
 		API_KEY = result
 		apiKeyLoaded = true
@@ -44,15 +44,14 @@ end
 
 spawn(loadApiKey)
 
-local function withApiKey(params)
-	params = params or {}
-	
-	while not apiKeyLoaded do
-		wait()
+-- Ensure API key is loaded (blocking) before making a request
+local function ensureApiKey()
+	if apiKeyLoaded then
+		return
 	end
-	
-	params.api_key = API_KEY
-	return params
+	while not apiKeyLoaded do
+		task.wait()
+	end
 end
 
 local function encodeParams(params)
@@ -77,9 +76,10 @@ local function request(config, contentType)
 		url = withUrl(url)
 	end
 
-	local params = withApiKey(config.params)
-
-	url ..= encodeParams(params)
+	-- Append query params (auth no longer sent via query; only user-supplied params)
+	if config.params and next(config.params) then
+		url ..= encodeParams(config.params)
+	end
 	config.params = nil
 
 	local requestOptions = {
@@ -100,6 +100,12 @@ local function request(config, contentType)
 	end
 
 	requestOptions.Headers["Content-Type"] = contentType
+
+	-- Authorization header (Bearer token)
+	ensureApiKey()
+	if API_KEY then
+		requestOptions.Headers["Authorization"] = "Bearer " .. API_KEY
+	end
 
 	if config.json then
 		requestOptions.Body = HttpService:JSONEncode(config.json)

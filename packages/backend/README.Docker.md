@@ -17,6 +17,7 @@ This project now supports full containerization with seamless switching between 
 ## Quick Start
 
 ### Local Development (with local databases)
+
 ```bash
 # Start local containers (PostgreSQL + Valkey + App)
 npm run docker:local
@@ -32,11 +33,12 @@ npm run docker:local:down
 ```
 
 ### Production Mode (with DigitalOcean databases)
+
 ```bash
 # Start production container (connects to DO databases)
 npm run docker:prod
 
-# View logs  
+# View logs
 npm run docker:prod:logs
 
 # Stop container
@@ -44,6 +46,7 @@ npm run docker:prod:down
 ```
 
 ### Development with Hot Reload
+
 ```bash
 # Start with volume mounting for development
 npm run docker:local:dev
@@ -52,6 +55,7 @@ npm run docker:local:dev
 ## Available Scripts
 
 ### Simplified Commands
+
 - `npm run docker:local` - Start local development (PostgreSQL + Valkey + App)
 - `npm run docker:prod` - Start production (App only, connects to DO databases)
 - `npm run docker:dev` - Development mode with hot reload
@@ -62,24 +66,30 @@ npm run docker:local:dev
 - `npm run docker:db:migrate` - Run database migrations (auto-detects environment)
 
 ### Logging
+
 - `npm run docker:local:logs` - View local app logs
 - `npm run docker:prod:logs` - View production app logs
 
 ## Development Workflow
 
 ### Production Mode (Default)
+
 ```bash
 npm run docker:up
 ```
+
 Builds optimized container, persistent data.
 
 ### Development Mode
+
 ```bash
 npm run docker:dev
 ```
+
 Uses bind mounts for live code reloading.
 
 ### Database Operations
+
 ```bash
 # Run migrations
 npm run docker:db:migrate
@@ -113,6 +123,7 @@ API_KEY=your_secure_api_key_change_in_production
 ## Health Checks
 
 All services include health checks:
+
 - **postgres** - `pg_isready`
 - **valkey** - `valkey-cli ping`
 - **app** - HTTP GET to `/`
@@ -120,12 +131,14 @@ All services include health checks:
 ## Volumes
 
 Persistent data volumes:
+
 - `postgres_data` - Database files
 - `valkey_data` - Cache persistence (optional)
 
 ## Troubleshooting
 
 ### Container won't start
+
 ```bash
 # Check service status
 docker-compose ps
@@ -138,6 +151,7 @@ npm run docker:reset
 ```
 
 ### Database connection issues
+
 ```bash
 # Check PostgreSQL logs
 docker-compose logs postgres
@@ -147,6 +161,7 @@ docker-compose exec postgres pg_isready -U robeats
 ```
 
 ### Valkey connection issues
+
 ```bash
 # Check Valkey logs
 docker-compose logs valkey
@@ -156,6 +171,7 @@ docker-compose exec valkey valkey-cli ping
 ```
 
 ### App container issues
+
 ```bash
 # Check app logs
 npm run docker:logs
@@ -183,10 +199,11 @@ curl http://localhost:3000/
 # Expected: {"status":"ok"}
 ```
 
-For API testing with proper authentication, use the API_KEY from your .env file:
+For API testing with proper authentication, send the API key as a Bearer token:
 
 ```bash
-curl "http://localhost:3000/players/join?api_key=your_api_key_here" \
+curl "http://localhost:3000/players/join" \
+  -H "Authorization: Bearer your_api_key_here" \
   -H "Content-Type: application/json" \
   -d '{"userId":123,"name":"TestUser"}'
 ```
@@ -198,13 +215,13 @@ From the project root (`C:\Users\stirm\Projects\robeats-cs\`), you can use:
 ```bash
 # Server management from root
 npm run docker:local      # Start local development
-npm run docker:prod       # Start production 
+npm run docker:prod       # Start production
 npm run docker:dev        # Development with hot reload
 npm run docker:down       # Stop all containers (now works properly!)
 npm run docker:build      # Build containers
 npm run docker:reset      # Reset with fresh build
 
-# Database management from root  
+# Database management from root
 npm run docker:db:push    # Push schema (auto-detects environment)
 npm run docker:db:migrate # Run migrations (auto-detects environment)
 

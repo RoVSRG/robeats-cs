@@ -7,55 +7,57 @@ local GetYourScores = game:GetService("ReplicatedStorage").Remotes.Functions.Get
 local ScoreTemplate = ScreenChief:GetTemplates("YourScores"):FindFirstChild("Score")
 
 if not SongDatabase.IsLoaded then
-    SongDatabase.Loaded.Event:Wait()
+	SongDatabase.Loaded.Event:Wait()
 end
 
 local function getYourScores()
-    local response = GetYourScores:InvokeServer()
+	local response = GetYourScores:InvokeServer()
 
-    if not response.success then
-        warn(response.error)
-        return
-    end
+	print(response)
 
-    local list = script.Parent.List
-    for _, child in list:GetChildren() do
-        if child:IsA("Frame") then
-            child:Destroy()
-        end
-    end
+	if not response.success then
+		warn(response.error)
+		return
+	end
 
-    list.CanvasSize = UDim2.new(0, 0, 0, 0)
+	local list = script.Parent.List
+	for _, child in list:GetChildren() do
+		if child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
 
-    local result = response.result
-    local scores = result.scores
+	list.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-    local i = 0
+	local scores = response.result
 
-    for _, score in scores do
-        local song = SongDatabase:GetSongByKey(score.hash)
+	local i = 0
 
-        if not song then
-            continue
-        end
+	for _, score in scores do
+		local song = SongDatabase:GetSongByKey(score.hash)
 
-        i += 1
+		if not song then
+			continue
+		end
 
-        local scoreInstance = ScoreTemplate:Clone()
-        local songInfo = scoreInstance.SongInfo
+		i += 1
 
-        songInfo.ScoreData.ScoreString.Text = string.format("Rating: %0.2f | Score: %d | Accuracy: %0.2f%%", score.rating, score.score, score.accuracy)
-        songInfo.ScoreData.Rate.Text = string.format("%0.2fx", score.rate / 100)
-        songInfo.Song.Text = tostring(i) .. ". " .. song.SongName .. " - " .. song.ArtistName
+		local scoreInstance = ScoreTemplate:Clone()
+		local songInfo = scoreInstance.SongInfo
 
-        scoreInstance.Parent = list
+		songInfo.ScoreData.ScoreString.Text =
+			string.format("Rating: %0.2f | Score: %d | Accuracy: %0.2f%%", score.rating, score.score, score.accuracy)
+		songInfo.ScoreData.Rate.Text = string.format("%0.2fx", score.rate / 100)
+		songInfo.Song.Text = tostring(i) .. ". " .. song.SongName .. " - " .. song.ArtistName
 
-        list.CanvasSize += UDim2.new(0, 0, 0, scoreInstance.Size.Y.Offset + list.UIListLayout.Padding.Offset)
-    end
+		scoreInstance.Parent = list
+
+		list.CanvasSize += UDim2.new(0, 0, 0, scoreInstance.Size.Y.Offset + list.UIListLayout.Padding.Offset)
+	end
 end
 
 script.Parent.BackButton.MouseButton1Click:Connect(function()
-    ScreenChief:Switch("MainMenu")
+	ScreenChief:Switch("MainMenu")
 end)
 
 Time.setInterval(getYourScores, 60)

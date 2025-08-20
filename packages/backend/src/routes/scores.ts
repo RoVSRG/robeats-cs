@@ -115,8 +115,6 @@ const scoresRoutes: FastifyPluginAsync<
       try {
         const result = await getUserBestScores(prisma, userIdNum);
 
-        console.log(result);
-
         return result;
       } catch (err: any) {
         (req as any).log.error(err);

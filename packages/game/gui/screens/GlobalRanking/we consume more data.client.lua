@@ -29,8 +29,7 @@ local function refreshTopPlayers()
 
 	container.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-	local result = response.result
-	local players = result.players
+	local players = response.result
 
 	for i, player in players do
 		local slotInstance = SlotTemplate:Clone()

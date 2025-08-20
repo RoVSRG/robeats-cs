@@ -68,7 +68,7 @@ export async function start(
 ): Promise<void> {
   console.log('Creating Fastify instance...');
   const app: FastifyInstance = fastify({
-    // logger: true,
+    logger: true,
   });
 
   if (!valkey) {
