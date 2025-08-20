@@ -1,14 +1,122 @@
 /**
  * OpenAPI Specification Processing Utilities
- * Handles fetching and processing OpenAPI specs for SDK generation
+ * Simplified, typed helpers to fetch, inspect, and transform an OpenAPI spec
+ * for Lua SDK generation.
  */
+
+/* -------------------------------------------------------------------------- */
+/*  Core OpenAPI-ish Type Definitions (minimal subset we actually consume)    */
+/* -------------------------------------------------------------------------- */
+
+// NOTE: These are intentionally partial – only fields we use are modeled.
+// Extend incrementally as new needs arise.
+
+export interface SchemaObject {
+  type?: string;
+  enum?: (string | number)[];
+  properties?: Record<string, SchemaObject>;
+  required?: string[];
+  minimum?: number;
+  maximum?: number;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  items?: SchemaObject; // arrays (not used yet but handy)
+}
+
+export interface ParameterObject {
+  name: string;
+  in: "path" | "query" | "header" | "cookie";
+  required?: boolean;
+  description?: string;
+  schema?: SchemaObject;
+}
+
+export interface RequestBodyObject {
+  required?: boolean;
+  content?: {
+    "application/json"?: { schema?: SchemaObject };
+    [contentType: string]: { schema?: SchemaObject } | undefined;
+  };
+}
+
+export interface ResponseObject {
+  description?: string;
+  content?: {
+    "application/json"?: { schema?: SchemaObject };
+    [contentType: string]: { schema?: SchemaObject } | undefined;
+  };
+}
+
+export interface OperationObject {
+  operationId?: string;
+  description?: string;
+  tags?: string[];
+  parameters?: ParameterObject[];
+  requestBody?: RequestBodyObject;
+  responses?: Record<string, ResponseObject>;
+}
+
+export type PathItemObject = Partial<
+  Record<
+    "get" | "post" | "put" | "patch" | "delete" | "options" | "head",
+    OperationObject
+  >
+> & { [extension: string]: any };
+
+export interface OpenApiSpec {
+  openapi?: string; // v3
+  swagger?: string; // v2
+  paths?: Record<string, PathItemObject>;
+  // Additional fields ignored for now
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Derived Internal Types                                                    */
+/* -------------------------------------------------------------------------- */
+
+export interface GroupedEndpoint {
+  path: string;
+  method: HttpMethod;
+  description: string;
+  operation: OperationObject; // guaranteed to have operationId post-processing
+}
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+export interface EndpointGroups {
+  [moduleName: string]: GroupedEndpoint[];
+}
+
+export interface ExtractedParameterInfo {
+  name: string;
+  type: string;
+  required: boolean;
+  description?: string;
+  schema?: SchemaObject;
+  isBodyParam?: boolean;
+}
+
+export interface ExtractedParametersResult {
+  path: ExtractedParameterInfo[];
+  query: ExtractedParameterInfo[];
+  body: null | { schema: SchemaObject; required: boolean };
+  allParams: ExtractedParameterInfo[]; // union for validation generation
+}
+
+export interface ResponseSchemaInfo {
+  schema: SchemaObject;
+  description?: string;
+}
 
 /**
  * Fetch OpenAPI specification from a running server
  * @param {string} serverUrl - Base URL of the server (e.g., 'http://localhost:3000')
  * @returns {Promise<Object>} OpenAPI specification object
  */
-export async function fetchOpenApiSpec(serverUrl = "http://localhost:3000") {
+export async function fetchOpenApiSpec(
+  serverUrl = "http://localhost:3000"
+): Promise<OpenApiSpec> {
   const swaggerUrl = `${serverUrl}/docs/json`;
 
   try {
@@ -20,7 +128,7 @@ export async function fetchOpenApiSpec(serverUrl = "http://localhost:3000") {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const spec = await response.json();
+    const spec: OpenApiSpec = await response.json();
 
     if (!spec.openapi && !spec.swagger) {
       throw new Error(
@@ -52,54 +160,32 @@ export async function fetchOpenApiSpec(serverUrl = "http://localhost:3000") {
  * @param {Object} openApiSpec - OpenAPI specification
  * @returns {Object} Grouped endpoints by module name
  */
-export function groupEndpointsByTags(openApiSpec) {
-  const groups = {};
+export function groupEndpointsByTags(openApiSpec: OpenApiSpec): EndpointGroups {
+  const groups: EndpointGroups = {};
 
   if (!openApiSpec.paths) {
     console.warn("⚠️  No paths found in OpenAPI specification");
     return groups;
   }
 
-  for (const [path, pathItem] of Object.entries(openApiSpec.paths)) {
-    if (!pathItem || typeof pathItem !== "object") continue;
-
-    // Process each HTTP method for this path
-    for (const [method, operation] of Object.entries(pathItem)) {
-      if (!operation || typeof operation !== "object") continue;
-      if (
-        !["get", "post", "put", "patch", "delete"].includes(
-          method.toLowerCase()
-        )
-      )
-        continue;
-
-      // Use the first tag as the module name, or derive from path
-      let moduleName;
-      if (operation.tags && operation.tags.length > 0) {
-        moduleName = capitalize(operation.tags[0]);
-      } else {
-        // Derive module name from path (e.g., /players/join -> Players)
-        const pathSegments = path.split("/").filter(Boolean);
-        moduleName =
-          pathSegments.length > 0 ? capitalize(pathSegments[0]) : "Default";
-      }
-
-      if (!groups[moduleName]) {
-        groups[moduleName] = [];
-      }
-
+  Object.entries(openApiSpec.paths).forEach(([path, pathItem]) => {
+    if (!pathItem) return;
+    (["get", "post", "put", "patch", "delete"] as const).forEach((m) => {
+      const op = pathItem[m];
+      if (!op) return;
+      const moduleName = deriveModuleName(path, op);
+      groups[moduleName] ||= [];
       groups[moduleName].push({
         path,
-        method: method.toUpperCase(),
-        description: operation.description || "",
+        method: m.toUpperCase() as HttpMethod,
+        description: op.description || "",
         operation: {
-          ...operation,
-          operationId:
-            operation.operationId || generateOperationId(method, path),
+          ...op,
+          operationId: op.operationId || generateOperationId(m, path),
         },
       });
-    }
-  }
+    });
+  });
 
   console.log(
     `📂 Grouped endpoints into modules:`,
@@ -114,7 +200,7 @@ export function groupEndpointsByTags(openApiSpec) {
  * @param {string} path - API path
  * @returns {string} Generated operation ID
  */
-function generateOperationId(method, path) {
+function generateOperationId(method: string, path: string): string {
   // Convert /players/join -> playersJoin, /scores/{id} -> scoresById
   const cleanPath = path
     .split("/")
@@ -138,8 +224,10 @@ function generateOperationId(method, path) {
  * @param {Object} operation - OpenAPI operation object
  * @returns {Object} Categorized parameters
  */
-export function extractParameters(operation) {
-  const result = {
+export function extractParameters(
+  operation: OperationObject
+): ExtractedParametersResult {
+  const result: ExtractedParametersResult = {
     path: [],
     query: [],
     body: null,
@@ -148,28 +236,28 @@ export function extractParameters(operation) {
 
   // Extract path and query parameters
   if (operation.parameters) {
-    for (const param of operation.parameters) {
-      const paramInfo = {
+    operation.parameters.forEach((param) => {
+      const info: ExtractedParameterInfo = {
         name: param.name,
         type: param.schema?.type || "string",
-        required: param.required || false,
+        required: !!param.required,
         description: param.description,
         schema: param.schema,
       };
-
       if (param.in === "path") {
-        result.path.push(paramInfo);
-        result.allParams.push(paramInfo);
+        result.path.push(info);
+        result.allParams.push(info);
       } else if (param.in === "query") {
-        result.query.push(paramInfo);
-        result.allParams.push(paramInfo);
+        result.query.push(info);
+        result.allParams.push(info);
       }
-    }
+    });
   }
 
   // Extract request body parameters
   if (operation.requestBody?.content?.["application/json"]?.schema) {
-    const bodySchema = operation.requestBody.content["application/json"].schema;
+    const bodySchema =
+      operation.requestBody.content["application/json"]!.schema!;
     result.body = {
       schema: bodySchema,
       required: operation.requestBody.required || false,
@@ -177,17 +265,18 @@ export function extractParameters(operation) {
 
     // If body has properties, add them to allParams for validation generation
     if (bodySchema.properties) {
-      for (const [propName, propSchema] of Object.entries(
-        bodySchema.properties
-      )) {
-        result.allParams.push({
-          name: propName,
-          type: propSchema.type || "unknown",
-          required: bodySchema.required?.includes(propName) || false,
-          schema: propSchema,
-          isBodyParam: true,
-        });
-      }
+      Object.entries(bodySchema.properties).forEach(
+        ([propName, propSchema]) => {
+          const s = propSchema as SchemaObject;
+          result.allParams.push({
+            name: propName,
+            type: s.type || "unknown",
+            required: bodySchema.required?.includes(propName) || false,
+            schema: s,
+            isBodyParam: true,
+          });
+        }
+      );
     }
   }
 
@@ -200,14 +289,19 @@ export function extractParameters(operation) {
  * @param {Object} schema - OpenAPI schema
  * @returns {string} Lua validation code
  */
-export function generateLuaValidation(paramName, schema) {
+export function generateLuaValidation(
+  paramName: string,
+  schema?: SchemaObject
+): string {
   if (!schema) return `-- No validation for ${paramName}`;
 
-  const validations = [];
+  const validations: string[] = [];
 
   switch (schema.type) {
     case "string":
-      validations.push(`validateString(${paramName}, "${paramName}")`);
+      validations.push(
+        `assert(typeof(${paramName}) == "string", "${paramName} must be a string")`
+      );
       if (schema.minLength) {
         validations.push(
           `assert(string.len(${paramName}) >= ${schema.minLength}, "${paramName} must be at least ${schema.minLength} characters")`
@@ -228,6 +322,9 @@ export function generateLuaValidation(paramName, schema) {
 
     case "integer":
     case "number":
+      validations.push(
+        `assert(typeof(${paramName}) == "number", "${paramName} must be a number")`
+      );
       validations.push(`validateNumber(${paramName}, "${paramName}")`);
       if (schema.minimum !== undefined) {
         validations.push(
@@ -247,7 +344,9 @@ export function generateLuaValidation(paramName, schema) {
       break;
 
     case "boolean":
-      validations.push(`validateBoolean(${paramName}, "${paramName}")`);
+      validations.push(
+        `assert(typeof(${paramName}) == "boolean", "${paramName} must be a boolean")`
+      );
       break;
 
     case "object":
@@ -287,7 +386,7 @@ export function generateLuaValidation(paramName, schema) {
  * @param {string} pattern - Regular expression pattern
  * @returns {string} Escaped pattern for Lua
  */
-function escapePattern(pattern) {
+function escapePattern(pattern: string) {
   // Basic conversion from regex to Lua pattern
   // This is a simplified conversion - may need enhancement for complex patterns
   return pattern
@@ -301,7 +400,7 @@ function escapePattern(pattern) {
  * Convert a JS-style regex (subset) to a Lua pattern (best-effort)
  * Supports \d, \w, \s shorthands and basic anchors.
  */
-function regexToLuaPattern(pattern) {
+function regexToLuaPattern(pattern: string) {
   let p = pattern;
   // Remove leading ^ and trailing $ remain as-is (Lua uses same)
   // Translate common escapes
@@ -317,7 +416,10 @@ function regexToLuaPattern(pattern) {
  * @param {Array} pathParams - Path parameters
  * @returns {string} Lua string with parameter interpolation
  */
-export function buildLuaUrl(path, pathParams = []) {
+export function buildLuaUrl(
+  path: string,
+  pathParams: ExtractedParameterInfo[] = []
+) {
   if (!pathParams.length || !path.includes("{")) {
     return `"${path}"`;
   }
@@ -346,7 +448,7 @@ export function buildLuaUrl(path, pathParams = []) {
  * @param {string} str - String to capitalize
  * @returns {string} Capitalized string
  */
-function capitalize(str) {
+function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -355,7 +457,9 @@ function capitalize(str) {
  * @param {Object} operation - OpenAPI operation
  * @returns {Object|null} Response schema info
  */
-export function extractResponseSchema(operation) {
+export function extractResponseSchema(
+  operation: OperationObject
+): ResponseSchemaInfo | null {
   if (!operation.responses) return null;
 
   // Look for 200 response first, then any 2xx response
@@ -367,7 +471,18 @@ export function extractResponseSchema(operation) {
   if (!successResponse?.content?.["application/json"]?.schema) return null;
 
   return {
-    schema: successResponse.content["application/json"].schema,
+    schema: successResponse.content["application/json"]!.schema!,
     description: successResponse.description,
   };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Small Pure Helpers                                                        */
+/* -------------------------------------------------------------------------- */
+
+function deriveModuleName(path: string, operation: OperationObject): string {
+  if (operation.tags && operation.tags.length)
+    return capitalize(operation.tags[0]);
+  const firstSegment = path.split("/").filter(Boolean)[0];
+  return firstSegment ? capitalize(firstSegment) : "Default";
 }

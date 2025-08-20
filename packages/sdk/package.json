@@ -5,10 +5,13 @@
   "type": "module",
   "main": "generate-types.js",
   "scripts": {
-  "generate": "node generate-types.js"
+    "generate": "tsx generate-types.ts"
   },
   "dependencies": {
     "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
   },
   "keywords": [
     "roblox",
