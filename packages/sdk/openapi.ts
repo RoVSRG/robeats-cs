@@ -168,29 +168,29 @@ export function groupEndpointsByTags(openApiSpec: OpenApiSpec): EndpointGroups {
     return groups;
   }
 
-  Object.entries(openApiSpec.paths).forEach(([path, pathItem]) => {
-    if (!pathItem) return;
-    (["get", "post", "put", "patch", "delete"] as const).forEach((m) => {
-      const op = pathItem[m];
-      if (!op) return;
-      const moduleName = deriveModuleName(path, op);
+  Object.entries(openApiSpec.paths).forEach(([path, data]) => {
+    if (!data) return;
+
+    (["get", "post", "put", "patch", "delete"] as const).forEach((method) => {
+      const operation = data[method];
+      if (!operation) return;
+
+      const moduleName = deriveModuleName(path, operation);
+
       groups[moduleName] ||= [];
       groups[moduleName].push({
         path,
-        method: m.toUpperCase() as HttpMethod,
-        description: op.description || "",
+        method: method.toUpperCase() as HttpMethod,
+        description: operation.description || "",
         operation: {
-          ...op,
-          operationId: op.operationId || generateOperationId(m, path),
+          ...operation,
+          operationId:
+            operation.operationId || generateOperationId(method, path),
         },
       });
     });
   });
 
-  console.log(
-    `📂 Grouped endpoints into modules:`,
-    Object.keys(groups).join(", ")
-  );
   return groups;
 }
 
@@ -281,166 +281,6 @@ export function extractParameters(
   }
 
   return result;
-}
-
-/**
- * Generate Lua validation code from OpenAPI schema
- * @param {string} paramName - Parameter name
- * @param {Object} schema - OpenAPI schema
- * @returns {string} Lua validation code
- */
-export function generateLuaValidation(
-  paramName: string,
-  schema?: SchemaObject
-): string {
-  if (!schema) return `-- No validation for ${paramName}`;
-
-  const validations: string[] = [];
-
-  switch (schema.type) {
-    case "string":
-      validations.push(
-        `assert(typeof(${paramName}) == "string", "${paramName} must be a string")`
-      );
-      if (schema.minLength) {
-        validations.push(
-          `assert(string.len(${paramName}) >= ${schema.minLength}, "${paramName} must be at least ${schema.minLength} characters")`
-        );
-      }
-      if (schema.maxLength) {
-        validations.push(
-          `assert(string.len(${paramName}) <= ${schema.maxLength}, "${paramName} must be at most ${schema.maxLength} characters")`
-        );
-      }
-      if (schema.pattern) {
-        const luaPattern = regexToLuaPattern(schema.pattern);
-        validations.push(
-          `assert(string.match(${paramName}, "${luaPattern}"), "${paramName} format is invalid")`
-        );
-      }
-      break;
-
-    case "integer":
-    case "number":
-      validations.push(
-        `assert(typeof(${paramName}) == "number", "${paramName} must be a number")`
-      );
-      validations.push(`validateNumber(${paramName}, "${paramName}")`);
-      if (schema.minimum !== undefined) {
-        validations.push(
-          `assert(${paramName} >= ${schema.minimum}, "${paramName} must be >= ${schema.minimum}")`
-        );
-      }
-      if (schema.maximum !== undefined) {
-        validations.push(
-          `assert(${paramName} <= ${schema.maximum}, "${paramName} must be <= ${schema.maximum}")`
-        );
-      }
-      if (schema.type === "integer") {
-        validations.push(
-          `assert(${paramName} == math.floor(${paramName}), "${paramName} must be an integer")`
-        );
-      }
-      break;
-
-    case "boolean":
-      validations.push(
-        `assert(typeof(${paramName}) == "boolean", "${paramName} must be a boolean")`
-      );
-      break;
-
-    case "object":
-      validations.push(
-        `assert(type(${paramName}) == "table", "${paramName} must be a table")`
-      );
-      break;
-
-    default:
-      // Handle enums (TypeBox unions become enums in OpenAPI)
-      if (schema.enum && Array.isArray(schema.enum)) {
-        const enumValues = schema.enum.map((v) => `"${v}"`).join(", ");
-        validations.push(
-          `local validValues = {${schema.enum
-            .map((v) => `["${v}"]=true`)
-            .join(", ")}}`
-        );
-        validations.push(
-          `assert(validValues[${paramName}], "${paramName} must be one of: ${enumValues}")`
-        );
-      } else {
-        validations.push(
-          `-- TODO: Add validation for ${paramName} (${
-            schema.type || "unknown"
-          })`
-        );
-      }
-  }
-
-  return validations.length > 0
-    ? validations.join("\n\t")
-    : `-- No validation needed for ${paramName}`;
-}
-
-/**
- * Escape Lua pattern special characters
- * @param {string} pattern - Regular expression pattern
- * @returns {string} Escaped pattern for Lua
- */
-function escapePattern(pattern: string) {
-  // Basic conversion from regex to Lua pattern
-  // This is a simplified conversion - may need enhancement for complex patterns
-  return pattern
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\^/g, "^")
-    .replace(/\$/g, "$");
-}
-
-/**
- * Convert a JS-style regex (subset) to a Lua pattern (best-effort)
- * Supports \d, \w, \s shorthands and basic anchors.
- */
-function regexToLuaPattern(pattern: string) {
-  let p = pattern;
-  // Remove leading ^ and trailing $ remain as-is (Lua uses same)
-  // Translate common escapes
-  p = p.replace(/\\d/g, "%d").replace(/\\w/g, "%w").replace(/\\s/g, "%s");
-  // Escape any remaining unescaped quotes
-  p = p.replace(/"/g, '\\"');
-  return p;
-}
-
-/**
- * Build URL with path parameter substitution for Lua
- * @param {string} path - OpenAPI path with {param} syntax
- * @param {Array} pathParams - Path parameters
- * @returns {string} Lua string with parameter interpolation
- */
-export function buildLuaUrl(
-  path: string,
-  pathParams: ExtractedParameterInfo[] = []
-) {
-  if (!pathParams.length || !path.includes("{")) {
-    return `"${path}"`;
-  }
-
-  let luaUrl = path;
-
-  // Replace each path parameter with Lua string interpolation
-  for (const param of pathParams) {
-    const placeholder = `{${param.name}}`;
-    if (luaUrl.includes(placeholder)) {
-      luaUrl = luaUrl.replace(placeholder, `" .. tostring(${param.name}) .. "`);
-    }
-  }
-
-  // Clean up the string concatenation
-  luaUrl = `"${luaUrl}"`
-    .replace(/^"" \.\. /, "") // Remove empty string at start
-    .replace(/ \.\. ""$/, "") // Remove empty string at end
-    .replace(/" \.\. "/g, ""); // Remove unnecessary string breaks
-
-  return luaUrl;
 }
 
 /**
