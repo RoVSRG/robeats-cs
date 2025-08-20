@@ -63,29 +63,30 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	local scorePayload = payload.payload
 
 	local success, response = pcall(function()
-		return SDK.Scores.postScores(user, scorePayload)
+		return SDK.Scores.postScores({ body = {
+			user = user,
+			payload = scorePayload,
+		} })
 	end)
 
-	if success and response and response.success then
-		-- Immediate success - apply profile data
-		if response.profile then
-			Leaderstats.update(player, response.profile)
-			Events.PlayerUpdated:Fire(player, response.profile)
+	if success and response then
+		-- Backend returns profile merge (per spec); update stats if present
+		if response.rank ~= nil then
+			Leaderstats.update(player, response)
+			Events.PlayerUpdated:Fire(player, response)
 		end
 		print(player.Name .. " submitted a score (immediate)")
-	elseif success and response and not response.success then
-		-- Request succeeded but server returned error
-		-- Don't queue these as they likely won't succeed on retry
-		warn(string.format("Score submission failed for %s: %s", player.Name, response.error or "Unknown error"))
 	else
-		-- Network/connection failure - queue with callback for retry
-		Queue.addToQueue(SDK.Scores.submit, user, scorePayload, function(queuedResponse)
-			-- Callback when queued request succeeds
-			if queuedResponse and queuedResponse.success and queuedResponse.profile then
-				Events.PlayerUpdated:Fire(player, queuedResponse.profile)
+		-- Network/HTTP failure -> queue retry using same structure
+		Queue.addToQueue(function(u, p)
+			local ok2, res2 = pcall(function()
+				return SDK.Scores.postScores({ body = { user = u, payload = p } })
+			end)
+			if ok2 and res2 and res2.rank ~= nil then
+				Events.PlayerUpdated:Fire(player, res2)
 				print(player.Name .. " submitted a score (queued)")
 			end
-		end)
+		end, user, scorePayload)
 		print(player.Name .. " score submission queued (connection failed)")
 	end
 
@@ -97,12 +98,12 @@ local getLeaderboard = Function.create(function(player, hash)
 		error("Invalid hash provided for leaderboard retrieval by " .. player.Name)
 	end
 
-	local result = SDK.Scores.getScoresLeaderboard(hash, player.UserId)
+	local result = SDK.Scores.getScoresLeaderboard({ hash = hash, userId = tostring(player.UserId) })
 	return result
 end)
 
 local getYourScores = Function.create(function(player)
-	local result = SDK.Scores.getScoresUserBest(player.UserId)
+	local result = SDK.Scores.getScoresUserBest({ userId = tostring(player.UserId) })
 	return result
 end)
 
@@ -113,7 +114,7 @@ local getGlobalLeaderboard = Function.create(function(player)
 end)
 
 local getProfile = Function.create(function(player)
-	local result = SDK.Players.getPlayers(tostring(player.UserId))
+	local result = SDK.Players.getPlayers({ userId = tostring(player.UserId) })
 	return result
 end)
 
@@ -126,7 +127,9 @@ Remotes.Functions.GetProfile.OnServerInvoke = Protect.wrap(getProfile)
 game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
 
-	Queue.addToQueue(SDK.Players.join, player.UserId, player.Name)
+	Queue.addToQueue(function(userId, name)
+		SDK.Players.postPlayersJoin({ body = { userId = userId, name = name } })
+	end, player.UserId, player.Name)
 
 	print("Player " .. player.Name .. " has joined.")
 end)

@@ -14,9 +14,8 @@ local Leaderstats = require(game.ServerScriptService.Leaderstats)
 local Events = game.ServerScriptService.Events
 
 local function fetchProfile(player)
-	local response = SDK.Players.getPlayers(player.UserId)
-
-	return response.result
+	local profile = SDK.Players.getPlayers({ userId = tostring(player.UserId) })
+	return profile
 end
 
 GetSettings.OnServerInvoke = function(player)

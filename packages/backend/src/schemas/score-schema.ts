@@ -50,7 +50,14 @@ export const PlayerSchema = Type.Object({
 export const ScoreSubmissionResponseSchema = PlayerSchema;
 
 // Leaderboard entry with player information
+// NOTE: The original schema used `player_id` but the implementation returns
+// `user_id`, `player_name`, `hash`, and `rating`. Adjusted to match runtime data
+// to avoid serialization errors ("value of '#/properties/best' does not match schema definition").
 export const LeaderboardEntrySchema = Type.Object({
+  user_id: Type.Union([Type.String(), Type.Null()]),
+  player_name: Type.Union([Type.String(), Type.Null()]),
+  hash: Type.String({ minLength: 1 }),
+  rating: Type.Number({ minimum: 0 }),
   score: Type.Number({ minimum: 0 }),
   accuracy: Type.Number({ minimum: 0, maximum: 100 }),
   grade: GradeEnum,
@@ -64,7 +71,6 @@ export const LeaderboardEntrySchema = Type.Object({
   rate: Type.Number({ minimum: 70, maximum: 200 }),
   created_at: Type.String({ format: 'date-time' }),
   mean: Type.Number(),
-  player_id: Type.String(),
 });
 
 export const LeaderboardResponseSchema = Type.Object({

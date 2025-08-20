@@ -78,8 +78,15 @@ interface ExtendedOperation extends OperationObject {
   _responseTypeDecl?: string;
   _configTypeDecl?: string;
   _configTypeName?: string;
-  _configParams?: { name: string; luaType: string; required: boolean; from: string }[];
+  _configParams?: {
+    name: string;
+    luaType: string;
+    required: boolean;
+    from: string;
+  }[];
   _omitConfig?: boolean;
+  _responseTypeName?: string; // alias actually used in signature
+  _bodyValidation?: string; // lua code snippet for body validation
 }
 
 function getLuaFunction(
@@ -171,14 +178,26 @@ async function main() {
         const successSchema: SchemaObject | undefined =
           successResp?.content?.["application/json"].schema;
         if (successSchema) {
-          const typeDecl = buildLuaTypeDecl(`${opId}Response`, successSchema);
-          (operation as any)._responseTypeDecl = typeDecl;
+          const responseAlias = pascalCase(opId) + "Response";
+          const { decl, reusedName } = buildOrReuseType(
+            responseAlias,
+            successSchema
+          );
+          (operation as any)._responseTypeName = reusedName || responseAlias;
+          if (decl) {
+            (operation as any)._responseTypeDecl = decl;
+          }
+        } else {
+          (operation as any)._responseTypeName = pascalCase(opId) + "Response";
         }
-      } catch (e) {
-        // ignore
-      }
+      } catch {}
       // Build config type from params + body
-      const configParams: { name: string; luaType: string; required: boolean; from: string }[] = [];
+      const configParams: {
+        name: string;
+        luaType: string;
+        required: boolean;
+        from: string;
+      }[] = [];
       (operation.parameters || []).forEach((p) => {
         configParams.push({
           name: p.name,
@@ -187,7 +206,9 @@ async function main() {
           from: p.in,
         });
       });
-      const bodySchema = (operation.requestBody as any)?.content?.["application/json"]?.schema as SchemaObject | undefined;
+      const bodySchema = (operation.requestBody as any)?.content?.[
+        "application/json"
+      ]?.schema as SchemaObject | undefined;
       if (bodySchema) {
         configParams.push({
           name: "body",
@@ -195,17 +216,25 @@ async function main() {
           required: !!(operation.requestBody as any)?.required,
           from: "body",
         });
+        (operation as any)._bodyValidation = buildBodyValidation(
+          bodySchema,
+          !!(operation.requestBody as any)?.required
+        );
       }
       if (configParams.length === 0) {
         (operation as any)._omitConfig = true;
       } else {
-        const configTypeName = `${opId}Config`;
+        const configTypeName = pascalCase(opId) + "Config";
         (operation as any)._configTypeName = configTypeName;
         (operation as any)._configParams = configParams;
         const fields = configParams
-          .map((cp) => `  ${cp.name}: ${cp.luaType}${cp.required ? "" : "?"},`)
+          .map(
+            (cp) => `  ${cp.name}: ${cp.luaType}${cp.required ? "" : " | nil"},`
+          )
           .join("\n");
-        (operation as any)._configTypeDecl = `type ${configTypeName} = {\n${fields}\n}`;
+        (
+          operation as any
+        )._configTypeDecl = `type ${configTypeName} = {\n${fields}\n}`;
       }
       fnChunks.push(getLuaFunction(tag, opId, operation));
     }
@@ -254,7 +283,9 @@ function buildLuaTypeDecl(name: string, schema: SchemaObject): string {
             ? propName
             : `['${propName}']`;
           const luaType = walk(propSchema);
-          const optional = required.has(propName) ? luaType : `${luaType}?`;
+          const optional = required.has(propName)
+            ? luaType
+            : `${luaType} | nil`;
           lines.push(`  ${safeKey}: ${optional},`);
         }
         lines.push("}");
@@ -265,4 +296,115 @@ function buildLuaTypeDecl(name: string, schema: SchemaObject): string {
     }
   }
   return `type ${capitalizeLocal(name)} = ${walk(schema)}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Type Registry & Helpers for Reuse                                        */
+/* -------------------------------------------------------------------------- */
+const typeRegistry = new Map<string, string>(); // shapeKey -> alias
+
+function pascalCase(str: string) {
+  return str.replace(/(^|[^A-Za-z0-9]+)([A-Za-z0-9])/g, (_, __, c) =>
+    c.toUpperCase()
+  );
+}
+
+function buildOrReuseType(
+  alias: string,
+  schema: SchemaObject
+): { decl: string | null; reusedName?: string } {
+  const shapeKey = computeShapeKey(schema);
+  const existing = typeRegistry.get(shapeKey);
+  if (existing) {
+    return { decl: null, reusedName: existing };
+  }
+  typeRegistry.set(shapeKey, alias);
+  const decl = buildLuaTypeDecl(alias, schema);
+  return { decl };
+}
+
+function computeShapeKey(schema: SchemaObject): string {
+  // Simplistic shape hashing (non recursive detail limited to types/properties)
+  const obj: any = {};
+  obj.type = schema.type;
+  if (schema.properties) {
+    obj.properties = Object.keys(schema.properties)
+      .sort()
+      .map((k) => ({ k, t: schema.properties![k].type }));
+  }
+  if (schema.items) obj.items = computeShapeKey(schema.items);
+  return JSON.stringify(obj);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Body Validation Generation (shallow)                                      */
+/* -------------------------------------------------------------------------- */
+function buildBodyValidation(
+  schema: SchemaObject,
+  requiredBody: boolean
+): string {
+  if (schema.type !== "object" || !schema.properties) return "";
+  const lines: string[] = [];
+  const required = new Set(schema.required || []);
+  for (const [prop, propSchema] of Object.entries(schema.properties)) {
+    const accessor = `body.${prop}`;
+    if (required.has(prop)) {
+      lines.push(
+        `if ${accessor} == nil then error("Missing body field: ${prop}", 2) end`
+      );
+    }
+    if (propSchema.type === "string") {
+      lines.push(
+        `if ${accessor} ~= nil then assertString(${accessor}, "${prop}") end`
+      );
+      if ((propSchema as any).minLength != null) {
+        lines.push(
+          `if ${accessor} ~= nil and #${accessor} < ${
+            (propSchema as any).minLength
+          } then error("${prop} length < ${
+            (propSchema as any).minLength
+          }", 2) end`
+        );
+      }
+      if ((propSchema as any).maxLength != null) {
+        lines.push(
+          `if ${accessor} ~= nil and #${accessor} > ${
+            (propSchema as any).maxLength
+          } then error("${prop} length > ${
+            (propSchema as any).maxLength
+          }", 2) end`
+        );
+      }
+      if ((propSchema as any).pattern) {
+        lines.push(
+          `if ${accessor} ~= nil and not string.match(${accessor}, "${
+            (propSchema as any).pattern
+          }") then error("${prop} pattern mismatch", 2) end`
+        );
+      }
+    } else if (propSchema.type === "integer" || propSchema.type === "number") {
+      lines.push(
+        `if ${accessor} ~= nil then assertNumber(${accessor}, "${prop}") end`
+      );
+      if ((propSchema as any).minimum != null) {
+        lines.push(
+          `if ${accessor} ~= nil and ${accessor} < ${
+            (propSchema as any).minimum
+          } then error("${prop} < ${(propSchema as any).minimum}", 2) end`
+        );
+      }
+      if ((propSchema as any).maximum != null) {
+        lines.push(
+          `if ${accessor} ~= nil and ${accessor} > ${
+            (propSchema as any).maximum
+          } then error("${prop} > ${(propSchema as any).maximum}", 2) end`
+        );
+      }
+    } else if (propSchema.type === "boolean") {
+      lines.push(
+        `if ${accessor} ~= nil then assertBoolean(${accessor}, "${prop}") end`
+      );
+    }
+  }
+  return lines.join("\n");
 }
