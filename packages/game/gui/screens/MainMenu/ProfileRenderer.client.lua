@@ -55,7 +55,7 @@ local function initProfile()
 	setProfilePicture()
 
 	local response = GetProfile:InvokeServer()
-	local profile = response.result.profile
+	local profile = response.result
 
 	-- Set default values (these would typically come from a server call)
 	Transient.profile.playerRank:set("#" .. profile.rank)

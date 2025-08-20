@@ -85,6 +85,7 @@ export const ScoreSubmissionSchema = Type.Object({
 
 // Score with hash for user's best scores
 export const ScoreWithHashSchema = Type.Object({
+  rating: Type.Number({ minimum: 0 }),
   score: Type.Number({ minimum: 0 }),
   accuracy: Type.Number({ minimum: 0, maximum: 100 }),
   grade: GradeEnum,

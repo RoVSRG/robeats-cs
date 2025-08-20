@@ -97,7 +97,7 @@ local getLeaderboard = Function.create(function(player, hash)
 		error("Invalid hash provided for leaderboard retrieval by " .. player.Name)
 	end
 
-	local result = SDK.Scores.getLeaderboard(hash, player.UserId)
+	local result = SDK.Scores.getScoresLeaderboard(hash, player.UserId)
 	return result
 end)
 
