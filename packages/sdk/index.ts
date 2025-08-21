@@ -137,8 +137,13 @@ function emitObjectType(w: Typewriter, s: SchemaObject) {
         w.indent(() => emitObjectType(w, val));
         w.line(","); // trailing comma after the nested table
       } else if (expr === "__ARRAY__") {
-        const inner = val.items ? schemaToTypeExpr(val.items) : "any";
-        w.line(`${key}${opt}: { ${inner} },`);
+        w.line(`${key}${opt}: `);
+        w.indent(() => {
+          for (const [key, val] of Object.entries(props)) {
+            w.line(`${key}: ${schemaToTypeExpr(val)},`);
+          }
+        });
+        w.line(","); // trailing comma after the nested table
       } else {
         w.line(`${key}${opt}: ${expr},`);
       }
