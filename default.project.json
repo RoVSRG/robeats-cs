@@ -28,6 +28,9 @@
       "Skins": {
         "$path": "packages/skins"
       },
+      "Bindables": {
+        "$path": "packages/game/bindables"
+      },
       "RobeatsGameCore": {
         "$path": "packages/game/engine"
       },
