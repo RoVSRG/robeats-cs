@@ -8,16 +8,36 @@ local Events = game.ServerScriptService.Events
 
 local Queue = require(game.ServerScriptService:WaitForChild("Queue"))
 
-local function mergeTables(...)
-	local result = {}
-	for _, tbl in ipairs({ ... }) do
-		if type(tbl) == "table" then
-			for k, v in pairs(tbl) do
-				result[k] = v
-			end
+-- Simple selective copy to avoid sending unexpected properties
+local function buildScorePayload(scoreData)
+	local allowed = {
+		"rating",
+		"score",
+		"accuracy",
+		"grade",
+		"max_combo",
+		"marvelous",
+		"perfect",
+		"great",
+		"good",
+		"bad",
+		"miss",
+		"rate",
+		"mean",
+		"hash",
+	}
+	local out = {}
+	for _, key in ipairs(allowed) do
+		if scoreData[key] ~= nil then
+			out[key] = scoreData[key]
 		end
 	end
-	return result
+
+	-- Handle camelCase -> snake_case mapping from client stats (e.g., maxCombo -> max_combo)
+	if scoreData.maxCombo ~= nil and out.max_combo == nil then
+		out.max_combo = scoreData.maxCombo
+	end
+	return out
 end
 
 local submitScore = Function.create(function(player, scoreData, settings)
@@ -37,56 +57,48 @@ local submitScore = Function.create(function(player, scoreData, settings)
 		)
 	end
 
-	-- Build payload to match your backend schema
-	local submissionId = string.format(
-		"%d_%d_%d",
-		player.UserId,
-		tick() * 1000, -- milliseconds for uniqueness
-		math.random(1000, 9999) -- additional randomness
-	)
-
+	-- Build payload per new generated SDK schema (PostRequestBody)
+	-- PostRequestBody = { user: {...}, map: { hash: string }, payload: { rating, score, accuracy, grade, ... } }
 	local payload = {
 		user = {
 			userId = player.UserId,
 			name = player.Name,
 		},
-		payload = mergeTables(scoreData, {
-			rate = settings.rate,
-			hash = settings.hash,
-			submissionId = submissionId,
-			timestamp = tick(),
-		}),
+		map = { hash = settings.hash },
+		payload = buildScorePayload(scoreData),
 	}
+	payload.payload.rate = settings.rate
+	payload.payload.hash = settings.hash
 
 	-- Try synchronous request first using SDK
 	local user = payload.user
+	local map = payload.map
 	local scorePayload = payload.payload
 
 	local success, response = pcall(function()
-		return SDK.Scores.postScores({ body = {
+		return SDK.Scores.post({
 			user = user,
+			map = map,
 			payload = scorePayload,
-		} })
+		})
 	end)
 
 	if success and response then
-		-- Backend returns profile merge (per spec); update stats if present
 		if response.rank ~= nil then
 			Leaderstats.update(player, response)
 			Events.PlayerUpdated:Fire(player, response)
 		end
 		print(player.Name .. " submitted a score (immediate)")
 	else
-		-- Network/HTTP failure -> queue retry using same structure
-		Queue.addToQueue(function(u, p)
+		Queue.addToQueue(function(u, m, p)
 			local ok2, res2 = pcall(function()
-				return SDK.Scores.postScores({ body = { user = u, payload = p } })
+				return SDK.Scores.post({ user = u, map = m, payload = p })
 			end)
 			if ok2 and res2 and res2.rank ~= nil then
 				Events.PlayerUpdated:Fire(player, res2)
 				print(player.Name .. " submitted a score (queued)")
 			end
-		end, user, scorePayload)
+		end, user, map, scorePayload)
 		print(player.Name .. " score submission queued (connection failed)")
 	end
 
@@ -97,24 +109,23 @@ local getLeaderboard = Function.create(function(player, hash)
 	if not hash or type(hash) ~= "string" then
 		error("Invalid hash provided for leaderboard retrieval by " .. player.Name)
 	end
+	local result = SDK.Scores.getLeaderboard(hash, tostring(player.UserId))
 
-	local result = SDK.Scores.getScoresLeaderboard({ hash = hash, userId = tostring(player.UserId) })
 	return result
 end)
 
 local getYourScores = Function.create(function(player)
-	local result = SDK.Scores.getScoresUserBest({ userId = tostring(player.UserId) })
+	local result = SDK.Scores.getUserBest(tostring(player.UserId))
 	return result
 end)
 
 local getGlobalLeaderboard = Function.create(function(player)
-	local result = SDK.Players.getPlayersTop()
-
+	local result = SDK.Players.getTop()
 	return result
 end)
 
 local getProfile = Function.create(function(player)
-	local result = SDK.Players.getPlayers({ userId = tostring(player.UserId) })
+	local result = SDK.Players.get(tostring(player.UserId))
 	return result
 end)
 
@@ -128,7 +139,7 @@ game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
 
 	Queue.addToQueue(function(userId, name)
-		SDK.Players.postPlayersJoin({ body = { userId = userId, name = name } })
+		SDK.Players.postJoin({ userId = userId, name = name })
 	end, player.UserId, player.Name)
 
 	print("Player " .. player.Name .. " has joined.")

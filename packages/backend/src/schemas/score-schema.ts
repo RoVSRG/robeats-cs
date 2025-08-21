@@ -86,7 +86,7 @@ export const ScoreSubmissionSchema = Type.Object({
   map: Type.Object({
     hash: Type.String({ minLength: 1 }),
   }),
-  payload: ScoreSchema,
+  payload: Type.Omit(ScoreSchema, ['created_at']),
 });
 
 // Score with hash for user's best scores

@@ -1,6 +1,4 @@
-local Http = require(game.ServerScriptService.Utils.Http)
-
-local SDK = require(game.ReplicatedStorage.SDK)
+local SDK = require(game.ReplicatedStorage:WaitForChild("SDK"))
 
 local DataStoreService = game:GetService("DataStoreService")
 local LocalizationService = game:GetService("LocalizationService")
@@ -14,7 +12,7 @@ local Leaderstats = require(game.ServerScriptService.Leaderstats)
 local Events = game.ServerScriptService.Events
 
 local function fetchProfile(player)
-	local profile = SDK.Players.getPlayers({ userId = tostring(player.UserId) })
+	local profile = SDK.Players.get(tostring(player.UserId))
 	return profile
 end
 

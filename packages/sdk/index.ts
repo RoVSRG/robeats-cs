@@ -374,7 +374,7 @@ function generateLua(endpoints: EndpointSpec[]): string {
   tw.blank();
 
   // Initialize groups
-  groups.forEach((_v, g) => tw.line(`local ${g} = {} :: any`));
+  groups.forEach((_v, g) => tw.line(`local ${g} = {}`));
   tw.blank();
 
   // Functions

@@ -22,7 +22,7 @@
     "generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx openapi-typescript http://localhost:3000/docs/json -o ./packages/sdk/types.d.ts",
+        "command": "npx openapi-typescript http://localhost:3000/docs/json -o ./packages/sdk/types.d.ts && npm run generate -w packages/sdk",
         "cwd": "."
       }
     }
