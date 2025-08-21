@@ -7,9 +7,7 @@
   "scripts": {
     "generate": "tsx index.ts"
   },
-  "dependencies": {
-    "handlebars": "^4.7.8"
-  },
+  "dependencies": {},
   "devDependencies": {
     "tsx": "^4.7.0"
   },

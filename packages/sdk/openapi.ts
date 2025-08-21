@@ -32,7 +32,7 @@ export interface ParameterObject {
   schema?: SchemaObject;
 }
 
-export interface RequestBodyObject {
+export interface RequestBody {
   required?: boolean;
   content?: {
     "application/json"?: { schema?: SchemaObject };
@@ -40,7 +40,7 @@ export interface RequestBodyObject {
   };
 }
 
-export interface ResponseObject {
+export interface Response {
   description?: string;
   content?: {
     "application/json"?: { schema?: SchemaObject };
@@ -48,21 +48,21 @@ export interface ResponseObject {
   };
 }
 
-export interface OperationObject {
+export interface Operation {
   path: string;
   method: "get" | "post" | "put" | "patch" | "delete" | "options" | "head";
   operationId?: string;
   description?: string;
   tags?: string[];
   parameters?: ParameterObject[];
-  requestBody?: RequestBodyObject;
-  responses?: Record<string, ResponseObject>;
+  requestBody?: RequestBody;
+  responses?: Record<string, Response>;
 }
 
 export type PathItemObject = Partial<
   Record<
     "get" | "post" | "put" | "patch" | "delete" | "options" | "head",
-    OperationObject
+    Operation
   >
 > & { [extension: string]: any };
 
