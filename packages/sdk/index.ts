@@ -17,6 +17,11 @@ const OUTFILE = path.join(OUTDIR, "init.lua");
 
 import { capitalize } from "./util.js";
 
+function pascalCase(str: string): string {
+  if (!str) return str;
+  return str[0]!.toUpperCase() + str.slice(1);
+}
+
 function getMethodName(method: string, route: string): string {
   route = route.replace(/^['"`]+|['"`]+$/g, "").replace(/^\/+/, "");
   if (!route)
@@ -311,12 +316,13 @@ function generateLua(endpoints: EndpointSpec[]): string {
   const created = new Map<string, string>();
   let typeCounter = 0;
   endpoints.forEach((e) => {
+    const baseName = pascalCase(e.methodName);
     if (e.bodyType && !e.bodyTypeName) {
-      e.bodyTypeName = `${e.methodName}RequestBody`;
+      e.bodyTypeName = `${baseName}RequestBody`;
       tw.line(`type ${e.bodyTypeName} = ${tsTypeToLuau(e.bodyType, created)}`);
     }
     if (e.responseType && !e.responseTypeName) {
-      e.responseTypeName = `${e.methodName}Response`;
+      e.responseTypeName = `${baseName}Response`;
       tw.line(
         `type ${e.responseTypeName} = ${tsTypeToLuau(e.responseType, created)}`
       );
@@ -324,30 +330,44 @@ function generateLua(endpoints: EndpointSpec[]): string {
   });
   tw.blank();
 
-  // Helper request function (placeholder)
+  // Real request bridge using ServerScriptService.Utils.Http
   tw.block(
     "local function request(method: string, path: string, query: { [string]: any }?, body: any?)",
     () => {
-      tw.line("-- Implement your HTTP request logic here.");
-      tw.line("-- This placeholder should be replaced with actual networking.");
-      tw.line("local url = path");
-      tw.line("if query then");
+      tw.line("-- Locates Http module at game.ServerScriptService.Utils.Http");
+      tw.line("local SSS = game:GetService('ServerScriptService')");
+      tw.line("local Utils = SSS:FindFirstChild('Utils')");
+      tw.line(
+        "if not Utils then error('Utils folder missing in ServerScriptService') end"
+      );
+      tw.line("local HttpModule = Utils:FindFirstChild('Http')");
+      tw.line(
+        "if not HttpModule then error('Http module missing at ServerScriptService/Utils/Http') end"
+      );
+      tw.line("local Http = require(HttpModule)");
+      tw.line("local config = {} :: any");
+      tw.line("if query then config.params = query end");
+      tw.line("if body ~= nil then config.json = body end");
+      tw.line("local lower = string.lower(method)");
+      tw.line("local fn = Http[lower]");
+      tw.line("if not fn then error('Unsupported method '..method) end");
+      tw.line("local resp = fn(path, config)");
+      tw.line("local data = nil");
+      tw.line(
+        "if resp and resp.success and resp.status and resp.status.code == 200 then"
+      );
       tw.indent(() => {
-        tw.line("local qparts = {} :: {string}");
-        tw.line("for k,v in pairs(query) do");
+        tw.line("if typeof(resp.json) == 'function' then");
         tw.indent(() => {
-          tw.line(
-            "table.insert(qparts, k .. '=' .. HttpService:UrlEncode(tostring(v)))"
-          );
+          tw.line("local ok, parsed = pcall(resp.json)");
+          tw.line("if ok then data = parsed end");
         });
-        tw.line("end");
-        tw.line("if #qparts > 0 then");
-        tw.indent(() => tw.line("url ..= '?' .. table.concat(qparts, '&')"));
         tw.line("end");
       });
       tw.line("end");
-      tw.line("-- Simulated response");
-      tw.line("return { StatusCode = 200, Body = nil }");
+      tw.line(
+        "return { StatusCode = resp.status and resp.status.code or 0, Body = data }"
+      );
     },
     "end"
   );
