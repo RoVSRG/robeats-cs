@@ -82,43 +82,40 @@ function writeInit(tags: string[]) {
 }
 
 const convertType = (t?: string) =>
-  t === "integer"
+  t === "integer" || t === "number"
     ? "number"
     : t === "string"
     ? "string"
     : t === "boolean"
     ? "boolean"
+    : t === "null"
+    ? "nil" // <- important
     : t === "array"
     ? "array"
     : t === "object"
     ? "object"
-    : t === "number"
-    ? "number"
+    : t === "null"
+    ? "nil"
     : "any";
 
 function schemaToTypeExpr(s: SchemaObject): string {
-  // primitives, enums, arrays return a single-line string
   if (s.enum?.length) {
     return s.enum
       .map((v) => (typeof v === "string" ? JSON.stringify(v) : String(v)))
       .join(" | ");
   }
-
   if (s.anyOf?.length) {
-    console.log(s.anyOf);
-
-    return s.anyOf
-      .map((v: any) => {
-        return schemaToTypeExpr(v);
-      })
-      .join(" | ");
+    return s.anyOf.map((v) => schemaToTypeExpr(v)).join(" | ");
   }
   if (s.type === "array") {
-    return "__ARRAY__";
+    // we only return inline for non-object element types;
+    // arrays of objects will be handled in emitObjectType where we can format blocks.
+    const inner = s.items ? schemaToTypeExpr(s.items) : "any";
+    if (inner === "__OBJECT__") return "__ARRAY_OF_OBJECT__";
+    return `{ ${inner} }`; // Luau array notation
   }
   const t = convertType(s.type);
   if (t !== "object" && t !== "array" && t !== "any") return t;
-  // objects & “any” handled by the printer below
   return "__OBJECT__";
 }
 
@@ -129,21 +126,51 @@ function emitObjectType(w: Typewriter, s: SchemaObject) {
   w.line("{");
   w.indent(() => {
     for (const [key, val] of Object.entries(props)) {
-      const expr = schemaToTypeExpr(val);
       const opt = required.has(key) ? "" : "?";
-      if (expr === "__OBJECT__") {
-        // nested object: recurse, but keep indentation in the writer
+
+      // 1) Nested object
+      if (val.type === "object" || val.properties) {
         w.line(`${key}${opt}: `);
         w.indent(() => emitObjectType(w, val));
-        w.line(","); // trailing comma after the nested table
-      } else if (expr === "__ARRAY__") {
+        w.line(","); // trailing comma after nested block
+        continue;
+      }
+
+      // 2) Array
+      if (val.type === "array") {
+        const items = val.items ?? {};
+        const itemsExpr = schemaToTypeExpr(items);
+
+        // array of objects -> render block: { <object> }
+        if (itemsExpr === "__OBJECT__") {
+          w.line(`${key}${opt}: {`);
+          w.indent(() => emitObjectType(w, items));
+          w.line("},");
+        } else if (itemsExpr === "__ARRAY_OF_OBJECT__") {
+          // array of arrays of objects (rare) -> one extra layer
+          w.line(`${key}${opt}: {`);
+          w.indent(() => {
+            w.line("{");
+            w.indent(() =>
+              emitObjectType(w, (items.items ?? {}) as SchemaObject)
+            );
+            w.line("},");
+          });
+          w.line("},");
+        } else {
+          // array of primitives/enums/unions
+          w.line(`${key}${opt}: { ${itemsExpr} },`);
+        }
+        continue;
+      }
+
+      // 3) Primitive / enum / union
+      const expr = schemaToTypeExpr(val);
+      if (expr === "__OBJECT__" || expr === "__ARRAY_OF_OBJECT__") {
+        // fallback safety: treat as object
         w.line(`${key}${opt}: `);
-        w.indent(() => {
-          for (const [key, val] of Object.entries(props)) {
-            w.line(`${key}: ${schemaToTypeExpr(val)},`);
-          }
-        });
-        w.line(","); // trailing comma after the nested table
+        w.indent(() => emitObjectType(w, val));
+        w.line(",");
       } else {
         w.line(`${key}${opt}: ${expr},`);
       }
