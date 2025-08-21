@@ -1,7 +1,9 @@
-import { Project, PropertySignature, Symbol, Type } from "ts-morph";
+import { Project, PropertySignature, SourceFile, Symbol, Type } from "ts-morph";
 
 import fs from "fs";
 import path from "path";
+
+import { Typewriter } from "./typewriter.js";
 
 const INPUT = path.resolve("types.d.ts");
 const OUTDIR = path.resolve("../game", "shared", "_sdk_bin");
@@ -38,11 +40,50 @@ function formatSegment(seg: string, i: number): string {
   return words.map((w) => (i === 0 ? w : capitalize(w))).join("");
 }
 
-function exportProperties(properties: PropertySignature[]) {
-  for (const property of properties) {
-    const methodName = getMethodName(property.getName());
-    console.log(methodName);
+function exportHttpMethod(method: Symbol) {
+  console.log(`Exporting HTTP method: ${method.getName()}`);
+}
+
+const HTTP_METHODS = ["get", "post", "put", "delete"];
+
+function exportPath(tw: Typewriter, type: Type) {
+  tw.line(type.getText());
+
+  if (type.isObject()) {
+    HTTP_METHODS.forEach((httpMethod) => {
+      console.log(`Exporting ${httpMethod}`);
+
+      const httpProperty = type.getProperty(httpMethod);
+
+      if (httpProperty) {
+        console.log(
+          httpProperty.getName(),
+          httpProperty.getValueDeclaration()?.getText()
+        );
+      }
+    });
   }
+
+  for (const property of type.getProperties()) {
+    const declaration = property.getValueDeclaration();
+    const propertyType = property.getTypeAtLocation(declaration!);
+
+    if (propertyType.isObject()) {
+    }
+
+    // for (const httpMethod of HTTP_METHODS) {
+    // }
+  }
+
+  return tw.toString();
+}
+
+function getPaths(sf: SourceFile): PropertySignature[] {
+  const paths = sf
+    .getInterfaces()
+    .filter((iface) => iface.getName() === "paths")[0];
+
+  return paths ? paths.getProperties() : [];
 }
 
 function setupProject() {
@@ -52,14 +93,18 @@ function setupProject() {
   });
 
   const sf = project.addSourceFileAtPath(INPUT);
+  const paths = getPaths(sf);
 
-  const paths = sf
-    .getInterfaces()
-    .filter((iface) => iface.getName() === "paths")[0];
+  if (paths.length < 1) throw new Error("No 'paths' interface found");
 
-  if (!paths) throw new Error("No 'paths' interface found");
+  for (const path of paths) {
+    const tw = new Typewriter();
 
-  exportProperties(paths.getProperties());
+    const methodName = getMethodName(path.getName());
+    console.log(`Exporting ${methodName}`);
+
+    const exp = exportPath(tw, path.getType());
+  }
 }
 
 setupProject();
