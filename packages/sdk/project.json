@@ -3,13 +3,6 @@
   "sourceRoot": "packages/sdk/src",
   "projectType": "library",
   "targets": {
-    "generate": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run generate",
-        "cwd": "packages/sdk"
-      }
-    },
     "build": {
       "executor": "nx:run-commands",
       "dependsOn": ["generate"],
@@ -24,6 +17,13 @@
       "options": {
         "command": "npm install",
         "cwd": "packages/sdk"
+      }
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx openapi-typescript http://localhost:3000/docs/json -o ./packages/sdk/types.d.ts",
+        "cwd": "."
       }
     }
   },

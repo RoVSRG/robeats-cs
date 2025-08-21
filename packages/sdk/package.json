@@ -7,9 +7,14 @@
   "scripts": {
     "generate": "tsx index.ts"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@scalar/openapi-types": "^0.3.7"
+  },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "@types/node": "^24.3.0",
+    "ts-morph": "^26.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.9.2"
   },
   "keywords": [
     "roblox",
