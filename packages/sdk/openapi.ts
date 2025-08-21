@@ -14,6 +14,7 @@
 export interface SchemaObject {
   type?: string;
   enum?: (string | number)[];
+  anyOf?: SchemaObject[];
   properties?: Record<string, SchemaObject>;
   required?: string[];
   minimum?: number;

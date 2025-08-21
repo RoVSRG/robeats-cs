@@ -5,8 +5,12 @@ import {
   generateOperationId,
   OpenApiSpec,
   Operation,
+  RequestBody,
+  SchemaObject,
 } from "./openapi";
 import { Typewriter } from "./typewriter";
+
+import { capitalize } from "./util";
 
 // Output location for generated Lua modules
 const OUTPUT_DIR = path.resolve("..", "game", "shared", "_sdk_bin");
@@ -23,22 +27,28 @@ interface ExtendedOperation extends Operation {
 
 function aggregateByTag(spec: OpenApiSpec) {
   const out: Record<string, ExtendedOperation[]> = {};
+
   for (const [p, methods] of Object.entries(spec.paths || {})) {
     for (const [method, op] of Object.entries(methods)) {
       if (!op) continue;
+
       const tags = op.tags && op.tags.length ? op.tags : ["Default"];
+
       for (const raw of tags) {
         const tag = raw.replace(/[^A-Za-z0-9_]/g, "");
         const params = (op as Operation).parameters || [];
+
         const pathParams = params
           .filter((x: any) => x.in === "path")
           .map((x: any) => x.name);
         const queryParams = params
           .filter((x: any) => x.in === "query")
           .map((x: any) => x.name);
+
         const hasBody = !!(op as any).requestBody?.content?.[
           "application/json"
         ];
+
         (out[tag] ||= []).push({
           ...(op as Operation),
           path: p,
@@ -50,6 +60,7 @@ function aggregateByTag(spec: OpenApiSpec) {
       }
     }
   }
+
   return out;
 }
 
@@ -70,6 +81,85 @@ function writeInit(tags: string[]) {
   fs.writeFileSync(path.join(OUTPUT_DIR, "init.lua"), tw.toString(), "utf8");
 }
 
+const convertType = (t?: string) =>
+  t === "integer"
+    ? "number"
+    : t === "string"
+    ? "string"
+    : t === "boolean"
+    ? "boolean"
+    : t === "array"
+    ? "array"
+    : t === "object"
+    ? "object"
+    : t === "number"
+    ? "number"
+    : "any";
+
+function schemaToTypeExpr(s: SchemaObject): string {
+  // primitives, enums, arrays return a single-line string
+  if (s.enum?.length) {
+    return s.enum
+      .map((v) => (typeof v === "string" ? JSON.stringify(v) : String(v)))
+      .join(" | ");
+  }
+
+  if (s.anyOf?.length) {
+    console.log(s.anyOf);
+
+    return s.anyOf
+      .map((v: any) => {
+        return schemaToTypeExpr(v);
+      })
+      .join(" | ");
+  }
+  if (s.type === "array") {
+    return "__ARRAY__";
+  }
+  const t = convertType(s.type);
+  if (t !== "object" && t !== "array" && t !== "any") return t;
+  // objects & “any” handled by the printer below
+  return "__OBJECT__";
+}
+
+function emitObjectType(w: Typewriter, s: SchemaObject) {
+  const props = s.properties ?? {};
+  const required = new Set(s.required ?? []);
+
+  w.line("{");
+  w.indent(() => {
+    for (const [key, val] of Object.entries(props)) {
+      const expr = schemaToTypeExpr(val);
+      const opt = required.has(key) ? "" : "?";
+      if (expr === "__OBJECT__") {
+        // nested object: recurse, but keep indentation in the writer
+        w.line(`${key}${opt}: `);
+        w.indent(() => emitObjectType(w, val));
+        w.line(","); // trailing comma after the nested table
+      } else if (expr === "__ARRAY__") {
+        const inner = val.items ? schemaToTypeExpr(val.items) : "any";
+        w.line(`${key}${opt}: { ${inner} },`);
+      } else {
+        w.line(`${key}${opt}: ${expr},`);
+      }
+    }
+  });
+  w.line("}");
+}
+
+export function emitBodyType(schema: SchemaObject): string {
+  const w = new Typewriter();
+  if (schema.type === "object" || schema.properties) {
+    emitObjectType(w, schema);
+  } else {
+    // non-object top-level (rare for “body”), still handle gracefully
+    const expr = schemaToTypeExpr(schema);
+    if (expr === "__OBJECT__") emitObjectType(w, schema);
+    else w.line(expr);
+  }
+  return w.toString();
+}
+
 function emitModule(tag: string, ops: ExtendedOperation[]) {
   const tw = new Typewriter();
   tw.line("-- MINIMAL AUTO-GENERATED MODULE");
@@ -77,19 +167,6 @@ function emitModule(tag: string, ops: ExtendedOperation[]) {
   tw.line(`local ${tag} = {}`);
   tw.blank();
   for (const op of ops) {
-    const convertType = (type: string) => {
-      switch (type) {
-        case "string":
-          return "string";
-        case "integer":
-          return "number";
-        case "boolean":
-          return "boolean";
-        default:
-          return "any";
-      }
-    };
-
     const getParameter = (name: string) => {
       return convertType(
         op.parameters?.find((p) => p.name === name)?.schema?.type || "any"
@@ -113,12 +190,24 @@ function emitModule(tag: string, ops: ExtendedOperation[]) {
       args.push("_internal_key_payload");
     }
 
-    console.log(args.concat(", "));
+    if (op.requestBody) {
+      const schema = op.requestBody.content?.["application/json"]?.schema;
+
+      if (schema)
+        tw.line(`type ${capitalize(fn)}Request = ` + emitBodyType(schema));
+    }
+    tw.blank();
+
+    if (op.responses?.[200]) {
+      const schema = op.responses[200].content?.["application/json"]?.schema;
+      if (schema) {
+        tw.line(`type ${capitalize(fn)}Response = ` + emitBodyType(schema));
+      }
+    }
 
     tw.block(
       `function ${tag}.${fn}(${args.join(", ")})`,
       () => {
-        tw.line("config = config or {}");
         tw.line(`local path = "${op.path}"`);
         for (const p of op._pathParams) {
           tw.line(`path = string.gsub(path, '{${p}}', tostring(${p}))`);
@@ -126,9 +215,7 @@ function emitModule(tag: string, ops: ExtendedOperation[]) {
         if (op._queryParams.length) {
           tw.line("local query = {}");
           for (const q of op._queryParams) {
-            tw.line(
-              `if config['${q}'] ~= nil then query['${q}'] = tostring(${q}) end`
-            );
+            tw.line(`if ${q} ~= nil then ${q} = tostring(${q}) end`);
           }
         } else {
           tw.line("local query = nil");
