@@ -2,12 +2,6 @@ local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
 local CollectionService = game:GetService("CollectionService")
 
 local function handleButtonInteractives()
-	for _, element in script.Parent:GetChildren() do
-		if element:IsA("ImageButton") then
-			CollectionService:AddTag(element, "MenuButton")
-		end
-	end
-
 	for _, button in CollectionService:GetTagged("MenuButton") do
 		button.MouseEnter:Connect(function()
 			button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -45,4 +39,8 @@ end)
 -- Global Rankings
 script.Parent.GlobalLBButton.MouseButton1Click:Connect(function()
 	ScreenChief:Switch("GlobalRanking")
+end)
+
+script.Parent.ShowSongEditor.MouseButton1Click:Connect(function()
+	game.ReplicatedStorage.Bindables.ShowSongEditor:Fire()
 end)

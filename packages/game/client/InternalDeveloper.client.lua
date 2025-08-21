@@ -5,8 +5,18 @@ local Bindables = game.ReplicatedStorage.Bindables
 
 local root = Instance.new("ScreenGui", playerGui)
 
+local SongEditor = require(script.Parent:WaitForChild("Windows"):WaitForChild("SongEditor"))
+
 Iris.Init(root)
 
+local connection
+
+-- External signal to (re)open the Song Editor window
 Bindables.ShowSongEditor.Event:Connect(function()
-	Iris:Connect(require(script.Parent.Windows.SongEditor))
+	SongEditor.open()
+	if not connection then
+		connection = Iris:Connect(function()
+			SongEditor.draw()
+		end)
+	end
 end)
