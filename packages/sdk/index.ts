@@ -167,6 +167,12 @@ function tsTypeToLuau(
   return "any";
 }
 
+function getTypeForProperty(property: TSSymbol): Type | undefined {
+  const decl = property.getValueDeclaration();
+  if (!decl) return undefined;
+  return property.getTypeAtLocation(decl);
+}
+
 function buildEndpointSpecs(pathProp: PropertySignature): EndpointSpec[] {
   const specs: EndpointSpec[] = [];
   const routeName = pathProp.getName();
@@ -189,9 +195,8 @@ function buildEndpointSpecs(pathProp: PropertySignature): EndpointSpec[] {
 
     const paramsSymbol = opType.getProperty("parameters");
     if (paramsSymbol) {
-      const paramsDecl = paramsSymbol.getValueDeclaration();
-      const paramsType = paramsSymbol.getTypeAtLocation(paramsDecl!);
-      if (paramsType.isObject()) {
+      const paramsType = getTypeForProperty(paramsSymbol);
+      if (paramsType?.isObject()) {
         // query
         const querySym = paramsType.getProperty("query");
         if (querySym) {

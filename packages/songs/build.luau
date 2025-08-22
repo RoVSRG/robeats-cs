@@ -27,7 +27,7 @@ local song_listing = fs.readDir(BASE_DIR)
 local METADATA_FILE = "metadata.yml"
 local HIT_OBJECTS_FILE = "objects.yml"
 
-local function getFullDirectory(song, ext)
+local function getFullDirectory(song: string, ext: string)
 	return BASE_DIR .. "/" .. song .. "/" .. ext
 end
 
@@ -37,13 +37,13 @@ songs.Name = "Songs"
 local function to_base64(data)
 	local b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 	return (
-		(data:gsub(".", function(x)
-			local r, b = "", x:byte()
+		((data:gsub(".", function(x)
+			local r: any, b: any = "", x:byte()
 			for i = 8, 1, -1 do
 				r = r .. (b % 2 ^ i - b % 2 ^ (i - 1) > 0 and "1" or "0")
 			end
 			return r
-		end) .. "0000"):gsub("%d%d%d?%d?%d?%d?", function(x)
+		end) :: string) .. "0000"):gsub("%d%d%d?%d?%d?%d?", function(x)
 			if #x < 6 then
 				return ""
 			end
@@ -80,7 +80,7 @@ local function generateHitObjectData(hitObjects)
 	local singles = 0
 	local holds = 0
 
-	local length = hitObjects[#hitObjects].Time
+	local length = hitObjects[#hitObjects].Time :: number
 
 	local npsGraph = {}
 	local CHUNKS = 50
@@ -101,7 +101,7 @@ local function generateHitObjectData(hitObjects)
 			singles += 1
 		end
 
-		local time = hitObject.Time
+		local time = hitObject.Time :: number
 
 		-- Determine which chunk this note belongs to
 		local chunkIndex = math.min(math.ceil(time / chunkDuration), CHUNKS)
@@ -134,7 +134,7 @@ local function generateHitObjectData(hitObjects)
 	return npsGraph, maxNPS, averageNPS, singles, holds
 end
 
-for index, song in pairs(song_listing) do
+for index, song in ipairs(song_listing) do
 	local suc, err = pcall(function()
 		local metadata = serde.decode("yaml", sanitizeDirtyYaml(fs.readFile(getFullDirectory(song, METADATA_FILE))))
 		local hitObjects =
@@ -166,7 +166,7 @@ for index, song in pairs(song_listing) do
 		local songFolder = roblox.Instance.new("Folder")
 		songFolder.Name = string.format(
 			"[%s] %s - %s (%s)",
-			index,
+			tostring(index),
 			metadata.Artist or "Unknown",
 			metadata.Filename or "Unknown",
 			metadata.Mapper or "Unknown"
