@@ -7,7 +7,8 @@ local serde = require("@lune/serde")
 
 local compression = require("./utils/compression").Zlib
 
-local BASE_DIR = "./packages/songs/db"
+local BASE_DIR = "./packages/songs"
+local DB_DIR = BASE_DIR .. "/db"
 
 for index, arg in process.args do
 	local spl = string.split(arg, "=")
@@ -16,23 +17,40 @@ for index, arg in process.args do
 	local value = spl[2]
 
 	if flag == "--path" then
-		BASE_DIR = value
+		DB_DIR = value
 	end
 
 	print("Process argument #" .. tostring(index) .. ": " .. arg)
 end
 
-local song_listing = fs.readDir(BASE_DIR)
+local song_listing = fs.readDir(DB_DIR)
 
 local METADATA_FILE = "metadata.yml"
 local HIT_OBJECTS_FILE = "objects.yml"
 
 local function getFullDirectory(song: string, ext: string)
-	return BASE_DIR .. "/" .. song .. "/" .. ext
+	return DB_DIR .. "/" .. song .. "/" .. ext
 end
 
+-- (No longer bundling every song into one Folder model; we'll emit per-song RBXM files)
 local songs = roblox.Instance.new("Folder")
-songs.Name = "Songs"
+songs.Name = "Songs" -- retained for possible future aggregate use, but unused for output now
+
+local DIST_DIR = BASE_DIR .. "/dist"
+if not fs.isDir(DIST_DIR) then
+	fs.writeDir(DIST_DIR)
+end
+
+local function safeFilename(name: string): string
+	-- Remove Windows-invalid characters and control chars
+	local cleaned = name:gsub('[<>:"/\\|%?%*]', "_")
+	cleaned = cleaned:gsub("[%c]", "")
+	cleaned = cleaned:gsub("^%s+", ""):gsub("%s+$", "")
+	if #cleaned == 0 then
+		cleaned = "song"
+	end
+	return cleaned
+end
 
 local function to_base64(data)
 	local b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
@@ -204,9 +222,14 @@ for index, song in ipairs(song_listing) do
 
 		local chartString = roblox.Instance.new("StringValue")
 		chartString.Name = "ChartString"
-		chartString.Value = to_base64(compression.Compress(encodedNotes))
+		local compressed = select(1, compression.Compress(encodedNotes, {}))
+		chartString.Value = to_base64(compressed)
 		chartString.Parent = songFolder
-		songFolder.Parent = songs
+
+		-- Serialize this song individually
+		local fileBaseName = string.format("%d_%s", index, metadata.MD5Hash or "unknown")
+		local model_file = roblox.serializeModel({ songFolder }, false)
+		fs.writeFile(string.format("%s/%s.rbxm", DIST_DIR, fileBaseName), model_file)
 	end)
 
 	if not suc then
@@ -214,11 +237,4 @@ for index, song in ipairs(song_listing) do
 	end
 end
 
-if not fs.isDir("./songs/dist") then
-	fs.writeDir("./songs/dist")
-end
-
-local model_file = roblox.serializeModel({ songs }, false)
-fs.writeFile("./songs/dist/bin.rbxm", model_file)
-
-stdio.write("-[DONE]-")
+stdio.write("-[DONE generating individual song RBXM files]-")

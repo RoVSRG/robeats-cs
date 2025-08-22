@@ -1,5 +1,12 @@
 local ServerStorage = game:GetService("ServerStorage")
-local Songs = ServerStorage:WaitForChild("Songs"):WaitForChild("bin")
+local SongsFolder = ServerStorage:WaitForChild("Songs")
+
+local songs = SongsFolder:GetChildren()
+table.sort(songs, function(a, b)
+	local aId = a.Name:match("(%d+)_%w+")
+	local bId = b.Name:match("(%d+)_%w+")
+	return tonumber(aId) < tonumber(bId)
+end)
 
 local PAGE_SIZE = 100
 
@@ -8,11 +15,6 @@ local colorKeys = {}
 local Functions = game.ReplicatedStorage.Remotes.Functions
 
 Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
-	local songs = Songs:GetChildren()
-	table.sort(songs, function(a, b)
-		return tonumber(a.Name:match("%[(%d+)%]")) < tonumber(b.Name:match("%[(%d+)%]"))
-	end)
-
 	local start = pageIndex * PAGE_SIZE + 1
 	local stop = math.min(start + PAGE_SIZE - 1, #songs)
 
@@ -23,7 +25,7 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 			if not colorKeys[tostring(i)] then
 				colorKeys[tostring(i)] = Color3.new(math.random(), math.random(), math.random())
 			end
-			
+
 			table.insert(page, {
 				Name = folder.Name,
 				SongName = folder:GetAttribute("SongName"),
@@ -47,7 +49,7 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 				TotalHoldNotes = folder:GetAttribute("TotalHoldNotes"),
 				Color = colorKeys[tostring(i)],
 				ID = i,
-				FolderName = folder.Name
+				FolderName = folder.Name,
 			})
 		end
 	end
@@ -56,7 +58,7 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 end
 
 Functions.GetHitObjects.OnServerInvoke = function(player, folderName)
-	local songFolder = Songs:FindFirstChild(folderName)
+	local songFolder = SongsFolder:FindFirstChild(folderName)
 	if not folderName then
 		return nil
 	end
@@ -70,4 +72,3 @@ Functions.GetHitObjects.OnServerInvoke = function(player, folderName)
 	-- Send raw compressed Base64 string (client will decode)
 	return chartValue.Value
 end
-
