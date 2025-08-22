@@ -39,12 +39,13 @@ function M.draw()
 			return
 		end
 
-		local audioId = Iris.State(if data then data.AudioID else "")
+		local audioId = Iris.State("")
 
 		Iris.SeparatorText({ "Song Information" })
 
 		Iris.Text({ string.format("Selected: %s", data.FolderName) })
-		Iris.InputText({ string.format("Audio ID: %s", data.AudioID) }, { text = audioId })
+		Iris.Text({ string.format("Audio ID: %s", data.AudioID) })
+		Iris.InputText({ "Audio ID" }, { text = audioId })
 		Iris.Text({ string.format("Volume: %d%%", data.Volume * 100) })
 
 		if Iris.Button({ "Apply Changes to This Song" }).clicked() then

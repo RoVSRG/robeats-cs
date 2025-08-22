@@ -13,8 +13,6 @@ end
 local function getYourScores()
 	local response = GetYourScores:InvokeServer()
 
-	print(response)
-
 	if not response.success then
 		warn(response.error)
 		return
