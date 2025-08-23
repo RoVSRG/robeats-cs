@@ -23,6 +23,16 @@ local function _register(self: any, config: RouteConfig)
 	})
 end
 
+local function _handleRequest(self, request: net.ServeRequest)
+	for _, route in ipairs(self.routes) do
+		if route.method:lower() == request.method:lower() and route.path == request.path then
+			return route.callback(request)
+		end
+	end
+
+	return { status = 404, body = "Not Found" }
+end
+
 function Fastify:get(path: string, callback: (request: any) -> any)
 	_register(self, {
 		method = "get",
@@ -55,19 +65,9 @@ function Fastify:delete(path: string, callback: (request: any) -> any)
 	})
 end
 
-function Fastify:handleRequest(request: net.ServeRequest)
-	for _, route in ipairs(self.routes) do
-		if route.method == request.method and route.path == request.path then
-			return route.callback(request)
-		end
-	end
-
-	return { status = 404, body = "Not Found" }
-end
-
 function Fastify:listen(port: number)
 	net.serve(port, function(request: net.ServeRequest)
-		return self:handleRequest(request)
+		return _handleRequest(self, request) :: any
 	end)
 end
 

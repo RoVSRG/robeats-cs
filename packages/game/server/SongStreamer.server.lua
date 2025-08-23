@@ -26,31 +26,39 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 				colorKeys[tostring(i)] = Color3.new(math.random(), math.random(), math.random())
 			end
 
-			table.insert(page, {
+			local includeKeys = {
+				"SongName",
+				"ArtistName",
+				"CharterName",
+				"Description",
+				"Difficulty",
+				"Length",
+				"ObjectCount",
+				"AudioID",
+				"CoverImageAssetId",
+				"Volume",
+				"HitSFXGroup",
+				"TimeOffset",
+				"MD5Hash",
+				"NPSGraph",
+				"MaxNPS",
+				"AverageNPS",
+				"TotalSingleNotes",
+				"TotalHoldNotes",
+			}
+
+			local song = {
 				Name = folder.Name,
-				SongName = folder:GetAttribute("SongName"),
-				ArtistName = folder:GetAttribute("ArtistName"),
-				CharterName = folder:GetAttribute("CharterName"),
-				Description = folder:GetAttribute("Description"),
-				Difficulty = folder:GetAttribute("Difficulty"),
-				Length = folder:GetAttribute("Length"),
-				ObjectCount = folder:GetAttribute("ObjectCount"),
-				AudioID = folder:GetAttribute("AudioID"),
-				CoverImageAssetId = folder:GetAttribute("CoverImageAssetId"),
-				Volume = folder:GetAttribute("Volume"),
-				HitSFXGroup = folder:GetAttribute("HitSFXGroup"),
-				TimeOffset = folder:GetAttribute("TimeOffset"),
-				MD5Hash = folder:GetAttribute("MD5Hash"),
-				-- New chart analysis properties
-				NPSGraph = folder:GetAttribute("NPSGraph"),
-				MaxNPS = folder:GetAttribute("MaxNPS"),
-				AverageNPS = folder:GetAttribute("AverageNPS"),
-				TotalSingleNotes = folder:GetAttribute("TotalSingleNotes"),
-				TotalHoldNotes = folder:GetAttribute("TotalHoldNotes"),
 				Color = colorKeys[tostring(i)],
 				ID = i,
 				FolderName = folder.Name,
-			})
+			}
+
+			for _, key in ipairs(includeKeys) do
+				song[key] = folder:GetAttribute(key)
+			end
+
+			table.insert(page, song)
 		end
 	end
 

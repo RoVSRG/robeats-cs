@@ -23,6 +23,10 @@
         "Functions": {
           "$className": "Folder",
           "$path": "packages/game/remotes/functions"
+        },
+        "Development": {
+          "$className": "Folder",
+          "$path": "packages/game/remotes/development"
         }
       },
       "Skins": {
@@ -47,7 +51,7 @@
       "$ignoreUnknownInstances": true,
       "Plugins": {
         "$className": "Folder",
-        "$path": "packages/game/plugins"
+        "$path": "packages/plugins"
       },
       "Songs": {
         "$className": "Folder",

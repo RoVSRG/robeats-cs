@@ -6,6 +6,8 @@ while not SongDatabase.IsLoaded do
 	wait()
 end
 
+local Development = game.ReplicatedStorage.Remotes.Development
+
 -- Module exposes a persistent window with a controllable open state.
 local M = {}
 
@@ -49,7 +51,10 @@ function M.draw()
 		Iris.Text({ string.format("Volume: %d%%", data.Volume * 100) })
 
 		if Iris.Button({ "Apply Changes to This Song" }).clicked() then
-			print(audioId:get())
+			Development.SaveSongChanges:FireServer({
+				AudioId = audioId:get(),
+				Volume = data.Volume,
+			})
 		end
 	end
 	Iris.End()
