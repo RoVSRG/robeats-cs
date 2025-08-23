@@ -17,13 +17,6 @@
         "command": "rm -rf dist",
         "cwd": "packages/songs"
       }
-    },
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "lune run packages/songs/server",
-        "cwd": "."
-      }
     }
   },
   "tags": ["scope:songs", "type:library"]

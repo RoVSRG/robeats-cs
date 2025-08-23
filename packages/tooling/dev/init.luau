@@ -13,7 +13,7 @@ local function stringifyJson(data: any)
 	return serde.encode("json", data)
 end
 
-local Fastify = require("./fastify")
+local Fastify = require("@self/fastify")
 
 local app = Fastify.new()
 
