@@ -34,6 +34,7 @@ local ALLOWED_KEYS = {
 	NotePrebufferTime = true,
 	TimeOffset = true,
 	Volume = true,
+	Difficulty = true, -- now editable (single numeric value post-migration)
 	-- Difficulty table & MD5Hash are NOT directly editable here.
 }
 
@@ -149,6 +150,7 @@ app:post("/save", function(request)
 				Volume = "Volume",
 				HitSFXGroup = "HitSFXGroup",
 				TimeOffset = "TimeOffset",
+				Difficulty = "Difficulty",
 			}
 			for yamlKey, attrKey in pairs(attrMap) do
 				if delta[yamlKey] ~= nil then

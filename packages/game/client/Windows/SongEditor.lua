@@ -27,6 +27,7 @@ local EDITABLE_FIELDS = {
 	{ key = "Volume", attr = "Volume", kind = "number", min = 0, max = 2, step = 0.01 },
 	{ key = "HitSFXGroup", attr = "HitSFXGroup", kind = "number", min = 0, max = 10, step = 1 },
 	{ key = "TimeOffset", attr = "TimeOffset", kind = "number", min = -1000, max = 1000, step = 10 },
+	{ key = "Difficulty", attr = "Difficulty", kind = "number", min = 0, max = 100, step = 1 },
 }
 
 local function initFieldStates(song)
@@ -103,7 +104,6 @@ function SongEditor.draw()
 		end
 
 		Iris.SeparatorText({ "Derived (read-only)" })
-		Iris.Text({ ("Difficulty: %s"):format(tostring(data.Difficulty)) })
 		Iris.Text({ ("Length: %sms"):format(tostring(data.Length)) })
 		Iris.Text({ ("ObjectCount: %s"):format(tostring(data.ObjectCount)) })
 		Iris.Text({ ("Singles: %s Holds: %s"):format(tostring(data.TotalSingleNotes), tostring(data.TotalHoldNotes)) })
