@@ -87,7 +87,16 @@ function SongEditor.draw()
 		Iris.SeparatorText({ "Editable Metadata" })
 		for _, def in ipairs(EDITABLE_FIELDS) do
 			if def.kind == "number" then
-				Iris.InputNum({ def.key }, { Min = def.min, Max = def.max, step = def.step, number = fs[def.key] })
+				-- Iris SliderNum args: { Text, Increment, Min, Max, Format? }
+				local format
+				if def.key == "Volume" then
+					format = "%.2f"
+				elseif def.key == "TimeOffset" then
+					format = "%d ms"
+				elseif def.key == "HitSFXGroup" then
+					format = "%d"
+				end
+				Iris.SliderNum({ def.key, def.step or 1, def.min, def.max, format }, { number = fs[def.key] })
 			else
 				Iris.InputText({ def.key }, { text = fs[def.key] })
 			end
