@@ -9,7 +9,7 @@ end
 local Development = game.ReplicatedStorage.Remotes.Development
 
 -- Module exposes a persistent window with a controllable open state.
-local M = {}
+local SongEditor = {}
 
 -- Persistent state controlling visibility of the Song Editor window.
 local openState = Iris.State(false) -- starts closed until explicitly opened
@@ -21,16 +21,15 @@ end)
 
 Transient.song.selected:set(Transient.song.selected:get(), true)
 
-function M.open()
+function SongEditor.open()
 	openState:set(true)
 end
 
-function M.close()
+function SongEditor.close()
 	openState:set(false)
 end
 
--- Draw the window each Iris cycle; supply custom isOpened state so external triggers can reopen it.
-function M.draw()
+function SongEditor.draw()
 	local window = Iris.Window({ "Developer Settings" }, { isOpened = openState })
 	do
 		local data = songData:get()
@@ -51,14 +50,20 @@ function M.draw()
 		Iris.Text({ string.format("Volume: %d%%", data.Volume * 100) })
 
 		if Iris.Button({ "Apply Changes to This Song" }).clicked() then
-			Development.SaveSongChanges:FireServer({
-				AudioId = audioId:get(),
+			local delta = {
+				AudioID = audioId:get(),
 				Volume = data.Volume,
-			})
+			}
+
+			for k, v in pairs(delta) do
+				data[k] = v
+			end
+
+			Development.SaveSongChanges:FireServer(data.MD5Hash, delta)
 		end
 	end
 	Iris.End()
 	return window
 end
 
-return M
+return SongEditor

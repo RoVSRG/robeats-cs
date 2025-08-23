@@ -182,13 +182,6 @@ for index, song in ipairs(song_listing) do
 		stdio.write(string.format("Converting songs (%d/%d)\n", index, #song_listing))
 
 		local songFolder = roblox.Instance.new("Folder")
-		songFolder.Name = string.format(
-			"[%s] %s - %s (%s)",
-			tostring(index),
-			metadata.Artist or "Unknown",
-			metadata.Filename or "Unknown",
-			metadata.Mapper or "Unknown"
-		)
 
 		-- Basic song information
 		songFolder:SetAttribute("ArtistName", metadata.Artist or "Unknown")
@@ -227,7 +220,7 @@ for index, song in ipairs(song_listing) do
 		chartString.Parent = songFolder
 
 		-- Serialize this song individually
-		local fileBaseName = string.format("%d_%s", index, metadata.MD5Hash or "unknown")
+		local fileBaseName = tostring(metadata.MD5Hash) or "unknown"
 		local model_file = roblox.serializeModel({ songFolder }, false)
 		fs.writeFile(string.format("%s/%s.rbxm", DIST_DIR, fileBaseName), model_file)
 	end)

@@ -3,9 +3,9 @@ local SongsFolder = ServerStorage:WaitForChild("Songs")
 
 local songs = SongsFolder:GetChildren()
 table.sort(songs, function(a, b)
-	local aId = a.Name:match("(%d+)_%w+")
-	local bId = b.Name:match("(%d+)_%w+")
-	return tonumber(aId) < tonumber(bId)
+	local aId = a.Name
+	local bId = b.Name
+	return aId < bId
 end)
 
 local PAGE_SIZE = 100
