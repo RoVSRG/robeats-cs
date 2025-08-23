@@ -1,5 +1,6 @@
 local fs = require("@lune/fs")
 local serde = require("@lune/serde")
+local roblox = require("@lune/roblox")
 
 -- Development metadata editing server (metadata only; hitobjects immutable here)
 -- Exposes /save which patches allowed metadata keys for a song identified by MD5Hash.
@@ -19,6 +20,7 @@ local app = Fastify.new()
 local BASE_DIR = "./packages/songs"
 local DB_DIR = BASE_DIR .. "/db"
 local METADATA_FILE = "metadata.yml"
+local DIST_DIR = BASE_DIR .. "/dist"
 
 -- Whitelist of metadata keys (YAML -> in-game attribute mapping)
 local ALLOWED_KEYS = {
@@ -126,6 +128,38 @@ app:post("/save", function(request)
 	end
 
 	fs.writeFile(metaPath, encoded)
+
+	-- Also patch the serialized model in /dist so changes persist without full rebuild
+	local distModelPath = string.format("%s/%s.rbxm", DIST_DIR, hash)
+	if fs.isFile(distModelPath) then
+		local modelData = fs.readFile(distModelPath)
+		local okModel, modelInstances = pcall(function()
+			return roblox.deserializeModel(modelData)
+		end)
+		if okModel and type(modelInstances) == "table" and modelInstances[1] then
+			local folderInstance = modelInstances[1]
+			-- Map YAML keys to in-game attribute keys
+			local attrMap = {
+				Artist = "ArtistName",
+				Filename = "SongName",
+				Mapper = "CharterName",
+				Description = "Description",
+				AssetId = "AudioID",
+				CoverImageAssetId = "CoverImageAssetId",
+				Volume = "Volume",
+				HitSFXGroup = "HitSFXGroup",
+				TimeOffset = "TimeOffset",
+			}
+			for yamlKey, attrKey in pairs(attrMap) do
+				if delta[yamlKey] ~= nil then
+					folderInstance:SetAttribute(attrKey, delta[yamlKey])
+				end
+			end
+			-- Reserialize
+			local serialized = roblox.serializeModel({ folderInstance }, false)
+			fs.writeFile(distModelPath, serialized)
+		end
+	end
 
 	-- Rebuild index if MD5Hash changed (unlikely since we don't modify it)
 	if meta.MD5Hash ~= hash then
