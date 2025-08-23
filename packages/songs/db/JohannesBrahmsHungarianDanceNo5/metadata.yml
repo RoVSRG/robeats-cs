@@ -2,20 +2,11 @@ Artist: Johannes Brahms
 AssetId: rbxassetid://6279853631
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 24
 Filename: Hungarian Dance No. 5
 HitSFXGroup: 0
-Mapper: Drexkiva
 MD5Hash: f3b05c9c1c973980fe9b75298dfd8645
+Mapper: Drexkiva
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 24
-  Chordjack: 15.292800521850586
-  Handstream: 17.092797088623048
-  Jack: 18.484198379516602
-  Jumpstream: 27.09089469909668
-  Stamina: 24.260581398010256
-  Stream: 23.70059452056885
-  Technical: 27.557096099853517
-  Rate: 100

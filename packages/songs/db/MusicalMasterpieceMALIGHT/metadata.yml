@@ -2,20 +2,11 @@ Artist: Musical Masterpiece
 AssetId: rbxassetid://10080029200
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 32
 Filename: M-A (LIGHT)
 HitSFXGroup: 0
-Mapper: IcyWorld
 MD5Hash: d9fe85e9ae68675c1c4aa1e37ab3d632
+Mapper: IcyWorld
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 32
-  Chordjack: 24.525894355773925
-  Handstream: 23.744696044921877
-  Jack: 21.550496292114257
-  Jumpstream: 39.66660118103027
-  Stamina: 38.15153846740723
-  Stream: 38.704500961303715
-  Technical: 36.82529640197754
-  Rate: 100

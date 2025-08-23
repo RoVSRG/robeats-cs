@@ -2,20 +2,11 @@ Artist: HOLY SAMBA MASTER -SATOH-(Lime)
 AssetId: rbxassetid://10799501671
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 65
 Filename: HOLY SAMBA LAND (Full Ver)
 HitSFXGroup: 0
-Mapper: 'ade_maine'
 MD5Hash: 76a4b904190b8357173926229d86375f
+Mapper: ade_maine
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 65
-  Chordjack: 66.33449478149414
-  Handstream: 38.18159637451172
-  Jack: 38.037596511840825
-  Jumpstream: 40.012200164794926
-  Stamina: 66.26816482543946
-  Stream: 34.432196044921874
-  Technical: 38.7503963470459
-  Rate: 100

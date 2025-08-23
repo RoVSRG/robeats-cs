@@ -2,20 +2,11 @@ Artist: USAO
 AssetId: rbxassetid://10719072201
 CoverImageAssetId: --FILL IN COVERART ASSETID HERE--
 Description: ''
+Difficulty: 33
 Filename: Showdown
 HitSFXGroup: 0
-Mapper: 'Puxtu'
 MD5Hash: 42fcb7c398ebf09d76978f2c24b1e5da
+Mapper: Puxtu
 NotePrebufferTime: 960
 TimeOffset: -85
 Volume: 0.5
-Difficulty:
-- Overall: 33
-  Chordjack: 22.05989627838135
-  Handstream: 20.56409568786621
-  Jack: 18.05129928588867
-  Jumpstream: 34.32329750061035
-  Stamina: 35.005785369873045
-  Stream: 37.66859664916992
-  Technical: 36.69479942321777
-  Rate: 100

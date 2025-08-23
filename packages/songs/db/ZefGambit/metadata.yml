@@ -2,20 +2,11 @@ Artist: Zef
 AssetId: rbxassetid://10698366508
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 31
 Filename: Gambit
 HitSFXGroup: 0
-Mapper: 'Random02'
 MD5Hash: c71f1b177380926bb25775b000e5294c
+Mapper: Random02
 NotePrebufferTime: 1000
 TimeOffset: -145
 Volume: 0.6
-Difficulty:
-- Overall: 31
-  Chordjack: 25.152295303344726
-  Handstream: 17.491497802734376
-  Jack: 28.017902183532716
-  Jumpstream: 29.76390266418457
-  Stamina: 21.788868713378907
-  Stream: 29.471405410766604
-  Technical: 29.29050178527832
-  Rate: 100

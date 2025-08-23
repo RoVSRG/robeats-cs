@@ -2,20 +2,11 @@ Artist: Camellia
 AssetId: rbxassetid://10811819467
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 42
 Filename: Routing
 HitSFXGroup: 0
-Mapper: A_scend
 MD5Hash: 958a74e0a54f2be612bc70c1db2de064
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 42
-  Chordjack: 30.830403900146486
-  Handstream: 35.33759651184082
-  Jack: 24.443095207214355
-  Jumpstream: 40.882499313354494
-  Stamina: 38.802334213256835
-  Stream: 42.24779777526856
-  Technical: 42.4970947265625
-  Rate: 100

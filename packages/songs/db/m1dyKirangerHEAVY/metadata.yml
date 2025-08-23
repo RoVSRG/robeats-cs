@@ -2,20 +2,11 @@ Artist: m1dy
 AssetId: rbxassetid://2293696809
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 39
 Filename: Kiranger (HEAVY)
 HitSFXGroup: 0
-Mapper: ArcadeSona
 MD5Hash: b22ecfd21ddd2425069ddcdbb713d157
+Mapper: ArcadeSona
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 39
-  Chordjack: 40.31009788513184
-  Handstream: 36.95939826965332
-  Jack: 25.956903076171876
-  Jumpstream: 42.704097747802734
-  Stamina: 41.24184494018555
-  Stream: 36.93779983520508
-  Technical: 39.79259719848633
-  Rate: 100

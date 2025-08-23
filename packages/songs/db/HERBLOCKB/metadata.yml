@@ -2,20 +2,11 @@ Artist: Block B
 AssetId: rbxassetid://13642126488
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 48
 Filename: HER
 HitSFXGroup: 0
-Mapper: '[LS]SureFir3'
 MD5Hash: a9e690c05d15ebea586a4c49172b221d
+Mapper: '[LS]SureFir3'
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 48
-  Chordjack: 31.791601181030273
-  Handstream: 35.654397583007814
-  Jack: 27.34200096130371
-  Jumpstream: 47.056496429443364
-  Stamina: 46.02028312683105
-  Stream: 48.47219467163086
-  Technical: 47.05289840698242
-  Rate: 100

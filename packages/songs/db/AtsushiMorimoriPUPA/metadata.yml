@@ -2,20 +2,11 @@ Artist: Atsushi Morimori
 AssetId: rbxassetid://10697974152
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 33
 Filename: PUPA
 HitSFXGroup: 0
-Mapper: ArcadeSona
 MD5Hash: f54e0b3b4341dececf07ed7e1f7a5769
+Mapper: ArcadeSona
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 33
-  Chordjack: 27.42389373779297
-  Handstream: 28.03769474029541
-  Jack: 22.3875
-  Jumpstream: 39.396598434448244
-  Stamina: 37.24090919494629
-  Stream: 33.91469535827637
-  Technical: 34.48349533081055
-  Rate: 100

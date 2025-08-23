@@ -2,20 +2,11 @@ Artist: a_hisa
 AssetId: rbxassetid://10698487577
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 31
 Filename: Logical Stimulus
 HitSFXGroup: 0
-Mapper: BlobToGo
 MD5Hash: bc2d4235dd6cc89645bbe76d8df7bc45
+Mapper: BlobToGo
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 31
-  Chordjack: 22.274095344543458
-  Handstream: 23.2892972946167
-  Jack: 17.75789737701416
-  Jumpstream: 29.096095275878906
-  Stamina: 29.06700210571289
-  Stream: 26.435694122314455
-  Technical: 27.51569480895996
-  Rate: 100

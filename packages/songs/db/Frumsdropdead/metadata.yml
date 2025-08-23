@@ -2,20 +2,11 @@ Artist: Frums
 AssetId: rbxassetid://10049476002
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 42
 Filename: dropdead
 HitSFXGroup: 0
-Mapper: Chrubble
 MD5Hash: 3e908eba889a39b526bee9b522604e30
+Mapper: Chrubble
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 42
-  Chordjack: 29.43630065917969
-  Handstream: 35.93699684143066
-  Jack: 25.807495880126954
-  Jumpstream: 37.69289703369141
-  Stamina: 41.64516334533692
-  Stream: 44.414095687866215
-  Technical: 43.32239456176758
-  Rate: 100

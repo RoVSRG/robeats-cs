@@ -2,20 +2,11 @@ Artist: IOSYS
 AssetId: rbxassetid://13155694382
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 50
 Filename: Scarlet Police on Ghetto Patrol
 HitSFXGroup: 0
-Mapper: CrewK
 MD5Hash: 8d7c20f521a030f173d7dba2d7ee5f2e
+Mapper: CrewK
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 50
-  Chordjack: 50.60159912109375
-  Handstream: 41.315401840209965
-  Jack: 40.949097061157225
-  Jumpstream: 39.51269989013672
-  Stamina: 46.4505111694336
-  Stream: 35.22239456176758
-  Technical: 41.64930038452149
-  Rate: 100

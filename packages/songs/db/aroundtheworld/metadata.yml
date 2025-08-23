@@ -2,20 +2,11 @@ Artist: ATC
 AssetId: rbxassetid://0
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 42
 Filename: Around the World
 HitSFXGroup: 0
-Mapper: Soir_Dee
 MD5Hash: 548a603f3bd60a36c87b28be00ef7c73
+Mapper: Soir_Dee
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 42
-  Chordjack: 39.73679695129395
-  Handstream: 34.64189414978028
-  Jack: 25.049696731567384
-  Jumpstream: 34.552798461914065
-  Stamina: 39.5061149597168
-  Stream: 26.794794273376464
-  Technical: 34.155896759033205
-  Rate: 100

@@ -2,20 +2,11 @@ Artist: AeronMusic
 AssetId: rbxassetid://9513083579
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 38
 Filename: Sidestep
 HitSFXGroup: 0
-Mapper: YunoMaya
 MD5Hash: fae575c5a92bc0ff41f915aec8d72e4b
+Mapper: YunoMaya
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 38
-  Chordjack: 28.563297843933107
-  Handstream: 32.163299560546875
-  Jack: 23.093998146057128
-  Jumpstream: 39.61889991760254
-  Stamina: 34.689866638183595
-  Stream: 39.131096649169926
-  Technical: 37.40039978027344
-  Rate: 100

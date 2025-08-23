@@ -2,20 +2,11 @@ Artist: Zekk
 AssetId: rbxassetid://10024713405
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 42
 Filename: Fallen (HEAVY)
 HitSFXGroup: 0
-Mapper: SunsetKR
 MD5Hash: f145a2c7ab054dbada1eb14936adee9a
+Mapper: SunsetKR
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 42
-  Chordjack: 30.519899368286133
-  Handstream: 41.481899642944335
-  Jack: 24.723897171020507
-  Jumpstream: 38.18159637451172
-  Stamina: 39.62013244628906
-  Stream: 39.40829544067383
-  Technical: 39.774596786499025
-  Rate: 100

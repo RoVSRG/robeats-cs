@@ -2,20 +2,11 @@ Artist: Max Brhon
 AssetId: rbxassetid://10719234946
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 35
 Filename: Cyberpunk
 HitSFXGroup: 0
-Mapper: YunoMaya
 MD5Hash: 43a1a807b32e543cb2fcce5b58c25996
+Mapper: YunoMaya
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 35
-  Chordjack: 33.990298461914065
-  Handstream: 29.194199752807616
-  Jack: 21.059096717834475
-  Jumpstream: 30.6314998626709
-  Stamina: 32.60400238037109
-  Stream: 22.933796882629395
-  Technical: 26.92799491882324
-  Rate: 100

@@ -2,20 +2,11 @@ Artist: CLIMAX of MAXX 360
 AssetId: rbxassetid://10698121899
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 30
 Filename: PARANOiA Revolution
 HitSFXGroup: 0
-Mapper: '[Crz]Sel'
 MD5Hash: f4e914f11a2e14ba9167f60c70e31c7e
+Mapper: '[Crz]Sel'
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 30
-  Chordjack: 24.004795646667482
-  Handstream: 21.167097473144533
-  Jack: 22.133696937561037
-  Jumpstream: 35.05589332580566
-  Stamina: 32.28852310180664
-  Stream: 27.35009651184082
-  Technical: 31.717803955078125
-  Rate: 100

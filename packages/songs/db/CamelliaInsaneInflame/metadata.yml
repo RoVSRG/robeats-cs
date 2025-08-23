@@ -2,20 +2,11 @@ Artist: Camellia
 AssetId: rbxassetid://13830801942
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 38
 Filename: Insane Inflame
 HitSFXGroup: 0
-Mapper: A_scend
 MD5Hash: 726485957fcf2393da69b0a8b724b9b1
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 38
-  Chordjack: 31.144503021240237
-  Handstream: 37.41299629211426
-  Jack: 25.532995605468752
-  Jumpstream: 38.16449890136719
-  Stamina: 38.18057327270508
-  Stream: 33.90299835205078
-  Technical: 38.60459747314453
-  Rate: 100

@@ -2,20 +2,11 @@ Artist: lapix
 AssetId: rbxassetid://10043795059
 CoverImageAssetId: rbxassetid://8356895943
 Description: ''
+Difficulty: 34
 Filename: Duality Rave (Zekk's 'FULL SPEC' Remix)
 HitSFXGroup: 0
-Mapper: 'A_scend'
 MD5Hash: c1b7c884f5a12d50398641d1389ea9a9
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: -130
 Volume: 0.5
-Difficulty:
-- Overall: 34
-  Chordjack: 23.050796127319337
-  Handstream: 29.29409637451172
-  Jack: 23.11109733581543
-  Jumpstream: 33.97949409484863
-  Stamina: 33.6739917755127
-  Stream: 31.74210090637207
-  Technical: 32.225403213500975
-  Rate: 100

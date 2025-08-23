@@ -2,20 +2,11 @@ Artist: Dragon Force
 AssetId: rbxassetid://0
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 38
 Filename: Fury Of The Jumpstream
 HitSFXGroup: 0
-Mapper: IcyWorld
 MD5Hash: e60f0880ed8c3c7e57c980022797d9e9
+Mapper: IcyWorld
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 38
-  Chordjack: 27.5516939163208
-  Handstream: 22.88159465789795
-  Jack: 22.861796951293947
-  Jumpstream: 42.288299560546875
-  Stamina: 42.24601249694825
-  Stream: 36.86219673156739
-  Technical: 35.805596923828126
-  Rate: 100

@@ -2,20 +2,11 @@ Artist: Kyodai
 AssetId: rbxassetid://10049553988
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 20
 Filename: DIAVOLO (LIGHT)
 HitSFXGroup: 0
-Mapper: horrortic
 MD5Hash: 4cd04729f85497529a2054cf1119c4e6
+Mapper: horrortic
 NotePrebufferTime: 900
 TimeOffset: -1075
 Volume: 0.5
-Difficulty:
-- Overall: 20
-  Chordjack: 14.733901977539062
-  Handstream: 16.268398475646972
-  Jack: 15.693300247192383
-  Jumpstream: 21.464996910095216
-  Stamina: 21.00468692779541
-  Stream: 22.57559623718262
-  Technical: 25.16129722595215
-  Rate: 100

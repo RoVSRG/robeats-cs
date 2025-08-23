@@ -2,20 +2,11 @@ Artist: SHIKI
 AssetId: rbxassetid://7559534749
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 40
 Filename: Lapis
 HitSFXGroup: 0
-Mapper: nosrepa
 MD5Hash: 0e6d790e2fa0a865b758ac032fc2f086
+Mapper: nosrepa
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 40
-  Chordjack: 44.01449546813965
-  Handstream: 42.50789566040039
-  Jack: 27.741594314575195
-  Jumpstream: 41.1093017578125
-  Stamina: 42.43985595703125
-  Stream: 31.00770263671875
-  Technical: 38.7998966217041
-  Rate: 100

@@ -2,20 +2,11 @@ Artist: Camellia
 AssetId: rbxassetid://10080183729
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 35
 Filename: Ultimate Ascension (HEAVY)
 HitSFXGroup: 0
-Mapper: 'Fresh Chicken'
 MD5Hash: 0c127c277a62de01fcad1513a91e7ec9
+Mapper: Fresh Chicken
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 35
-  Chordjack: 26.61929454803467
-  Handstream: 27.82349395751953
-  Jack: 26.05679454803467
-  Jumpstream: 37.80899848937988
-  Stamina: 35.82176742553711
-  Stream: 35.52210159301758
-  Technical: 36.161097335815434
-  Rate: 100

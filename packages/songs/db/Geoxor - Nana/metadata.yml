@@ -2,20 +2,11 @@ Artist: Geoxor
 AssetId: rbxassetid://10737399401
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 14
 Filename: Nana
 HitSFXGroup: 0
-Mapper: LeeOsu
 MD5Hash: 5c5290cab4a9c2544a3168af1b43f02d
+Mapper: LeeOsu
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 14
-  Chordjack: 9.56049919128418
-  Handstream: 15.052496910095215
-  Jack: 11.68449878692627
-  Jumpstream: 15.367497444152832
-  Stamina: 14.99893856048584
-  Stream: 15.674497604370117
-  Technical: 16.82550048828125
-  Rate: 100

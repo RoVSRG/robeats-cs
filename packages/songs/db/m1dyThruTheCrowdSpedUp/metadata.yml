@@ -2,20 +2,11 @@ Artist: m1dy
 AssetId: rbxassetid://10080071430
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 37
 Filename: Thru The Crowd (Sped Up)
 HitSFXGroup: 0
-Mapper: ArcadeSona
 MD5Hash: fdc180c3fdb07bbaed8277153f7b159b
+Mapper: ArcadeSona
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 37
-  Chordjack: 29.28420524597168
-  Handstream: 26.88479461669922
-  Jack: 25.738196182250977
-  Jumpstream: 42.2504997253418
-  Stamina: 40.066091537475586
-  Stream: 35.22779846191406
-  Technical: 35.96759719848633
-  Rate: 100

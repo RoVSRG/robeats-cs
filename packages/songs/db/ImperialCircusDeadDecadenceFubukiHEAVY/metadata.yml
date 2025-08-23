@@ -2,20 +2,11 @@ Artist: Imperial Circus Dead Decadence
 AssetId: rbxassetid://13872520782
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 50
 Filename: FUBUKI
 HitSFXGroup: 0
-Mapper: Evening
 MD5Hash: e7ac35360b15916fc0ec328ee87ca421
+Mapper: Evening
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 50
-  Chordjack: 37.664095687866215
-  Handstream: 49.53959541320801
-  Jack: 32.04990005493164
-  Jumpstream: 47.46149368286133
-  Stamina: 49.490057373046874
-  Stream: 43.66439895629883
-  Technical: 46.56869659423828
-  Rate: 100

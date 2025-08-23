@@ -2,20 +2,11 @@ Artist: Kasai Hardcores
 AssetId: rbxassetid://10698136741
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 36
 Filename: Cycle Hit (HEAVY)
 HitSFXGroup: 0
-Mapper: "Wadu"
 MD5Hash: a52d72cf9f44a19717abaf51945d0079
+Mapper: Wadu
 NotePrebufferTime: 1000
 TimeOffset: -180
 Volume: 0.5
-Difficulty:
-- Overall: 36
-  Chordjack: 26.361895179748537
-  Handstream: 32.706899642944336
-  Jack: 23.479194259643556
-  Jumpstream: 34.064998626708984
-  Stamina: 33.97460517883301
-  Stream: 29.180700302124023
-  Technical: 32.87069549560547
-  Rate: 100

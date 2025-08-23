@@ -2,20 +2,11 @@ Artist: MaTriX Beats
 AssetId: rbxassetid://13830779060
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 42
 Filename: Grimoire of Xi
 HitSFXGroup: 0
-Mapper: A_scend
 MD5Hash: 5fd4eb2c98b55bf790511e02f82e6b06
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 42
-  Chordjack: 28.887296676635742
-  Handstream: 41.352295303344725
-  Jack: 26.70209541320801
-  Jumpstream: 41.790594863891606
-  Stamina: 41.748805618286134
-  Stream: 37.144795989990236
-  Technical: 39.09419975280762
-  Rate: 100

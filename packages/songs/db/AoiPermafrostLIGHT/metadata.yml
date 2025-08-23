@@ -2,20 +2,11 @@ Artist: Aoi
 AssetId: rbxassetid://10026831434
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 20
 Filename: Permafrost (LIGHT)
 HitSFXGroup: 0
-Mapper: 'horrortic'
 MD5Hash: cb22e4b1a89c37b45711c8f9db0873a0
+Mapper: horrortic
 NotePrebufferTime: 1000
 TimeOffset: -70
 Volume: 0.5
-Difficulty:
-- Overall: 20
-  Chordjack: 14.443202018737793
-  Handstream: 13.42980079650879
-  Jack: 14.969701194763184
-  Jumpstream: 24.03629550933838
-  Stamina: 21.625725173950197
-  Stream: 23.58809623718262
-  Technical: 24.757196044921876
-  Rate: 100

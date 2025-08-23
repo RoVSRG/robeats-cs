@@ -2,20 +2,11 @@ Artist: The Quick Brown Fox
 AssetId: rbxassetid://8003574776
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 44
 Filename: SLEEPY EYES AGAIN
 HitSFXGroup: 0
-Mapper: SectorJack
 MD5Hash: bdad71405d0acfaefe84fa7e9f26db96
+Mapper: SectorJack
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 44
-  Chordjack: 33.89579887390137
-  Handstream: 36.730796813964844
-  Jack: 24.793195152282717
-  Jumpstream: 45.16469535827637
-  Stamina: 43.81962890625
-  Stream: 38.18340225219727
-  Technical: 41.76269645690918
-  Rate: 100

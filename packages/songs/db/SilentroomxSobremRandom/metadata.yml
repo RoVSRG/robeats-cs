@@ -2,20 +2,11 @@ Artist: Sobrem x Silentroom
 AssetId: rbxassetid://10811821641
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 30
 Filename: Random
 HitSFXGroup: 0
-Mapper: A_scend
 MD5Hash: 511c8910686de825b723c2f4ac5b1409
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 30
-  Chordjack: 19.018796539306642
-  Handstream: 24.11909637451172
-  Jack: 18.673197555541993
-  Jumpstream: 31.64040184020996
-  Stamina: 29.692841720581054
-  Stream: 29.505603790283203
-  Technical: 30.78090019226074
-  Rate: 100

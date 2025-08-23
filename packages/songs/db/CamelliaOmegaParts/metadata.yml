@@ -2,20 +2,11 @@ Artist: Camellia
 AssetId: rbxassetid://9512612897
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 45
 Filename: OOPARTS
 HitSFXGroup: 0
-Mapper: A_scend
 MD5Hash: d915c4ecf3b95fe7e661a20fe2c01bca
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: -75
 Volume: 0.5
-Difficulty:
-- Overall: 45
-  Chordjack: 34.2810001373291
-  Handstream: 43.6400951385498
-  Jack: 27.519301414489746
-  Jumpstream: 44.89739799499512
-  Stamina: 44.93521842956543
-  Stream: 42.03629722595215
-  Technical: 44.98019714355469
-  Rate: 100

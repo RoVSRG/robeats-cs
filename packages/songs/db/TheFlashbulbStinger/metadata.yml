@@ -2,20 +2,11 @@ Artist: The Flashbulb
 AssetId: rbxassetid://10080254304
 CoverImageAssetId: ''
 Description: ''
+Difficulty: 35
 Filename: Stinger
 HitSFXGroup: 0
-Mapper: IcyWorld
 MD5Hash: 8c060cd2ddf71b03c2b74d3b8cc9f3f7
+Mapper: IcyWorld
 NotePrebufferTime: 1000
 TimeOffset: 0
 Volume: 0.5
-Difficulty:
-- Overall: 35
-  Chordjack: 25.566296195983888
-  Handstream: 24.21449546813965
-  Jack: 21.68009719848633
-  Jumpstream: 39.32009925842285
-  Stamina: 36.54357261657715
-  Stream: 40.190398406982425
-  Technical: 40.64850082397461
-  Rate: 100

@@ -2,20 +2,11 @@ Artist: Laur
 AssetId: rbxassetid://9512620160
 CoverImageAssetId: rbxassetid://9512620160
 Description: ''
+Difficulty: 45
 Filename: A Lasting Promise
 HitSFXGroup: 0
-Mapper: A_scend
 MD5Hash: b9a797f74f8701db60798bf3b3097b20
+Mapper: A_scend
 NotePrebufferTime: 1000
 TimeOffset: 300
 Volume: 0.5
-Difficulty:
-- Overall: 45
-  Chordjack: 29.635204696655276
-  Handstream: 38.21220359802246
-  Jack: 29.61720428466797
-  Jumpstream: 43.09739799499512
-  Stamina: 35.32553901672363
-  Stream: 36.816297912597655
-  Technical: 41.99220085144043
-  Rate: 100
