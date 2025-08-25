@@ -1,233 +1,134 @@
-# Docker Setup Guide
+# Docker Setup (Single Compose File)
 
-This project now supports full containerization with seamless switching between local and production databases.
+All environments now use a single `docker-compose.yml` file. The same file can:
 
-## Architecture
+1. Run only the API container (production / managed services)
+2. Run API + local Postgres + local Valkey (local dev stack)
 
-- **Base Configuration** (`docker-compose.yml`): Contains the core app service definition
-- **Local Development** (`docker-compose.local.yml`): Adds PostgreSQL and Valkey containers
-- **Production** (`docker-compose.prod.yml`): Connects to DigitalOcean managed databases
+Behavior is controlled purely by environment variables and provided `.env` files.
 
 ## Environment Files
 
-- **`.env`**: Production credentials (DigitalOcean databases) - **DO NOT COMMIT**
-- **`.env.local`**: Local development overrides
-- **`.env.docker`**: Container-specific settings
+- `.env` – baseline / production (managed DB + Valkey hostnames)
+- `.env.local` – local overrides (optional; ignored if absent)
 
-## Quick Start
+In local dev you typically set:
 
-### Local Development (with local databases)
-
-```bash
-# Start local containers (PostgreSQL + Valkey + App)
-npm run docker:local
-
-# Push database schema
-npm run docker:db:push:local
-
-# View logs
-npm run docker:local:logs
-
-# Stop containers
-npm run docker:local:down
 ```
-
-### Production Mode (with DigitalOcean databases)
-
-```bash
-# Start production container (connects to DO databases)
-npm run docker:prod
-
-# View logs
-npm run docker:prod:logs
-
-# Stop container
-npm run docker:prod:down
-```
-
-### Development with Hot Reload
-
-```bash
-# Start with volume mounting for development
-npm run docker:local:dev
-```
-
-## Available Scripts
-
-### Simplified Commands
-
-- `npm run docker:local` - Start local development (PostgreSQL + Valkey + App)
-- `npm run docker:prod` - Start production (App only, connects to DO databases)
-- `npm run docker:dev` - Development mode with hot reload
-- `npm run docker:down` - Stop all containers
-- `npm run docker:build` - Build containers
-- `npm run docker:reset` - Reset with fresh build
-- `npm run docker:db:push` - Push database schema (auto-detects environment)
-- `npm run docker:db:migrate` - Run database migrations (auto-detects environment)
-
-### Logging
-
-- `npm run docker:local:logs` - View local app logs
-- `npm run docker:prod:logs` - View production app logs
-
-## Development Workflow
-
-### Production Mode (Default)
-
-```bash
-npm run docker:up
-```
-
-Builds optimized container, persistent data.
-
-### Development Mode
-
-```bash
-npm run docker:dev
-```
-
-Uses bind mounts for live code reloading.
-
-### Database Operations
-
-```bash
-# Run migrations
-npm run docker:db:migrate
-
-# Reset database
-npm run docker:db:reset
-```
-
-## Environment Configuration
-
-Edit `.env` file with your configuration:
-
-```env
-# Database
-DATABASE_URL=postgresql://robeats:your_password@postgres:5432/robeats
-
-# Valkey
+LOCAL_STACK=true
+DATABASE_URL=postgresql://robeats:robeats_password_change_in_production@db:5432/robeats?schema=public
 VALKEY_HOST=valkey
 VALKEY_PORT=6379
-
-# Security
-API_KEY=your_secure_api_key_change_in_production
+API_KEY=dev_change_me
 ```
+
+When `LOCAL_STACK=true`, the app will attempt to use bundled `db` and `valkey` services (they are always defined; you supply the env to treat them as your target). For production, omit `LOCAL_STACK` and supply managed service hostnames in `.env`.
+
+## Quick Commands (Backend package)
+
+```bash
+# Start full local stack (API + Postgres + Valkey)
+npm run up
+
+# Tail logs
+npm run logs
+
+# One-off migration
+npm run db:migrate
+
+# Stop & remove
+npm run down
+
+# Rebuild image (no cache)
+npm run rebuild
+```
+
+To run against production-style managed services locally (no local DB containers):
+
+```bash
+docker compose up -d --build
+```
+
+Ensure your `.env` contains the managed `DATABASE_URL`, `VALKEY_*` values.
+
+## Local Development Flow
+
+1. Copy `.env.example` to `.env.local` (and adjust if desired)
+2. `npm run up`
+3. After containers healthy: `npm run db:migrate` (if schema changed)
+4. Visit http://localhost:3000/docs
+5. `npm run logs` (tail API logs)
+6. `npm run down` when finished
 
 ## Ports
 
-- **3000** - API Server
-- **5432** - PostgreSQL (exposed for external tools)
-- **6379** - Valkey (exposed for external tools)
+- 3000 – API
+- 5432 – Postgres (local dev only)
+- 6379 – Valkey (local dev only)
 
 ## Health Checks
 
-All services include health checks:
+Automatic HTTP probe on `/` for API. Postgres and Valkey define health checks when running locally.
 
-- **postgres** - `pg_isready`
-- **valkey** - `valkey-cli ping`
-- **app** - HTTP GET to `/`
+## Migrations & Prisma Client
 
-## Volumes
+Application container runs with pre-built artifacts. For schema changes:
 
-Persistent data volumes:
+```bash
+# Inside backend package
+npx prisma migrate dev       # (if you exec into container)
+# or
+npm run db:migrate           # one-off in ephemeral API container
+```
 
-- `postgres_data` - Database files
-- `valkey_data` - Cache persistence (optional)
+## Switching Environments
+
+| Scenario                      | Command                |
+| ----------------------------- | ---------------------- |
+| Local full stack              | `npm run up`           |
+| Local rebuild                 | `npm run rebuild`      |
+| Local stop/remove             | `npm run down`         |
+| Prod-like (managed DB/Valkey) | `docker compose up -d` |
 
 ## Troubleshooting
 
-### Container won't start
-
 ```bash
-# Check service status
-docker-compose ps
-
-# View all logs
-docker-compose logs
-
-# Reset everything
-npm run docker:reset
+docker compose ps
+docker compose logs api
+docker compose logs db
+docker compose logs valkey
 ```
 
-### Database connection issues
+If API cannot connect, verify `DATABASE_URL` and `VALKEY_*` values inside the running container:
 
 ```bash
-# Check PostgreSQL logs
-docker-compose logs postgres
-
-# Verify database is ready
-docker-compose exec postgres pg_isready -U robeats
+docker compose exec api env | findstr DATABASE_URL
 ```
 
-### Valkey connection issues
+## Security / Production Checklist
 
-```bash
-# Check Valkey logs
-docker-compose logs valkey
+- Rotate `API_KEY`
+- Use managed TLS endpoints (Valkey/Postgres) and set `VALKEY_TLS=true`
+- Set `NODE_ENV=production`
+- Place secrets in managed secret store (not `.env` committed)
 
-# Test Valkey connection
-docker-compose exec valkey valkey-cli ping
+## Sample `.env` (managed services)
+
+```
+DATABASE_URL=postgresql://user:password@managed-db-host:25060/robeats?schema=public
+VALKEY_HOST=managed-valkey-host
+VALKEY_PORT=25061
+VALKEY_TLS=true
+API_KEY=change_me
 ```
 
-### App container issues
+## Sample `.env.local` (dev containers)
 
-```bash
-# Check app logs
-npm run docker:logs
-
-# Run shell in app container
-docker-compose exec app sh
+```
+DATABASE_URL=postgresql://robeats:robeats_password_change_in_production@db:5432/robeats?schema=public
+VALKEY_HOST=valkey
+VALKEY_PORT=6379
+API_KEY=dev_change_me
 ```
 
-## Production Deployment
-
-1. **Security:** Change default passwords and API keys
-2. **Environment:** Set `NODE_ENV=production`
-3. **TLS:** Configure HTTPS reverse proxy (nginx/traefik)
-4. **Monitoring:** Add logging and metrics collection
-5. **Backup:** Set up PostgreSQL backups
-
-## Manual Testing
-
-Once services are running:
-
-```bash
-# Health check
-curl http://localhost:3000/
-
-# Expected: {"status":"ok"}
-```
-
-For API testing with proper authentication, send the API key as a Bearer token:
-
-```bash
-curl "http://localhost:3000/players/join" \
-  -H "Authorization: Bearer your_api_key_here" \
-  -H "Content-Type: application/json" \
-  -d '{"userId":123,"name":"TestUser"}'
-```
-
-## Root-Level Commands
-
-From the project root (`C:\Users\stirm\Projects\robeats-cs\`), you can use:
-
-```bash
-# Server management from root
-npm run docker:local      # Start local development
-npm run docker:prod       # Start production
-npm run docker:dev        # Development with hot reload
-npm run docker:down       # Stop all containers (now works properly!)
-npm run docker:build      # Build containers
-npm run docker:reset      # Reset with fresh build
-
-# Database management from root
-npm run docker:db:push    # Push schema (auto-detects environment)
-npm run docker:db:migrate # Run migrations (auto-detects environment)
-
-# Logging from root
-npm run docker:logs:local # View local app logs
-npm run docker:logs:prod  # View production app logs
-```
-
-**Note:** The `docker:down` command now properly stops all containers across all profiles (local, prod, dev), fixing the previous issue where containers wouldn't stop completely.
+View API docs: http://localhost:3000/docs

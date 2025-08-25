@@ -33,6 +33,20 @@
         "cwd": "packages/backend"
       }
     },
+    "dev:up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev:up",
+        "cwd": "packages/backend"
+      }
+    },
+    "dev:logs": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run dev:logs",
+        "cwd": "packages/backend"
+      }
+    },
     "rebuild": {
       "executor": "nx:run-commands",
       "options": {
