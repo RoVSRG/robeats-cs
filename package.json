@@ -29,7 +29,8 @@
     "test:backend": "nx test backend",
     "watch:tooling": "nx watch tooling",
     "clean": "nx reset && rimraf packages/*/dist dist",
-    "postinstall": "echo 'Make sure you have Lune and Rojo installed globally for full functionality'"
+  "setup": "node scripts/setup.mjs",
+  "postinstall": "node -e \"console.log('Postinstall complete. Run \\\"npm run setup\\\" to finish onboarding (binaries + env).');\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

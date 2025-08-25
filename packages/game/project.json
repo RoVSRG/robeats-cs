@@ -7,7 +7,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["^build"],
       "options": {
-        "command": "mkdir -p dist && rojo build default.project.json --output dist/robeats-cs.rbxl",
+  "command": "mkdir -p dist && ./tools/rojo build default.project.json --output dist/robeats-cs.rbxl",
         "cwd": "."
       },
       "outputs": ["{workspaceRoot}/dist"]
@@ -16,7 +16,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["^build"],
       "options": {
-        "command": "rojo serve default.project.json",
+  "command": "./tools/rojo serve default.project.json",
         "cwd": "."
       }
     },

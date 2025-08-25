@@ -12,19 +12,31 @@
       },
       "outputs": ["{projectRoot}/dist"]
     },
-    "dev": {
+    "up": {
       "executor": "nx:run-commands",
-      "dependsOn": ["prisma:generate"],
       "options": {
-        "command": "npm run dev",
+        "command": "npm run up",
         "cwd": "packages/backend"
       }
     },
-    "start": {
+    "down": {
       "executor": "nx:run-commands",
-      "dependsOn": ["build"],
       "options": {
-        "command": "npm run start",
+        "command": "npm run down",
+        "cwd": "packages/backend"
+      }
+    },
+    "logs": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run logs",
+        "cwd": "packages/backend"
+      }
+    },
+    "rebuild": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npm run rebuild",
         "cwd": "packages/backend"
       }
     },
@@ -57,38 +69,10 @@
       },
       "outputs": ["{projectRoot}/generated"]
     },
-    "dev:up": {
+    "db:migrate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npm run dev:up",
-        "cwd": "packages/backend"
-      }
-    },
-    "dev:down": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run dev:down",
-        "cwd": "packages/backend"
-      }
-    },
-    "prod:up": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run prod:up",
-        "cwd": "packages/backend"
-      }
-    },
-    "prod:down": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run prod:down",
-        "cwd": "packages/backend"
-      }
-    },
-    "prod:rebuild": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npm run prod:rebuild",
+        "command": "npm run db:migrate",
         "cwd": "packages/backend"
       }
     }

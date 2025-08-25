@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx src/index.ts",
+  "dev": "echo 'Local (non-docker) dev disabled. Use: npm run up' && exit 1",
     "prisma:generate": "prisma generate",
     "tsc:build": "tsc -b",
     "build": "npm run prisma:generate && tsc -b",
@@ -13,16 +13,13 @@
     "lint": "eslint src --ext .ts,.js --fix",
     "lint:check": "eslint src --ext .ts,.js",
     "test": "echo \"Warning: no tests specified\" && exit 0",
-    "dev:up": "docker compose --profile local up -d",
-    "dev:down": "docker compose --profile local down -v",
-    "dev:logs": "docker compose logs -f api",
-
-    "prod:up": "docker compose up -d",
-    "prod:down": "docker compose down",
-    "prod:rebuild": "docker compose up -d --build",
-
-    "db:migrate": "docker compose run --rm api npm run prisma:migrate-deploy",
-    "test:in-docker": "docker compose run --rm api npm test"
+  "up": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile local up -d --build",
+  "down": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile local down -v",
+  "logs": "docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f api",
+  "rebuild": "docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile local up -d --build",
+  "db:migrate": "docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm api npx prisma migrate deploy",
+  "db:studio": "docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm api npx prisma studio",
+  "test:in-docker": "docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm api npm test"
   },
   "keywords": [],
   "author": "",
