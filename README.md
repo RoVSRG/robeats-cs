@@ -1,10 +1,6 @@
-<div align="center">
+<img src="assets/logo.png" style="width: 100%; margin-bottom: -60px"/>
 
-# RoBeats Community Server 🎹
-
-The natural successor to the skill-based rhythm game. 🎵
-
-</div>
+### The natural successor to the skill-based rhythm game. 🎵
 
 ## Prerequisites
 
