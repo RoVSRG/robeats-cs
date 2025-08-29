@@ -167,15 +167,21 @@ function RobeatsGameWrapper:_setupEventListeners()
 			self:_setState("finished")
 			self.songFinished:Fire(self:getStats())
 
-			local profile = Remotes.Functions.SubmitScore:InvokeServer(self:getStats(), {
+			local response = Remotes.Functions.SubmitScore:InvokeServer(self:getStats(), {
 				rate = Transient.song.rate:get(),
 				hash = Transient.song.hash:get(),
 				overallDifficulty = Options.OverallDifficulty:get(),
 			})
 
+			local profile = response.result
+
 			if profile then
-				Transient.profile.playerRank:set("#" .. profile.rank)
-				Transient.profile.playerRating:set(profile.rating)
+				Transient.updateProfilePartial({
+					rank = "#" .. profile.rank,
+					rating = profile.rating,
+					accuracy = profile.accuracy or 0,
+					playCount = profile.playCount or 0,
+				})
 			end
 		end
 	end)

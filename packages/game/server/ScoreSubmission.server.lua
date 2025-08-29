@@ -136,7 +136,9 @@ Remotes.Functions.SubmitScore.OnServerInvoke = Protect.wrap(submitScore)
 Remotes.Functions.GetLeaderboard.OnServerInvoke = Protect.wrap(getLeaderboard)
 Remotes.Functions.GetYourScores.OnServerInvoke = Protect.wrap(getYourScores)
 Remotes.Functions.GetGlobalLeaderboard.OnServerInvoke = Protect.wrap(getGlobalLeaderboard)
-Remotes.Functions.GetProfile.OnServerInvoke = Protect.wrap(getProfile)
+
+-- unprotected
+Remotes.Functions.GetProfile.OnServerInvoke = getProfile
 
 game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
