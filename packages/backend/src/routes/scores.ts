@@ -199,7 +199,7 @@ const scoresRoutes: FastifyPluginAsync<
 
         // Step 6: Return updated profile
         const profile = formatPlayerProfile(updatedPlayer);
-        return { ...profile, rank };
+        return { ...profile, rank: rank ?? 999999 };
       } catch (err: any) {
         (req as any).log.error(err);
         return reply.status(500).send({ error: err.message });

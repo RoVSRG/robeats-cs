@@ -14,9 +14,9 @@ export const PlayerProfileSchema = Type.Object({
   userId: Type.Number(),
   name: Type.String(),
   rating: Type.Number(),
-  accuracy: Type.Union([Type.Number(), Type.Null()]),
-  playCount: Type.Union([Type.Number(), Type.Null()]),
-  rank: Type.Union([Type.Number(), Type.Null()]),
+  accuracy: Type.Number(),
+  playCount: Type.Number(),
+  rank: Type.Number(),
 });
 
 export const PlayerProfileResponseSchema = PlayerProfileSchema;

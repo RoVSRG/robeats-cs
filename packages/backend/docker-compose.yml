@@ -1,9 +1,7 @@
-version: "3.9"
-name: robeats
+name: robeats-cs-backend
 
 services:
   api:
-    &api
     build:
       context: ./
       dockerfile: Dockerfile
@@ -18,22 +16,17 @@ services:
       VALKEY_PORT: ${VALKEY_PORT:-6379}
     ports:
       - 3000:3000
-    depends_on:
-      db:
-        condition: service_healthy
-      valkey:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', r=>process.exit(r.statusCode===200?0:1))"]
       interval: 20s
       timeout: 5s
       retries: 5
       start_period: 30s
-    profiles: ["prod", "local"]
+    profiles: [prod]
 
   api-dev:
     image: node:24-alpine
-    profiles: ["dev"]
+    profiles: [dev]
     working_dir: /app
     env_file:
       - .env
@@ -58,7 +51,7 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
-    profiles: ["dev", "local"]
+    profiles: [dev]
     environment:
       POSTGRES_DB: robeats
       POSTGRES_USER: robeats
@@ -77,7 +70,7 @@ services:
     image: valkey/valkey:7.2-alpine
     command: valkey-server --appendonly yes --appendfsync everysec
     restart: unless-stopped
-    profiles: ["dev", "local"]
+    profiles: [dev]
     volumes:
       - valkey_data:/data
     healthcheck:

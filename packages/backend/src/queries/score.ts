@@ -119,13 +119,13 @@ export async function getLeaderboard(prisma: PrismaClient, hash: string) {
 }
 
 export function formatPlayerProfile(player: any) {
-  // Align with PlayerProfileSchema (userId, name, rating, accuracy|null, playCount|null, rank added later)
+  // Align with PlayerProfileSchema (userId, name, rating, accuracy, playCount, rank added later)
   return {
     userId: Number(player.user_id),
     name: player.name,
     rating: Number(player.rating ?? 0),
-    accuracy: player.accuracy == null ? null : Number(player.accuracy),
-    playCount: player.play_count == null ? null : Number(player.play_count),
+    accuracy: Number(player.accuracy ?? 0),
+    playCount: Number(player.play_count ?? 0),
   };
 }
 

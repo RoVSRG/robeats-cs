@@ -188,7 +188,7 @@ const playersRoutes: FastifyPluginAsync<
         const rank = await getPlayerRank(kv, LEADERBOARD_KEY, userIdNum);
 
         const safeProfile = formatPlayerProfile(profile);
-        return { ...safeProfile, rank };
+        return { ...safeProfile, rank: rank ?? 999999 };
       } catch (err: any) {
         (req as any).log.error(err);
         return reply.status(500).send({ error: err.message });

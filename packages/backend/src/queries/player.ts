@@ -28,9 +28,14 @@ export async function upsertPlayer(
     updateData.play_count = { increment: 1 };
   }
 
+  const createData: any = { user_id: BigInt(userId), name };
+  if (incrementPlayCount) {
+    createData.play_count = 1;
+  }
+
   return await prisma.player.upsert({
     where: { user_id: BigInt(userId) },
-    create: { user_id: BigInt(userId), name },
+    create: createData,
     update: updateData,
     select: { id: true, ...PLAYER_SELECT_FIELDS },
   });
