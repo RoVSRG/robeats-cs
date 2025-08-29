@@ -7,6 +7,7 @@ import {
   writeFileSync,
   chmodSync,
 } from "node:fs";
+import path from "path";
 import { createWriteStream } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -36,9 +37,9 @@ const MIN_NODE = 18;
   else log(`Node version OK (${process.versions.node})`);
 })();
 
-function run(cmd) {
+function run(cmd, cwd = undefined) {
   try {
-    return execSync(cmd, { stdio: "pipe" }).toString().trim();
+    return execSync(cmd, { stdio: "pipe", cwd }).toString().trim();
   } catch (e) {
     return undefined;
   }
@@ -277,8 +278,7 @@ ensureEnv("packages/backend/.env.example", "packages/backend/.env.local");
 
 // Light Docker check
 const dockerVersion = run("docker --version");
-if (!dockerVersion)
-  warn("Docker not found (optional for Roblox-only contributors).");
+if (!dockerVersion) warn("Docker not found.");
 else log(`Docker detected: ${dockerVersion}`);
 
 // Prisma check (only if backend folder exists)
@@ -286,6 +286,23 @@ if (existsSync("packages/backend/prisma/schema.prisma")) {
   const prismaVer = run("npx --yes prisma --version");
   if (prismaVer) log(`Prisma available: ${prismaVer.split("\n")[0]}`);
   else warn("Prisma CLI not available yet (will work after npm install).");
+}
+
+log("Installing dependencies...");
+run("npm i");
+
+log("Building songs...");
+run("npx nx run songs:build");
+
+if (dockerVersion) {
+  const BACKEND_DIR = "packages/backend";
+
+  if (existsSync(path.join(BACKEND_DIR, ".env.local"))) {
+    log(`Starting Docker.`);
+    run("docker-compose --profile dev up -d", BACKEND_DIR);
+  } else {
+    warn(`Backend .env.local file not found: ${BACKEND_DIR}`);
+  }
 }
 
 log("Setup phase complete. Vendored tools ready.");
