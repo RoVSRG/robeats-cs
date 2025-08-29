@@ -13,12 +13,12 @@ end)
 
 Screen.PlayButton.MouseButton1Click:Connect(function()
 	ScreenChief:Switch("Gameplay")
-	
+
 	local _game = RobeatsGameWrapper.new()
 	Game.currentGame:set(_game)
-	
+
 	_game:loadSong({
-		songKey = Transient.song.selected:get()
+		songKey = Transient.song.selected:get(),
 	})
 	_game:start()
 end)
@@ -26,5 +26,3 @@ end)
 Screen.Options.MouseButton1Click:Connect(function()
 	ScreenChief:Switch("Options")
 end)
-
-SPUtil:attach_sound(Screen.PlayButton, "Select")

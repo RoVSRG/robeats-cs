@@ -44,3 +44,5 @@ end)
 script.Parent.ShowSongEditor.MouseButton1Click:Connect(function()
 	game.ReplicatedStorage.Bindables.ShowSongEditor:Fire()
 end)
+
+script.Parent.ShowSongEditor.Visible = game:GetService("RunService"):IsStudio()
