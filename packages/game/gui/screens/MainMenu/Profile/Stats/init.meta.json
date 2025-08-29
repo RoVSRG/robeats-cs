@@ -27,11 +27,11 @@
     "Position": {
       "UDim2": [
         [
-          0.47999998927116394,
+          0.28999999165534973,
           0
         ],
         [
-          0.6499999761581421,
+          0.3199999928474426,
           0
         ]
       ]
@@ -63,7 +63,7 @@
     "SizeConstraint": {
       "Enum": 0
     },
-    "Text": "Tier 10 - Legendary",
+    "Text": "%: 97.88% | # Played: 100",
     "TextColor3": [
       1,
       1,
@@ -74,7 +74,7 @@
     "TextStrokeTransparency": 0.5,
     "TextWrapped": true,
     "TextXAlignment": {
-      "Enum": 1
+      "Enum": 0
     }
   }
 }

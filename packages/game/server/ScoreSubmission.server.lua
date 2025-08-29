@@ -88,7 +88,10 @@ local submitScore = Function.create(function(player, scoreData, settings)
 			Leaderstats.update(player, response)
 			Events.PlayerUpdated:Fire(player, response)
 		end
+
 		print(player.Name .. " submitted a score (immediate)")
+
+		return response
 	else
 		Queue.addToQueue(function(u, m, p)
 			local ok2, res2 = pcall(function()
