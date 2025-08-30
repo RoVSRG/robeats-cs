@@ -29,7 +29,7 @@ end)
 
 ----------------------------------------------------------------
 
-local _profileScope = {
+Transient.profileAttributes = {
 	name = Val.new(""),
 	avatar = Val.new(""),
 	tier = Val.new(""),
@@ -43,7 +43,7 @@ local _profileScope = {
 Transient.profile = Val.calc(function(get)
 	local profile = {}
 
-	for k, v in _profileScope do
+	for k, v in Transient.profileAttributes do
 		profile[k] = get(v)
 	end
 
@@ -59,7 +59,7 @@ function Transient.updateProfile(
 	accuracy: number,
 	playCount: number
 )
-	local profile = _profileScope
+	local profile = Transient.profileAttributes
 
 	Val.batch(function(set)
 		set(profile.name, player.DisplayName or player.Name)
@@ -82,16 +82,16 @@ function Transient.updateProfilePartial(updates: {
 })
 	Val.batch(function(set)
 		if updates.rank then
-			set(_profileScope.rank, updates.rank)
+			set(Transient.profileAttributes.rank, updates.rank)
 		end
 		if updates.rating then
-			set(_profileScope.rating, updates.rating)
+			set(Transient.profileAttributes.rating, updates.rating)
 		end
 		if updates.accuracy then
-			set(_profileScope.accuracy, updates.accuracy)
+			set(Transient.profileAttributes.accuracy, updates.accuracy)
 		end
 		if updates.playCount then
-			set(_profileScope.playCount, updates.playCount)
+			set(Transient.profileAttributes.playCount, updates.playCount)
 		end
 	end)
 end

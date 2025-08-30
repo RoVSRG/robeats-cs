@@ -6,4 +6,7 @@ return {
 	Multiplayer_PlayerJoined = "rbxassetid://247824088",
 	Multiplayer_PlayerLeft = "rbxassetid://247824149",
 	PartyHorn = "rbxassetid://406620759",
+	LevelUp = "rbxassetid://341542294",
+	Notification = "rbxassetid://2130284653",
+	-- Error = "rbxassetid://138204323"
 }

@@ -13,4 +13,16 @@ Transient.profile:on(function(profile, previousProfile)
 			"info"
 		)
 	end
-end)
+
+	if previousProfile.rank ~= profile.rank then
+		Bindables.CreateNotification:Fire(
+			string.format(
+				"Rank updated: #%d -> #%d (+%d)",
+				previousProfile.rank,
+				profile.rank,
+				previousProfile.rank - profile.rank
+			),
+			"info"
+		)
+	end
+end) 

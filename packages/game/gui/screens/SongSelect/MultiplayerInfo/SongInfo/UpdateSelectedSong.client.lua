@@ -3,6 +3,8 @@ local Rating = require(game.ReplicatedStorage.Calculator.Rating)
 local Color = require(game.ReplicatedStorage.Shared.Color)
 local Time = require(game.ReplicatedStorage.Libraries.Time)
 
+local Bindables = game.ReplicatedStorage.Bindables
+
 local Transient = require(game.ReplicatedStorage.State.Transient)
 local node = script.Parent
 
@@ -15,16 +17,22 @@ local RAINBOW_MIN = 56
 local function refreshSongPanel()
 	local selected = song.selected:get()
 	local rate = song.rate:get()
-	
+
 	local data = SongDatabase:GetSongByKey(selected)
 
-	local nameFormatted = string.format("[#%d] %s - %s (%s)", data.ID, data.ArtistName or "???", data.SongName or "???", data.CharterName or "Unknown")
+	local nameFormatted = string.format(
+		"[#%d] %s - %s (%s)",
+		data.ID,
+		data.ArtistName or "???",
+		data.SongName or "???",
+		data.CharterName or "Unknown"
+	)
 	node.SongNameInfo.Text = nameFormatted
-	
+
 	RateSelector.RateInfo.Text = string.format("Song Rate: %0.2fx", rate / 100)
-	
-    local difficulty = Rating.getDifficultyMultiplier(rate / 100, data.Difficulty) * data.Difficulty
-	
+
+	local difficulty = Rating.getDifficultyMultiplier(rate / 100, data.Difficulty) * data.Difficulty
+
 	-- Max rating (placeholder: maybe based on difficulty * some multiplier?)
 	local maxRating = Rating.calculateRating(rate / 100, 100, data.Difficulty)
 	node.MaxRating.Text = string.format("Max Rating: %.2f", maxRating)
@@ -35,7 +43,7 @@ local function refreshSongPanel()
 	if not Rating.isRainbow(difficulty) then
 		node.SongDiffInfo.TextColor3 = Color.calculateDifficultyColor(difficulty)
 	end
-	
+
 	if not Rating.isRainbow(maxRating) then
 		node.MaxRating.TextColor3 = Color.calculateDifficultyColor(maxRating)
 	end
@@ -52,17 +60,19 @@ local MIN_RATE = 70
 
 RateSelector.Add.Activated:Connect(function()
 	if song.rate:get() >= MAX_RATE then
+		Bindables.CreateNotification:Fire("You can't go higher than " .. (MAX_RATE / 100) .. "x!", "warning")
 		return
 	end
-	
+
 	song.rate:add(5)
 end)
 
 RateSelector.Subtract.Activated:Connect(function()
 	if song.rate:get() <= MIN_RATE then
+		Bindables.CreateNotification:Fire("You can't go lower than " .. (MIN_RATE / 100) .. "x!", "warning")
 		return
 	end
-	
+
 	song.rate:sub(5)
 end)
 
