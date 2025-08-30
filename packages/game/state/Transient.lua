@@ -8,13 +8,13 @@ local Transient = {}
 -- SONG SELECTION STATE
 ----------------------------------------------------------------
 
-Transient.song = Val.scope({
+Transient.song = {
 	selected = Val.new(nil),
 	rate = Val.new(100),
 	loading = Val.new(false),
 	playing = Val.new(false),
 	lastResult = Val.new(nil),
-})
+}
 
 Transient.song.hash = Val.calc(function(get)
 	local song = get(Transient.song.selected)
@@ -28,7 +28,7 @@ end)
 
 ----------------------------------------------------------------
 
-local _profileScope = Val.scope({
+local _profileScope = {
 	name = Val.new(""),
 	avatar = Val.new(""),
 	tier = Val.new(""),
@@ -37,7 +37,7 @@ local _profileScope = Val.scope({
 	xpProgress = Val.new(0.0),
 	accuracy = Val.new(0.0),
 	playCount = Val.new(0),
-})
+}
 
 Transient.profile = Val.calc(function(get)
 	local profile = {}

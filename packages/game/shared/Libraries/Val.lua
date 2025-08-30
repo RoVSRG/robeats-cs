@@ -11,7 +11,16 @@ Val.__iter = function(self)
 		repeat
 			local value
 			key, value = next(self, key)
-			if key == "_value" or key == "_listeners" or key == "_dependents" or key == "_disconnects" or key == "set" or key == "_eval" then continue end
+			if
+				key == "_value"
+				or key == "_listeners"
+				or key == "_dependents"
+				or key == "_disconnects"
+				or key == "set"
+				or key == "_eval"
+			then
+				continue
+			end
 			return key, value
 		until key == nil
 
@@ -31,14 +40,17 @@ end
 	local num: Val.Val<number> = Val.new(3.141)
 	```
 ]=]
-export type Val<T> = typeof(setmetatable({} :: {
-	_value: T,
-	_listeners: {(T, T, boolean) -> ()},
-	_dependents: {any}, -- Type checker gets mad when I try to say Val<any>
-	_disconnects: {[any]: () -> ()}?,
-	_eval: (((any) -> any) -> T)?,
-	[any]: any
-}, Val))
+export type Val<T> = typeof(setmetatable(
+	{} :: {
+		_value: T,
+		_listeners: { (T, T, boolean) -> () },
+		_dependents: { any }, -- Type checker gets mad when I try to say Val<any>
+		_disconnects: { [any]: () -> () }?,
+		_eval: (((any) -> any) -> T)?,
+		[any]: any,
+	},
+	Val
+))
 
 --[=[
 	@type T<T> Val<T>
@@ -52,18 +64,26 @@ export type Val<T> = typeof(setmetatable({} :: {
 export type T<T> = Val<T>
 
 -- Memory safety stuff
-local function trueClosure() return true end
-local function voidClosure() return function() end end
+local function trueClosure()
+	return true
+end
+local function voidClosure()
+	return function() end
+end
 local function bad<T>(self: Val<T>, key: any): any?
-	if key == "isdead" then return trueClosure end
-	if key == "die" then return voidClosure end -- Don't punish client for wanting to make sure the value is dead
+	if key == "isdead" then
+		return trueClosure
+	end
+	if key == "die" then
+		return voidClosure
+	end -- Don't punish client for wanting to make sure the value is dead
 	error("Attempt to use Val object that has been destroyed.")
 	return voidClosure
 end
 local function badSet()
 	error("Attempt to call Val:set() on a computed Val object.")
 end
-local badMT = {__index = bad, __newindex = bad}
+local badMT = { __index = bad, __newindex = bad }
 
 --[=[
 	Constructs a new state
@@ -77,7 +97,7 @@ function Val.new<T>(value: T): Val<T>
 	return setmetatable({
 		_value = value,
 		_listeners = {},
-		_dependents = {}
+		_dependents = {},
 	}, Val)
 end
 
@@ -604,7 +624,7 @@ end
 	num:set(0) -- was 10 now 0 false
 	```
 ]=]
-function Val.on<T>(self: Val<T>, callback: (T, T, boolean) -> (), callImmediately: boolean?): (() -> ())
+function Val.on<T>(self: Val<T>, callback: (T, T, boolean) -> (), callImmediately: boolean?): () -> ()
 	table.insert(self._listeners, callback)
 
 	if callImmediately then
@@ -612,9 +632,13 @@ function Val.on<T>(self: Val<T>, callback: (T, T, boolean) -> (), callImmediatel
 	end
 
 	return function()
-		if Val.isdead(self) then return end -- In case the state was destroyed
+		if Val.isdead(self) then
+			return
+		end -- In case the state was destroyed
 		local index = table.find(self._listeners, callback)
-		if index == nil then return end -- You just never know...
+		if index == nil then
+			return
+		end -- You just never know...
 		table.remove(self._listeners, index)
 	end
 end
@@ -644,7 +668,9 @@ end
 	```
 ]=]
 function Val.die<T>(self: Val<T>, shallow: boolean?): nil
-	if Val.isdead(self) then return end -- State is already dead (may happen due to coupled states causing memory shenanigans)
+	if Val.isdead(self) then
+		return
+	end -- State is already dead (may happen due to coupled states causing memory shenanigans)
 
 	for index = #self._dependents, 1, -1 do
 		Val.die(self._dependents[index])
@@ -675,7 +701,9 @@ function Val.die<T>(self: Val<T>, shallow: boolean?): nil
 			elseif typeof(value) == "table" then -- Destroy state elements if value is a table
 				for key, state in value do
 					local mt = getmetatable(state :: any)
-					if mt ~= Val and mt ~= badMT then continue end
+					if mt ~= Val and mt ~= badMT then
+						continue
+					end
 					value[key] = state:die()
 				end
 			end
@@ -695,7 +723,6 @@ function Val.die<T>(self: Val<T>, shallow: boolean?): nil
 	setmetatable(self :: any, badMT)
 	return nil
 end
-
 
 --[=[
 	@within Val
@@ -745,7 +772,7 @@ end
 	```
 ]=]
 function Val.calc<T>(eval: ((Val<any>) -> any) -> T): Val<T>
-	local dependencies: {Val<any>} = {}
+	local dependencies: { Val<any> } = {}
 
 	local function get<U>(self: Val<U>)
 		if not table.find(dependencies, self) then
@@ -761,7 +788,7 @@ function Val.calc<T>(eval: ((Val<any>) -> any) -> T): Val<T>
 		_dependents = {},
 		_disconnects = {},
 		_eval = eval,
-		set = badSet -- Enforce read-only behavior
+		set = badSet, -- Enforce read-only behavior
 	}, Val)
 
 	for _, state in ipairs(dependencies) do
@@ -799,7 +826,7 @@ end
 	```
 ]=]
 function Val.batch(fn: ((Val<any>, any) -> ()) -> ())
-	local oldValues: {[Val<any>]: any} = {}
+	local oldValues: { [Val<any>]: any } = {}
 
 	local function set<T>(self: Val<T>, value: T)
 		if oldValues[self] == nil then
@@ -813,7 +840,7 @@ function Val.batch(fn: ((Val<any>, any) -> ()) -> ())
 	for state, old in oldValues do
 		local new = state._value
 		for _, callback in ipairs(state._listeners) do
-			callback(old, new, false)
+			callback(new, old, false)
 		end
 	end
 end
@@ -856,9 +883,11 @@ end
 	waypoints:die() -- kills all the Vector3 states inside the scope
 	```
 ]=]
-function Val.scope(values: {[any]: any}?): Val<nil>
+function Val.scope(values: { [any]: any }?): Val<nil>
 	local self = Val.new(nil)
-	if values == nil then return self end
+	if values == nil then
+		return self
+	end
 
 	for key, value in values do
 		self[key] = value
@@ -900,7 +929,18 @@ end
 	})
 	```
 ]=]
-function Val.asOption<T>(self: Val<T>, config: {type: string, displayName: string, category: string, increment: number?, selection: {string}?, min: number?, max: number?}): Val<T>
+function Val.asOption<T>(
+	self: Val<T>,
+	config: {
+		type: string,
+		displayName: string,
+		category: string,
+		increment: number?,
+		selection: { string }?,
+		min: number?,
+		max: number?,
+	}
+): Val<T>
 	if config.type == "int" then
 		config.min = config.min or -math.huge
 		config.max = config.max or math.huge
@@ -939,7 +979,7 @@ function Val.copy<T>(self: Val<T>): Val<T>
 		_listeners = {},
 		_dependents = {},
 		_eval = self._eval,
-		set = self.set
+		set = self.set,
 	}, Val)
 
 	-- Restore computed behavior if applicable

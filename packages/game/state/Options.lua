@@ -1,6 +1,6 @@
 local Val = require(game.ReplicatedStorage.Libraries.Val)
 
-local Options = Val.scope({
+local Options = {
 	-- Input Settings
 	Keybind1 = Val.new("A"):asOption({
 		type = "keybind",
@@ -194,6 +194,6 @@ local Options = Val.scope({
 	StartTimeMs = Val.new(0), -- Start time in milliseconds
 	GameSlot = Val.new(0), -- Game slot for multiplayer
 	RecordReplay = Val.new(false), -- Record replay data
-})
+}
 
 return Options
