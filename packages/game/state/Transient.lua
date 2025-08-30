@@ -3,6 +3,7 @@ local Val = require(game.ReplicatedStorage.Libraries.Val)
 local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
 
 local Transient = {}
+Transient.initialized = false
 
 ----------------------------------------------------------------
 -- SONG SELECTION STATE
@@ -49,14 +50,6 @@ Transient.profile = Val.calc(function(get)
 	return profile
 end)
 
-Transient.previousProfile = Val.new(nil)
-
-Transient.profile:on(function(profile, previousProfile)
-	print("Profile updated:", previousProfile.playCount, "->", profile.playCount)
-
-	Transient.previousProfile:set(previousProfile)
-end)
-
 function Transient.updateProfile(
 	player: Player,
 	avatar: string,
@@ -77,6 +70,8 @@ function Transient.updateProfile(
 		set(profile.accuracy, accuracy)
 		set(profile.playCount, playCount)
 	end)
+
+	Transient.initialized = true
 end
 
 function Transient.updateProfilePartial(updates: {
