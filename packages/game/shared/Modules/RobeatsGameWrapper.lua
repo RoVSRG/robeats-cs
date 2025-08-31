@@ -290,7 +290,7 @@ function RobeatsGameWrapper:start()
 	StarterGui:SetCoreGuiEnabled("Chat", false)
 
 	-- Wait for audio to load (with timeout) before starting prestart countdown
-	local function waitForAudio(timeoutSec: number): boolean
+	local function waitForAudio(timeoutSec: number): boolean | nil
 		local audioManager = self._game and self._game._audio_manager
 		if not audioManager then
 			return false
@@ -301,12 +301,23 @@ function RobeatsGameWrapper:start()
 			if bgm.IsLoaded then
 				return true
 			end
+
+			if self._state :: any == "idle" then
+				return nil
+			end
+
 			task.wait(0.05)
 		end
 		return bgm.IsLoaded == true
 	end
 
 	local loaded = waitForAudio(DEFAULT_AUDIO_LOAD_TIMEOUT)
+
+	if loaded == nil then
+		print("Early quit! Not continuing with gameplay.")
+		return false
+	end
+
 	if not loaded then
 		warn(
 			string.format(

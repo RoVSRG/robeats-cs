@@ -20,6 +20,8 @@ Screen.MAWindow.BackButton.MouseButton1Click:Connect(function()
 	ScreenChief:Switch("SongSelect")
 end)
 
+local logHistory = {}
+
 local function onGameCreated()
 	local Counters = Screen.MAWindow.Counters
 	local CompeteScreen = Screen.CompeteScreen
@@ -39,8 +41,18 @@ local function onGameCreated()
 	local function logToLoadingScreen(message: string)
 		local log = logTemplate:Clone()
 		log.Text = message
-		log.LayoutOrder = i
 		log.Parent = Logs
+
+		table.insert(logHistory, log)
+
+		if #logHistory > 6 then
+			local oldestLog = table.remove(logHistory, 1)
+			oldestLog:Destroy()
+		end
+
+		for i, _ in ipairs(logHistory) do
+			log.LayoutOrder = i
+		end
 
 		i += 1
 	end
