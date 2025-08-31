@@ -24,12 +24,38 @@ local function onGameCreated()
 	local Counters = Screen.MAWindow.Counters
 	local CompeteScreen = Screen.CompeteScreen
 	local LaneCover = Screen.LaneCover
+	local Logs = Screen.LoadingScreen:FindFirstChild("Logs")
+
+	local logTemplate = ScreenChief:GetTemplates("Gameplay"):FindFirstChild("LogItem")
 
 	CompeteScreen.Player1.Visible = true
 	CompeteScreen.Player1.Avatar.Image = Pfp.getPfp(game.Players.LocalPlayer.UserId)
 	CompeteScreen.Player1.PlayerName.Text = game.Players.LocalPlayer.Name
 
 	MainGui.IgnoreGuiInset = true
+
+	local i = 0
+
+	local function logToLoadingScreen(message: string)
+		local log = logTemplate:Clone()
+		log.Text = message
+		log.LayoutOrder = i
+		log.Parent = Logs
+
+		i += 1
+	end
+
+	Screen.LoadingScreen.Visible = true
+
+	logToLoadingScreen("Game initializing")
+	logToLoadingScreen("Loading audio... If audio is not loaded within 5 seconds, game will start anyway.")
+
+	task.spawn(function()
+		for i = 5, 1, -1 do
+			logToLoadingScreen("Game starting in " .. i .. "...")
+			task.wait(1)
+		end
+	end)
 
 	local function constructLaneCover()
 		if Options.LaneCoverEnabled:get() then
@@ -96,6 +122,10 @@ local function onGameCreated()
 
 		MainGui.IgnoreGuiInset = false
 		ScreenChief:Switch("SongSelect")
+	end)
+
+	_game.loaded:Connect(function()
+		Screen.LoadingScreen.Visible = false
 	end)
 end
 

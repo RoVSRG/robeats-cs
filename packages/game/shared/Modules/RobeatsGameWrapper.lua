@@ -57,6 +57,9 @@ export type GameState = "idle" | "loading" | "ready" | "playing" | "paused" | "f
 local RobeatsGameWrapper = {}
 RobeatsGameWrapper.__index = RobeatsGameWrapper
 
+-- Seconds to wait for audio to load before starting anyway
+local DEFAULT_AUDIO_LOAD_TIMEOUT = 5
+
 function RobeatsGameWrapper.new()
 	local self = setmetatable({}, RobeatsGameWrapper)
 
@@ -77,6 +80,7 @@ function RobeatsGameWrapper.new()
 	self.noteMissed = Signal.new() :: any
 	self.scoreChanged = Signal.new() :: any
 	self.updated = Signal.new() :: any
+	self.loaded = Signal.new()
 
 	-- Initialize stats
 	self._stats = {} :: GameStats
@@ -285,7 +289,38 @@ function RobeatsGameWrapper:start()
 	StarterGui:SetCoreGuiEnabled("PlayerList", false)
 	StarterGui:SetCoreGuiEnabled("Chat", false)
 
-	-- Start the game
+	-- Wait for audio to load (with timeout) before starting prestart countdown
+	local function waitForAudio(timeoutSec: number): boolean
+		local audioManager = self._game and self._game._audio_manager
+		if not audioManager then
+			return false
+		end
+		local bgm = audioManager:get_bgm()
+		local startT = tick()
+		while tick() - startT < timeoutSec do
+			if bgm.IsLoaded then
+				return true
+			end
+			task.wait(0.05)
+		end
+		return bgm.IsLoaded == true
+	end
+
+	local loaded = waitForAudio(DEFAULT_AUDIO_LOAD_TIMEOUT)
+	if not loaded then
+		warn(
+			string.format(
+				"[RobeatsGameWrapper] Audio failed to load within %ds, starting without it",
+				DEFAULT_AUDIO_LOAD_TIMEOUT
+			)
+		)
+	else
+		-- Optional: debug log
+		print("[RobeatsGameWrapper] Audio loaded; starting game")
+	end
+
+	self.loaded:Fire(loaded)
+
 	self._startTime = tick()
 	self._game:start_game()
 
