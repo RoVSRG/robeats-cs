@@ -2,19 +2,18 @@ local fs = require("@lune/fs")
 local serde = require("@lune/serde")
 local roblox = require("@lune/roblox")
 
--- Development metadata editing server (metadata only; hitobjects immutable here)
--- Exposes /save which patches allowed metadata keys for a song identified by MD5Hash.
+-- Simple development metadata editing server
+-- POST /save { hash: string, delta: {<whitelisted keys>} }
+-- Directly operates on songs/dist/<hash>.rbxm and its YAML metadata (searching DB each request).
 
 local function parseJson(json: string)
 	return serde.decode("json", json)
 end
-
 local function stringifyJson(data: any)
 	return serde.encode("json", data)
 end
 
 local Fastify = require("@self/fastify")
-
 local app = Fastify.new()
 
 local BASE_DIR = "./packages/songs"
@@ -22,7 +21,20 @@ local DB_DIR = BASE_DIR .. "/db"
 local METADATA_FILE = "metadata.yml"
 local DIST_DIR = BASE_DIR .. "/dist"
 
--- Whitelist of metadata keys (YAML -> in-game attribute mapping)
+-- Simple logger with timestamps + level
+local function now()
+	return os.date("!%Y-%m-%dT%H:%M:%SZ")
+end
+
+local function log(level: string, msg: string, ...)
+	local ok, formatted = pcall(string.format, msg, ...)
+	if not ok then
+		formatted = msg .. " (format error)"
+	end
+	print(string.format("[%s][tooling-dev][%s] %s", now(), level, formatted))
+end
+
+-- Whitelist of metadata keys allowed to mutate
 local ALLOWED_KEYS = {
 	Artist = true,
 	AssetId = true,
@@ -34,139 +46,180 @@ local ALLOWED_KEYS = {
 	NotePrebufferTime = true,
 	TimeOffset = true,
 	Volume = true,
-	Difficulty = true, -- now editable (single numeric value post-migration)
-	-- Difficulty table & MD5Hash are NOT directly editable here.
+	Difficulty = true,
 }
 
--- Cache mapping MD5 hash -> folder name for fast lookup
-local hashIndex = nil :: { [string]: string }?
+local function patchMetadata(meta: any, delta: any)
+	for k, v in pairs(delta) do
+		if ALLOWED_KEYS[k] then
+			log("DEBUG", "Patch metadata key %s => %s", k, tostring(v))
+			meta[k] = v
+		end
+	end
+end
 
-local function buildHashIndex()
-	local index: { [string]: string } = {}
+-- Pre-computed hash index for metadata hash -> folder
+local hashIndex = {} :: { [string]: string }
+local indexing = false
+
+local function buildHashIndex(force: boolean?)
+	if indexing then
+		return -- prevent re-entrancy
+	end
+	indexing = true
+	hashIndex = {}
 	local dirs = fs.readDir(DB_DIR)
+	local count = 0
 	for _, folder in ipairs(dirs) do
 		local metaPath = string.format("%s/%s/%s", DB_DIR, folder, METADATA_FILE)
 		if fs.isFile(metaPath) then
 			local ok, decoded = pcall(function()
 				return serde.decode("yaml", fs.readFile(metaPath))
 			end)
-			if ok and decoded and type(decoded) == "table" and decoded.MD5Hash then
-				index[tostring(decoded.MD5Hash)] = folder
+			if ok and type(decoded) == "table" and decoded.MD5Hash then
+				hashIndex[tostring(decoded.MD5Hash)] = folder
+				count += 1
+			else
+				if not ok then
+					log("WARN", "Failed decoding metadata for folder %s", folder)
+				end
 			end
 		end
 	end
-	hashIndex = index
+	log("INFO", "Hash index built with %d entries", count)
+	indexing = false
 end
 
-local function ensureHashIndex()
-	if not hashIndex then
-		buildHashIndex()
+-- Build at startup
+buildHashIndex()
+
+local function resolveFolder(hash: string): string?
+	local folder = hashIndex[hash]
+	if folder then
+		return folder
 	end
+	-- Fallback: rebuild index once if missing
+	log("DEBUG", "Hash %s not in index; rebuilding index", hash)
+	buildHashIndex(true)
+	return hashIndex[hash]
 end
 
-local function resolveHash(hash: string): (string?, string?)
-	ensureHashIndex()
-	if hashIndex and hashIndex[hash] then
-		return hashIndex[hash], nil
-	end
-	return nil, "Unknown hash"
-end
+app:get("/reindex", function()
+	buildHashIndex(true)
+	return { status = 200, body = "Reindexed" }
+end)
 
-local function patchMetadata(meta: any, delta: any)
-	for k, v in pairs(delta) do
-		if ALLOWED_KEYS[k] then
-			meta[k] = v
-		end
-	end
-end
-
-app:get("/", function(request)
+app:get("/", function()
 	return { status = 200, body = "Robeats CS Development Server" }
 end)
 
 app:post("/save", function(request)
-	local bodyOk, data = pcall(function()
+	log("INFO", "Incoming /save request, raw length=%d", #(request.body or ""))
+	local okBody, data = pcall(function()
 		return parseJson(request.body)
 	end)
-
-	if not bodyOk or type(data) ~= "table" then
+	if not okBody or type(data) ~= "table" then
+		log("WARN", "Invalid JSON body: %s", tostring(data))
 		return { status = 400, body = "Invalid JSON" }
 	end
 
 	local hash = tostring(data.hash or "")
 	local delta = data.delta or {}
-
 	if hash == "" then
+		log("WARN", "Missing hash in request")
 		return { status = 400, body = "Missing hash" }
 	end
+	log(
+		"DEBUG",
+		"Processing hash=%s; delta keys=%d",
+		hash,
+		(function()
+			local c = 0
+			for k, _ in pairs(delta) do
+				c += 1
+			end
+			return c
+		end)()
+	)
 
-	local folder, err = resolveHash(hash)
-	if not folder then
-		return { status = 404, body = err or "Hash not found" }
+	local distModelPath = string.format("%s/%s.rbxm", DIST_DIR, hash)
+	if not fs.isFile(distModelPath) then
+		log("WARN", "Model file missing for hash=%s path=%s", hash, distModelPath)
+		return { status = 404, body = "Model file not found for hash" }
 	end
+	log("DEBUG", "Model file located: %s", distModelPath)
+
+	local folder = resolveFolder(hash)
+	if not folder then
+		log("WARN", "Could not resolve folder for hash=%s after reindex", hash)
+		return { status = 404, body = "Metadata folder not found for hash" }
+	end
+	log("DEBUG", "Resolved folder %s for hash=%s", folder, hash)
 
 	local metaPath = string.format("%s/%s/%s", DB_DIR, folder, METADATA_FILE)
 	local raw = fs.readFile(metaPath)
 	if not raw then
-		return { status = 500, body = "Metadata missing" }
+		log("ERROR", "Metadata file unreadable: %s", metaPath)
+		return { status = 500, body = "Metadata file unreadable" }
 	end
 
-	local ok, meta = pcall(function()
+	local okMeta, meta = pcall(function()
 		return serde.decode("yaml", raw)
 	end)
-	if not ok or type(meta) ~= "table" then
+	if not okMeta or type(meta) ~= "table" then
+		log("ERROR", "Metadata decode failed for %s", metaPath)
 		return { status = 500, body = "Metadata decode failed" }
 	end
+	log("DEBUG", "Loaded metadata for %s", folder)
 
 	patchMetadata(meta, delta)
-
-	-- Write back (serialize to YAML). serde's YAML encoder should preserve ordering loosely; no custom ordering for now.
-	local writeOk, encoded = pcall(function()
+	local okEncode, encoded = pcall(function()
 		return serde.encode("yaml", meta)
 	end)
-	if not writeOk then
-		return { status = 500, body = "Encode failed" }
+	if not okEncode then
+		log("ERROR", "Metadata encode failed for %s", metaPath)
+		return { status = 500, body = "Metadata encode failed" }
+	end
+	fs.writeFile(metaPath, encoded)
+	log("INFO", "Metadata written %s (size=%d)", metaPath, #encoded)
+
+	-- Update model attributes
+	local modelData = fs.readFile(distModelPath)
+	if not modelData then
+		log("ERROR", "Failed reading model file %s", distModelPath)
+		return { status = 500, body = "Failed reading model" }
+	end
+	local okModel, modelInstances = pcall(function()
+		return roblox.deserializeModel(modelData)
+	end)
+	if not okModel or type(modelInstances) ~= "table" or not modelInstances[1] then
+		log("ERROR", "Model deserialize failed hash=%s", hash)
+		return { status = 500, body = "Model deserialize failed" }
 	end
 
-	fs.writeFile(metaPath, encoded)
-
-	-- Also patch the serialized model in /dist so changes persist without full rebuild
-	local distModelPath = string.format("%s/%s.rbxm", DIST_DIR, hash)
-	if fs.isFile(distModelPath) then
-		local modelData = fs.readFile(distModelPath)
-		local okModel, modelInstances = pcall(function()
-			return roblox.deserializeModel(modelData)
-		end)
-		if okModel and type(modelInstances) == "table" and modelInstances[1] then
-			local folderInstance = modelInstances[1]
-			-- Map YAML keys to in-game attribute keys
-			local attrMap = {
-				Artist = "ArtistName",
-				Filename = "SongName",
-				Mapper = "CharterName",
-				Description = "Description",
-				AssetId = "AudioID",
-				CoverImageAssetId = "CoverImageAssetId",
-				Volume = "Volume",
-				HitSFXGroup = "HitSFXGroup",
-				TimeOffset = "TimeOffset",
-				Difficulty = "Difficulty",
-			}
-			for yamlKey, attrKey in pairs(attrMap) do
-				if delta[yamlKey] ~= nil then
-					folderInstance:SetAttribute(attrKey, delta[yamlKey])
-				end
-			end
-			-- Reserialize
-			local serialized = roblox.serializeModel({ folderInstance }, false)
-			fs.writeFile(distModelPath, serialized)
+	local folderInstance = modelInstances[1]
+	local attrMap = {
+		Artist = "ArtistName",
+		Filename = "SongName",
+		Mapper = "CharterName",
+		Description = "Description",
+		AssetId = "AudioID",
+		CoverImageAssetId = "CoverImageAssetId",
+		Volume = "Volume",
+		HitSFXGroup = "HitSFXGroup",
+		TimeOffset = "TimeOffset",
+		Difficulty = "Difficulty",
+	}
+	for yamlKey, attrKey in pairs(attrMap) do
+		if delta[yamlKey] ~= nil then
+			log("DEBUG", "Set attribute %s = %s", attrKey, tostring(delta[yamlKey]))
+			folderInstance:SetAttribute(attrKey, delta[yamlKey])
 		end
 	end
 
-	-- Rebuild index if MD5Hash changed (unlikely since we don't modify it)
-	if meta.MD5Hash ~= hash then
-		buildHashIndex()
-	end
+	local serialized = roblox.serializeModel({ folderInstance }, false)
+	fs.writeFile(distModelPath, serialized)
+	log("INFO", "Model updated %s (size=%d)", distModelPath, #serialized)
 
 	return { status = 200, body = stringifyJson({ updated = delta, folder = folder }) }
 end)

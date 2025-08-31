@@ -26,7 +26,7 @@ local EDITABLE_FIELDS = {
 	{ key = "CoverImageAssetId", attr = "CoverImageAssetId" },
 	{ key = "Volume", attr = "Volume", kind = "number", min = 0, max = 2, step = 0.01 },
 	{ key = "HitSFXGroup", attr = "HitSFXGroup", kind = "number", min = 0, max = 10, step = 1 },
-	{ key = "TimeOffset", attr = "TimeOffset", kind = "number", min = -1000, max = 1000, step = 10 },
+	{ key = "TimeOffset", attr = "TimeOffset", kind = "number", min = -5000, max = 5000, step = 5 },
 	{ key = "Difficulty", attr = "Difficulty", kind = "number", min = 0, max = 100, step = 1 },
 }
 
