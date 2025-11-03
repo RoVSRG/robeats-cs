@@ -33,7 +33,7 @@
   "postinstall": "node -e \"console.log('Postinstall complete. Run \\\"npm run setup\\\" to finish onboarding (binaries + env).');\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.2.1",
     "rimraf": "^5.0.5",
     "nx": "21.4.0"
   },
