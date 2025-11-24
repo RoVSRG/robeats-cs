@@ -77,7 +77,7 @@ jobs:
         run: npm run build:roblox
 
       - name: Upload Roblox assets to release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             RoBeats-Community-Server.rbxl
