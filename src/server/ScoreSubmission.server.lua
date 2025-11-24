@@ -1,4 +1,4 @@
-local SDK = require(game.ReplicatedStorage:WaitForChild("SDK"))
+local SDK = require(game.ServerScriptService.Services.SDK_Impl)
 local Function = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Function"))
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
 local Leaderstats = require(game.ServerScriptService:WaitForChild("Leaderstats"))

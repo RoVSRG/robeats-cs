@@ -1,6 +1,6 @@
 local RunService = game:GetService("RunService")
 
-local SDK = require(game.ReplicatedStorage:WaitForChild("SDK"))
+local SDK = require(game.ServerScriptService.Services.SDK_Impl)
 
 local function pingServer()
 	local success = pcall(function()

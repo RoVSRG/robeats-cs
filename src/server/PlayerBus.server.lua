@@ -1,4 +1,4 @@
-local SDK = require(game.ReplicatedStorage:WaitForChild("SDK"))
+local SDK = require(game.ServerScriptService.Services.SDK_Impl)
 
 local DataStoreService = game:GetService("DataStoreService")
 local LocalizationService = game:GetService("LocalizationService")
