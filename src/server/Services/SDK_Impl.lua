@@ -29,7 +29,7 @@ function SDK.Scores.post(data)
 	
 	local success, err = pcall(function()
 		userStore:UpdateAsync(userId, function(currentData)
-			currentData = currentData or { Scores = {}, Stats = { TotalScore = 0, PlayCount = 0 } }
+			currentData = currentData or { Scores = {}, Stats = { TotalScore = 0, PlayCount = 0, AverageAccuracy = 0 } }
 			
 			-- Check if this is a new high score
 			local oldScoreData = currentData.Scores[songHash]
@@ -43,8 +43,14 @@ function SDK.Scores.post(data)
 			end
 			
 			-- Update global stats
+			-- Recalculate average accuracy: (OldAvg * OldCount + NewAcc) / NewCount
+			local oldAvg = currentData.Stats.AverageAccuracy or 0
+			local oldCount = currentData.Stats.PlayCount or 0
+			local newCount = oldCount + 1
+			
 			currentData.Stats.TotalScore = (currentData.Stats.TotalScore or 0) + payload.score
-			currentData.Stats.PlayCount = (currentData.Stats.PlayCount or 0) + 1
+			currentData.Stats.PlayCount = newCount
+			currentData.Stats.AverageAccuracy = ((oldAvg * oldCount) + payload.accuracy) / newCount
 			
 			finalData = currentData
 			return currentData
@@ -57,8 +63,6 @@ function SDK.Scores.post(data)
 	end
 	
 	-- 2. Update Song Leaderboard (OrderedDataStore)
-	-- Only update if it's a PB or if we don't check (ODS handles max automatically? No, we must check)
-	-- Actually, UpdateAsync on ODS allows us to transform.
 	local leaderboardStore = DataStoreManager.getSongLeaderboardStore(songHash)
 	local packedValue = DataStoreManager.packScore(payload.score, payload.accuracy)
 	
@@ -70,8 +74,7 @@ function SDK.Scores.post(data)
 		return nil -- No update
 	end)
 
-	-- 3. Update Global Leaderboard (Total Score? Rating?)
-	-- For now, let's just use Total Score as a proxy for "Rating" since we don't have a complex rating calc backend anymore.
+	-- 3. Update Global Leaderboard
 	local globalStore = DataStoreManager.getGlobalLeaderboardStore()
 	local totalScore = 0
 	if finalData and finalData.Stats then
@@ -100,49 +103,24 @@ function SDK.Scores.getLeaderboard(hash, userId)
 	
 	for rank, entry in ipairs(topPage) do
 		local score, acc = DataStoreManager.unpackScore(entry.value)
-		-- We need names. Getting them one by one is slow.
-		-- In a real prod env, we'd cache names. 
-		-- For now, just fetch.
 		table.insert(leaderboard, {
-			id = entry.key,
-			name = "Loading...", -- Frontend should handle name fetching or we batch it here
+			user_id = tonumber(entry.key), -- Client expects user_id, not id
+			player_name = "Loading...",    -- Client expects player_name, not name
 			score = score,
 			accuracy = acc,
-			rank = rank
+			rank = rank,
+			rate = 100, -- Default rate if not stored in ODS (we only stored Score/Acc)
+			-- Note: To get full details like marvelouse/perfect counts for the UI, we'd need to fetch the UserProfile.
+			-- For now, we leave them 0 or try to fetch if critical. 
+			-- The UI likely needs them for "Color.getSpreadRichText".
+			marvelous = 0, perfect = 0, great = 0, good = 0, bad = 0, miss = 0
 		})
 	end
 
-	-- Helper to fetch names for the batch
-	task.spawn(function() 
-		-- This is where we'd actually fetch names if this ran on client, 
-		-- but since this returns to a RemoteFunction, we must resolve names now or send IDs.
-		-- Let's try to resolve a few.
-		local ids = {}
-		for _, entry in ipairs(leaderboard) do
-			table.insert(ids, tonumber(entry.id))
-		end
-		
-		if #ids > 0 then
-			local success, infos = pcall(function()
-				return UserService:GetUserInfosByUserIdsAsync(ids)
-			end)
-			if success then
-				for _, info in ipairs(infos) do
-					for _, entry in ipairs(leaderboard) do
-						if tonumber(entry.id) == info.Id then
-							entry.name = info.DisplayName
-						end
-					end
-				end
-			end
-		end
-	end)
-	-- Wait briefly for spawn? No, Lua is single threaded but UserService yields.
-	-- We need to block here to return names.
-	
+	-- Fetch names
 	local ids = {}
 	for _, entry in ipairs(leaderboard) do
-		table.insert(ids, tonumber(entry.id))
+		table.insert(ids, entry.user_id)
 	end
 	
 	if #ids > 0 then
@@ -152,15 +130,30 @@ function SDK.Scores.getLeaderboard(hash, userId)
 		if success then
 			for _, info in ipairs(infos) do
 				for _, entry in ipairs(leaderboard) do
-					if tonumber(entry.id) == info.Id then
-						entry.name = info.DisplayName
+					if entry.user_id == info.Id then
+						entry.player_name = info.DisplayName
 					end
 				end
 			end
 		end
 	end
+	
+	-- Fetch "Best" for the requesting user
+	local best = nil
+	if userId then
+		local userStore = DataStoreManager.getUserStore()
+		local success, data = pcall(function()
+			return userStore:GetAsync(userId)
+		end)
+		if success and data and data.Scores and data.Scores[hash] then
+			best = data.Scores[hash]
+		end
+	end
 
-	return leaderboard
+	return {
+		leaderboard = leaderboard,
+		best = best
+	}
 end
 
 -- GET User Best Scores
@@ -171,9 +164,6 @@ function SDK.Scores.getUserBest(userId)
 	end)
 	
 	if success and data and data.Scores then
-		-- Convert dictionary to array if needed, or return as is.
-		-- The frontend likely expects an array or specific format.
-		-- Let's return the raw scores map.
 		return data.Scores
 	end
 	return {}
@@ -192,7 +182,7 @@ function SDK.Players.getTop()
 		table.insert(result, {
 			id = entry.key,
 			name = "Loading...",
-			rating = entry.value, -- Using Total Score as rating
+			rating = entry.value,
 			rank = rank
 		})
 		table.insert(ids, tonumber(entry.key))
@@ -223,15 +213,17 @@ function SDK.Players.get(userId)
 		return userStore:GetAsync(userId)
 	end)
 	
-	if success and data then
-		return {
-			id = userId,
-			name = getUserName(userId),
-			stats = data.Stats or {},
-			-- Add other profile fields if needed
-		}
-	end
-	return nil
+	local stats = (data and data.Stats) or { TotalScore = 0, PlayCount = 0, AverageAccuracy = 0 }
+	
+	return {
+		id = userId,
+		name = getUserName(userId),
+		rank = 0, -- Placeholder
+		rating = stats.TotalScore or 0,
+		accuracy = stats.AverageAccuracy or 0,
+		playCount = stats.PlayCount or 0,
+		-- avatar = "" -- Client likely fetches this themselves via Pfp module
+	}
 end
 
 function SDK.Players.postJoin(data)
