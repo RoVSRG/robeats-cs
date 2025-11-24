@@ -7,7 +7,7 @@ local serde = require("@lune/serde")
 
 local compression = require("./utils/compression").Zlib
 
-local BASE_DIR = "./packages/songs"
+local BASE_DIR = "./songs"
 local DB_DIR = BASE_DIR .. "/db"
 
 for index, arg in process.args do

@@ -12,56 +12,56 @@
     },
 
     "ReplicatedStorage": {
-      "$path": "packages/game/shared",
+      "$path": "src/shared",
       "$ignoreUnknownInstances": true,
       "Remotes": {
         "$className": "Folder",
         "Events": {
           "$className": "Folder",
-          "$path": "packages/game/remotes/events"
+          "$path": "src/remotes/events"
         },
         "Functions": {
           "$className": "Folder",
-          "$path": "packages/game/remotes/functions"
+          "$path": "src/remotes/functions"
         },
         "Development": {
           "$className": "Folder",
-          "$path": "packages/game/remotes/development"
+          "$path": "src/remotes/development"
         }
       },
       "Skins": {
-        "$path": "packages/skins"
+        "$path": "src/skins"
       },
       "Bindables": {
-        "$path": "packages/game/bindables"
+        "$path": "src/bindables"
       },
       "RobeatsGameCore": {
-        "$path": "packages/game/engine"
+        "$path": "src/engine"
       },
       "State": {
-        "$path": "packages/game/state"
+        "$path": "src/state"
       }
     },
 
     "ServerScriptService": {
-      "$path": "packages/game/server"
+      "$path": "src/server"
     },
 
     "ServerStorage": {
       "$ignoreUnknownInstances": true,
       "Plugins": {
         "$className": "Folder",
-        "$path": "packages/plugins"
+        "$path": "src/plugins"
       },
       "Songs": {
         "$className": "Folder",
-        "$path": "packages/songs/dist"
+        "$path": "songs/dist"
       }
     },
 
     "Workspace": {
       "$ignoreUnknownInstances": true,
-      "$path": "packages/game/workspace",
+      "$path": "src/workspace",
       "$properties": {
         "StreamingEnabled": false
       }
@@ -78,14 +78,14 @@
         "LoadCharacterAppearance": false
       },
       "StarterPlayerScripts": {
-        "$path": "packages/game/client"
+        "$path": "src/client"
       }
     },
 
     "StarterGui": {
       "$ignoreUnknownInstances": true,
       "Screens": {
-        "$path": "packages/game/gui/screens",
+        "$path": "src/gui/screens",
         "$ignoreUnknownInstances": false
       }
     }

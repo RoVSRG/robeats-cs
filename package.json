@@ -1,56 +1,18 @@
 {
-  "name": "robeats-cs-monorepo",
-  "version": "1.0.0",
-  "description": "RoBeats Community Server - A comprehensive Roblox rhythm game with API server",
-  "private": true,
-  "workspaces": [
-    "packages/backend",
-    "packages/cli",
-    "packages/sdk"
-  ],
+  "name": "robeats-cs",
+  "version": "2.0.0",
+  "description": "RoBeats Community Server - Simplified",
   "scripts": {
-    "build": "nx run-many --target=build --all",
-    "build:prod": "nx run-many --target=build --all --configuration=production",
-    "dev": "nx run-many --target=dev --all --parallel",
-    "dev:game": "concurrently \"nx dev backend\" \"nx serve game\" --names \"api,rojo\" --prefix-colors \"blue,green\"",
-    "serve:game": "nx serve game",
-    "sync": "nx sync game",
-    "build:songs": "nx build songs",
-    "build:backend": "nx build backend",
-    "build:game": "nx build game",
-    "build:cli": "nx build cli",
-    "build:sdk": "nx build sdk",
-    "generate:sdk": "nx generate sdk",
-    "dev:backend": "nx dev backend",
-    "start:backend": "nx start backend",
-    "lint": "nx run-many --target=lint --all",
-    "lint:backend": "nx lint backend",
-    "test": "nx run-many --target=test --all",
-    "test:backend": "nx test backend",
-    "watch:tooling": "nx watch tooling",
-    "clean": "nx reset && rimraf packages/*/dist dist",
-  "setup": "node scripts/setup.mjs",
-  "postinstall": "node -e \"console.log('Postinstall complete. Run \\\"npm run setup\\\" to finish onboarding (binaries + env).');\""
+    "build": "node -e \"require('fs').mkdirSync('dist', {recursive: true})\" && .\\tools\\rojo.cmd build default.project.json --output dist/robeats-cs.rbxl",
+    "serve": ".\\tools\\rojo.cmd serve default.project.json",
+    "build:songs": ".\\tools\\lune.cmd run songs/build",
+    "clean": "rimraf dist",
+    "dev": "npm run serve"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "rimraf": "^5.0.5",
-    "nx": "21.4.0"
+    "rimraf": "^5.0.5"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-org/robeats-cs.git"
-  },
-  "keywords": [
-    "roblox",
-    "rhythm-game",
-    "monorepo",
-    "api",
-    "typescript"
-  ],
   "author": "RoBeats Community",
   "license": "MIT"
 }
