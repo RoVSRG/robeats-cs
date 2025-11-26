@@ -57,8 +57,6 @@ local submitScore = Function.create(function(player, scoreData, settings)
 		)
 	end
 
-	-- Build payload per new generated SDK schema (PostRequestBody)
-	-- PostRequestBody = { user: {...}, map: { hash: string }, payload: { rating, score, accuracy, grade, ... } }
 	local payload = {
 		user = {
 			userId = player.UserId,
@@ -71,16 +69,10 @@ local submitScore = Function.create(function(player, scoreData, settings)
 	payload.payload.hash = settings.hash
 
 	-- Try synchronous request first using SDK
-	local user = payload.user
-	local map = payload.map
-	local scorePayload = payload.payload
+	local submission = payload
 
 	local success, response = pcall(function()
-		return SDK.Scores.post({
-			user = user,
-			map = map,
-			payload = scorePayload,
-		})
+		return SDK.Scores.submit(submission)
 	end)
 
 	if success and response then
@@ -93,15 +85,16 @@ local submitScore = Function.create(function(player, scoreData, settings)
 
 		return response
 	else
-		Queue.addToQueue(function(u, m, p)
+		-- Queue for retry
+		Queue.addToQueue(function(submissionData)
 			local ok2, res2 = pcall(function()
-				return SDK.Scores.post({ user = u, map = m, payload = p })
+				return SDK.Scores.submit(submissionData)
 			end)
 			if ok2 and res2 and res2.rank ~= nil then
 				Events.PlayerUpdated:Fire(player, res2)
 				print(player.Name .. " submitted a score (queued)")
 			end
-		end, user, map, scorePayload)
+		end, submission)
 		print(player.Name .. " score submission queued (connection failed)")
 	end
 
@@ -112,13 +105,14 @@ local getLeaderboard = Function.create(function(player, hash)
 	if not hash or type(hash) ~= "string" then
 		error("Invalid hash provided for leaderboard retrieval by " .. player.Name)
 	end
-	local result = SDK.Scores.getLeaderboard(hash, tostring(player.UserId))
+	-- Pass number for UserId
+	local result = SDK.Scores.getLeaderboard(hash, player.UserId)
 
 	return result
 end)
 
 local getYourScores = Function.create(function(player)
-	local result = SDK.Scores.getUserBest(tostring(player.UserId))
+	local result = SDK.Scores.getUserBest(player.UserId)
 	return result
 end)
 
@@ -128,7 +122,7 @@ local getGlobalLeaderboard = Function.create(function(player)
 end)
 
 local getProfile = Function.create(function(player)
-	local result = SDK.Players.get(tostring(player.UserId))
+	local result = SDK.Players.getProfile(player.UserId)
 	return result
 end)
 
@@ -144,7 +138,7 @@ game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
 
 	Queue.addToQueue(function(userId, name)
-		SDK.Players.postJoin({ userId = userId, name = name })
+		SDK.Players.join(userId, name)
 	end, player.UserId, player.Name)
 
 	print("Player " .. player.Name .. " has joined.")

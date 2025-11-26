@@ -3,10 +3,10 @@ local RunService = game:GetService("RunService")
 local SDK = require(game.ServerScriptService.Services.SDK)
 
 local function pingServer()
-	local success = pcall(function()
-		SDK.Root.get()
+	local success, result = pcall(function()
+		return SDK.ping()
 	end)
-	return success
+	return success and result
 end
 
 local serverWorking = nil

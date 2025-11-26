@@ -1,0 +1,60 @@
+{
+  "name": "robeats-cs-transactor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "npm run infra:up && npm run prisma:generate && tsx watch src/index.ts",
+    "infra:up": "docker compose --profile dev up -d db valkey && echo 'Waiting for DB...' && sleep 5",
+    "infra:down": "docker compose down",
+    "prisma:generate": "prisma generate",
+    "tsc:build": "tsc -b",
+    "build": "npm run prisma:generate && tsc -b",
+    "sdk-generate": "node sdk/generate-types.js",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts,.js --fix",
+    "lint:check": "eslint src --ext .ts,.js",
+    "test": "echo \"Warning: no tests specified\" && exit 0",
+    "up": "docker compose --profile prod up -d --build",
+    "dev:up": "docker compose --profile dev up -d --build api-dev db valkey",
+    "down": "docker compose down -v",
+    "logs": "docker compose logs -f api",
+    "dev:logs": "docker compose logs -f api-dev",
+    "rebuild": "docker compose up -d --build --force-recreate",
+    "db:migrate": "docker compose run --rm api npx prisma migrate deploy",
+    "db:studio": "docker compose run --rm api npx prisma studio",
+    "test:in-docker": "docker compose run --rm api npm test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "imports": {
+    "#prisma": "./generated/prisma/index.js",
+    "#prisma/*": "./generated/prisma/*.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@fastify/swagger": "^9.5.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "@prisma/client": "^6.13.0",
+    "@sinclair/typebox": "^0.34.40",
+    "dotenv": "^17.2.1",
+    "fastify": "^5.4.0",
+    "handlebars": "^4.7.8",
+    "pg": "^8.16.3",
+    "prisma": "^6.13.0",
+    "redis": "^4.7.1",
+    "zod": "^4.0.10"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@types/pg": "^8.15.5",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}
