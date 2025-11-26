@@ -157,7 +157,7 @@ async function main() {
         },
         Volume: {
           Float64:
-            metadata.Volume !== undefined || metadata.Volume !== null
+            metadata.Volume !== undefined && metadata.Volume !== null
               ? Number(metadata.Volume)
               : 1,
         },
