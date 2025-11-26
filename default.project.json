@@ -14,6 +14,9 @@
     "ReplicatedStorage": {
       "$path": "src/shared",
       "$ignoreUnknownInstances": true,
+      "Packages": {
+        "$path": "Packages"
+      },
       "Remotes": {
         "$className": "Folder",
         "Events": {

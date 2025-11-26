@@ -4,3 +4,6 @@
 # To add a new tool, add an entry to this table.
 [tools]
 rojo = "rojo-rbx/rojo@7.6.1"
+wally = "UpliftGames/wally@0.3.2"
+luau = "luau-lang/luau@0.701"
+selene = "kampfkarren/selene@0.29.0"

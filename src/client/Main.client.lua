@@ -1,17 +1,13 @@
--- Clear all children of StarterGui so that it doesn't interfere with tagging
-game:GetService("StarterGui"):ClearAllChildren()
-
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContentProvider = game:GetService("ContentProvider")
+local React = require(ReplicatedStorage.Packages.React)
+local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 
-local SettingsSerializer = require(game.ReplicatedStorage.Serialization.SettingsSer)
-
-local ScreenChief = require(game.ReplicatedStorage.Modules.ScreenChief)
-local SongDatabase = require(game.ReplicatedStorage.SongDatabase)
-local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
-
-local GetSettings = game.ReplicatedStorage.Remotes.Functions.GetSettings
-
-local Transient = require(game.ReplicatedStorage.State.Transient)
+local App = require(script.Parent.App)
+local SongDatabase = require(ReplicatedStorage.SongDatabase)
+local EnvironmentSetup = require(ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+local GetSettings = ReplicatedStorage.Remotes.Functions.GetSettings
+local SettingsSerializer = require(ReplicatedStorage.Serialization.SettingsSer)
 
 local function handlePlayerSettings()
 	local playerSettings = GetSettings:InvokeServer()
@@ -20,7 +16,6 @@ end
 
 local function setupLighting()
 	local lighting = game:GetService("Lighting")
-
 	local bloom = Instance.new("BloomEffect")
 	bloom.Intensity = 0.1
 	bloom.Size = 24
@@ -29,30 +24,27 @@ local function setupLighting()
 end
 
 local function initialize()
+	-- 1. Cleanup
+	game:GetService("StarterGui"):ClearAllChildren()
+	
+	-- 2. Setup Env
 	setupLighting()
-
 	EnvironmentSetup:initial_setup()
-
-	local live = ScreenChief:GetScreenGui()
-
-	local MainMenu = ScreenChief:GetScreen("Initialize")
-	MainMenu.Parent = live
-
-	for _, skin in require(game.ReplicatedStorage.Skins):key_itr() do
-		task.spawn(function()
-			ContentProvider:PreloadAsync({ skin })
-		end)
+	
+	-- 3. Start Loading (Async)
+	for _, skin in require(ReplicatedStorage.Skins):key_itr() do
+		task.spawn(function() ContentProvider:PreloadAsync({ skin }) end)
 	end
+	
+	SongDatabase:LoadAllSongs() 
+	
+    -- 4. Load Settings
+	task.spawn(handlePlayerSettings)
 
-	SongDatabase:LoadAllSongs()
-
-	if not SongDatabase.IsLoaded then
-		SongDatabase.Loaded.Event:Wait()
-	end
-
-	Transient.song.selected:set(math.random(1, #SongDatabase.songs))
-
-	handlePlayerSettings()
+	-- 5. Mount App
+    local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	local root = ReactRoblox.createRoot(playerGui)
+	root:render(React.createElement(App))
 end
 
 initialize()
