@@ -1,57 +1,9 @@
 name: robeats-cs-backend
 
 services:
-  api:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file:
-      - .env
-      - .env.local
-    environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      DATABASE_URL: ${DATABASE_URL:-postgresql://robeats:robeats_password_change_in_production@db:5432/robeats?schema=public}
-      VALKEY_HOST: ${VALKEY_HOST:-valkey}
-      VALKEY_PORT: ${VALKEY_PORT:-6379}
-    ports:
-      - 3000:3000
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', r=>process.exit(r.statusCode===200?0:1))"]
-      interval: 20s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    profiles: [prod]
-
-  api-dev:
-    image: node:24-alpine
-    profiles: [dev]
-    working_dir: /app
-    env_file:
-      - .env
-      - .env.local
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: ${DATABASE_URL:-postgresql://robeats:robeats_password_change_in_production@db:5432/robeats?schema=public}
-      VALKEY_HOST: ${VALKEY_HOST:-valkey}
-      VALKEY_PORT: ${VALKEY_PORT:-6379}
-    command: sh -c "npm install && npx prisma generate && npx tsx watch src/index.ts"
-    volumes:
-      - ./:/app
-      - /app/node_modules
-    depends_on:
-      db:
-        condition: service_healthy
-      valkey:
-        condition: service_healthy
-    ports:
-      - 3000:3000
-
   db:
     image: postgres:16-alpine
     restart: unless-stopped
-    profiles: [dev]
     environment:
       POSTGRES_DB: robeats
       POSTGRES_USER: robeats
@@ -70,7 +22,6 @@ services:
     image: valkey/valkey:7.2-alpine
     command: valkey-server --appendonly yes --appendfsync everysec
     restart: unless-stopped
-    profiles: [dev]
     volumes:
       - valkey_data:/data
     healthcheck:

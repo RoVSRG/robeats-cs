@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "npm run infra:up && npm run prisma:generate && tsx watch src/index.ts",
-    "infra:up": "docker compose --profile dev up -d db valkey && echo 'Waiting for DB...' && sleep 5",
+    "dev": "npm run infra:up && npx prisma migrate deploy && npm run prisma:generate && tsx watch src/index.ts",
+    "infra:up": "docker compose up -d db valkey && echo 'Waiting for DB...' && node -e \"setTimeout(() => {}, 5000)\"",
     "infra:down": "docker compose down",
     "prisma:generate": "prisma generate",
     "tsc:build": "tsc -b",
@@ -15,15 +15,9 @@
     "lint": "eslint src --ext .ts,.js --fix",
     "lint:check": "eslint src --ext .ts,.js",
     "test": "echo \"Warning: no tests specified\" && exit 0",
-    "up": "docker compose --profile prod up -d --build",
-    "dev:up": "docker compose --profile dev up -d --build api-dev db valkey",
-    "down": "docker compose down -v",
-    "logs": "docker compose logs -f api",
-    "dev:logs": "docker compose logs -f api-dev",
     "rebuild": "docker compose up -d --build --force-recreate",
-    "db:migrate": "docker compose run --rm api npx prisma migrate deploy",
-    "db:studio": "docker compose run --rm api npx prisma studio",
-    "test:in-docker": "docker compose run --rm api npm test"
+    "db:migrate": "npx prisma migrate deploy",
+    "db:studio": "npx prisma studio"
   },
   "keywords": [],
   "author": "",
