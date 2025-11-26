@@ -12,7 +12,8 @@ local Leaderstats = require(game.ServerScriptService.Leaderstats)
 local Events = game.ServerScriptService.Events
 
 local function fetchProfile(player)
-	local profile = SDK.Players.get(tostring(player.UserId))
+	-- Updated to use getProfile with number
+	local profile = SDK.Players.getProfile(player.UserId)
 	return profile
 end
 
@@ -63,5 +64,7 @@ game.Players.PlayerAdded:Connect(function(player)
 
 	local profile = fetchProfile(player)
 
-	Leaderstats.update(player, profile)
+	if profile then
+		Leaderstats.update(player, profile)
+	end
 end)

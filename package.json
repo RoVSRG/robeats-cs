@@ -7,11 +7,22 @@
     "serve": ".\\tools\\rojo.cmd serve default.project.json",
     "build:songs": ".\\tools\\lune.cmd run songs/build",
     "clean": "rimraf dist",
-    "dev": "npm run serve"
+    "songs:build-rbx": "tsx songs/build.ts",
+    "songs:build": "npm run songs:build-rbx",
+    "dev": "npm run infra:up && npm run prisma:generate && tsx watch backend/src/index.ts"
   },
+  "workspaces": [
+    "backend"
+  ],
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/pako": "^2.0.4",
     "concurrently": "^8.2.2",
-    "rimraf": "^5.0.5"
+    "js-yaml": "^4.1.1",
+    "osu-parsers": "^4.1.7",
+    "pako": "^2.1.0",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.20.6"
   },
   "author": "RoBeats Community",
   "license": "MIT"
