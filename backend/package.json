@@ -4,7 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-  "dev": "echo 'Local (non-docker) dev disabled. Use: npm run up' && exit 1",
+    "dev": "npm run infra:up && npm run prisma:generate && tsx watch src/index.ts",
+    "infra:up": "docker compose --profile dev up -d db valkey && echo 'Waiting for DB...' && sleep 5",
+    "infra:down": "docker compose down",
     "prisma:generate": "prisma generate",
     "tsc:build": "tsc -b",
     "build": "npm run prisma:generate && tsc -b",
