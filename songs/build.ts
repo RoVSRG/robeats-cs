@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import pako from 'pako';
+import fs from "fs";
+import path from "path";
+import pako from "pako";
 
-const SONGS_DB_DIR = path.join('songs', 'db');
-const DIST_DIR = path.join('songs', 'dist');
+const SONGS_DB_DIR = path.join("songs", "db");
+const DIST_DIR = path.join("songs", "dist");
 
 // Define interfaces for our JSON song structure
 interface SongMetadata {
@@ -98,7 +98,7 @@ function generateHitObjectData(hitObjects: HitObject[]): {
 }
 
 function toBase64(data: string): string {
-  return Buffer.from(data).toString('base64');
+  return Buffer.from(data).toString("base64");
 }
 
 async function main() {
@@ -119,78 +119,105 @@ async function main() {
   let skippedCount = 0;
 
   for (const entry of entries) {
-    if (!entry.isFile() || !entry.name.endsWith('.json')) continue;
+    if (!entry.isFile() || !entry.name.endsWith(".json")) continue;
 
     const songFilePath = path.join(SONGS_DB_DIR, entry.name);
 
     try {
-      const songData: SongData = JSON.parse(fs.readFileSync(songFilePath, 'utf8'));
+      const songData: SongData = JSON.parse(
+        fs.readFileSync(songFilePath, "utf8")
+      );
       const { metadata, objects } = songData;
 
       let difficulty = 0;
       if (Array.isArray(metadata.Difficulty)) {
-        const rateMetadata = metadata.Difficulty.find(d => d.Rate === 100);
+        const rateMetadata = metadata.Difficulty.find((d) => d.Rate === 100);
         difficulty = rateMetadata ? rateMetadata.Overall : 0;
       } else {
         difficulty = metadata.Difficulty;
       }
 
       const lastHitObject = objects[objects.length - 1];
-      const length = lastHitObject ? (lastHitObject.Time + (lastHitObject.Duration || 0)) : 0;
+      const length = lastHitObject
+        ? lastHitObject.Time + (lastHitObject.Duration || 0)
+        : 0;
 
-      const { npsGraph, maxNPS, averageNPS, singles, holds } = generateHitObjectData(objects);
+      const { npsGraph, maxNPS, averageNPS, singles, holds } =
+        generateHitObjectData(objects);
 
-      // Calculate attributes
+      // Calculate attributes with Rojo type wrappers
       const songAttributes: { [key: string]: any } = {
-        ArtistName: metadata.Artist || 'Unknown',
-        SongName: metadata.Filename || 'Unknown',
-        CharterName: metadata.Mapper || 'Unknown',
-        Description: metadata.Description || '',
-        AudioID: metadata.AssetId || 'rbxassetid://0',
-        CoverImageAssetId: metadata.CoverImageAssetId || 'rbxassetid://0',
-        Volume: metadata.Volume !== undefined ? metadata.Volume : 1,
-        HitSFXGroup: metadata.HitSFXGroup !== undefined ? metadata.HitSFXGroup : 0,
-        TimeOffset: metadata.TimeOffset !== undefined ? metadata.TimeOffset : 0,
-        Difficulty: difficulty || 0,
-        Length: length || 0,
-        ObjectCount: objects.length,
-        MD5Hash: metadata.MD5Hash || '',
-        NPSGraph: npsGraph.join(','),
-        MaxNPS: maxNPS,
-        AverageNPS: averageNPS,
-        TotalSingleNotes: singles,
-        TotalHoldNotes: holds,
+        ArtistName: { String: metadata.Artist || "Unknown" },
+        SongName: { String: metadata.Filename || "Unknown" },
+        CharterName: { String: metadata.Mapper || "Unknown" },
+        Description: { String: metadata.Description || "" },
+        AudioID: { String: metadata.AssetId || "rbxassetid://0" },
+        CoverImageAssetId: {
+          String: metadata.CoverImageAssetId || "rbxassetid://0",
+        },
+        Volume: {
+          Float64:
+            metadata.Volume !== undefined || metadata.Volume !== null
+              ? Number(metadata.Volume)
+              : 1,
+        },
+        HitSFXGroup: {
+          Float64:
+            metadata.HitSFXGroup !== undefined
+              ? Number(metadata.HitSFXGroup)
+              : 0,
+        },
+        TimeOffset: {
+          Float64:
+            metadata.TimeOffset !== undefined ? Number(metadata.TimeOffset) : 0,
+        },
+        Difficulty: { Float64: Number(difficulty || 0) },
+        Length: { Float64: Number(length || 0) },
+        ObjectCount: { Float64: Number(objects.length) },
+        MD5Hash: { String: metadata.MD5Hash || "" },
+        NPSGraph: { String: npsGraph.join(",") },
+        MaxNPS: { Float64: Number(maxNPS) },
+        AverageNPS: { Float64: Number(averageNPS) },
+        TotalSingleNotes: { Float64: Number(singles) },
+        TotalHoldNotes: { Float64: Number(holds) },
       };
 
       // Process Chart Data
       const encodedNotes = JSON.stringify(objects);
       const compressedNotes = pako.deflate(encodedNotes, { level: 9 });
-      const chartStringValue = toBase64(Buffer.from(compressedNotes).toString('binary'));
+      const chartStringValue = toBase64(
+        Buffer.from(compressedNotes).toString("binary")
+      );
 
       // Output Structure:
-      // songs/dist/<MD5>/ 
+      // songs/dist/<MD5>/
       //   init.meta.json (Folder properties + attributes)
       //   ChartString.txt (The StringValue content)
 
-      const folderName = metadata.MD5Hash || 'unknown_' + Date.now();
+      const folderName = metadata.MD5Hash || "unknown_" + Date.now();
       const songOutputDir = path.join(DIST_DIR, folderName);
       fs.mkdirSync(songOutputDir, { recursive: true });
 
       // 1. Write init.meta.json
-      // Using 'Name' property to set the Instance name in Roblox to the Song Name, 
-      // while keeping the filesystem folder unique via Hash.
+      // Rojo 7+ expects 'Attributes' inside 'properties' to be a map of serialized attribute values.
       const metaJson = {
-        className: 'Folder',
+        className: "Folder",
         properties: {
-          Name: metadata.Filename || 'Unknown Song',
-          Attributes: songAttributes
-        }
+          Name: metadata.Filename || "Unknown Song",
+          Attributes: songAttributes,
+        },
       };
-      fs.writeFileSync(path.join(songOutputDir, 'init.meta.json'), JSON.stringify(metaJson, null, 2));
+      fs.writeFileSync(
+        path.join(songOutputDir, "init.meta.json"),
+        JSON.stringify(metaJson, null, 2)
+      );
 
       // 2. Write ChartString.txt
       // This will be synced by Rojo as a StringValue named 'ChartString' child of the Folder.
-      fs.writeFileSync(path.join(songOutputDir, 'ChartString.txt'), chartStringValue);
+      fs.writeFileSync(
+        path.join(songOutputDir, "ChartString.txt"),
+        chartStringValue
+      );
 
       processedCount++;
       // console.log(`  -> Built ${folderName} (${metadata.Filename})`);
