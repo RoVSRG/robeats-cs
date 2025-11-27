@@ -10,6 +10,9 @@
 # Rojo generated files
 /sourcemap.json
 
+# Wally packages (managed by Wally package manager)
+/Packages
+
 # Aftman
 /.aftman
 
@@ -39,4 +42,5 @@ tools/bin/
 
 ModuleAnalysisCache-*
 
-/Packages
+# luau-lsp cache and generated files
+/.luau-lsp/

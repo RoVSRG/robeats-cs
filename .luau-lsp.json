@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/schemas/luau-lsp.schema.json",
+  "sourcemap": {
+    "enabled": true,
+    "autogenerate": false,
+    "rojoProjectFile": "default.project.json",
+    "includeNonScripts": true
+  },
+  "platform": {
+    "type": "roblox"
+  },
+  "types": {
+    "robloxSecurityLevel": "None",
+    "definitionFiles": [".luau-lsp/globalTypes.d.lua"]
+  },
+  "diagnostics": {
+    "strictDatamodelTypes": true
+  },
+  "completion": {
+    "enabled": true
+  }
+}

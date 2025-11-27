@@ -1,14 +1,17 @@
 {
-  "languageMode": "nonstrict",
+  "languageMode": "strict",
   "aliases": {
-    "shared": "src/shared",
-    "client": "src/client",
-    "server": "src/server"
+    "ReplicatedStorage": "src/shared",
+    "ServerScriptService": "src/server",
+    "StarterPlayer": "src/client",
+    "Workspace": "src/workspace"
   },
   "lint": {
-    "*": true
+    "*": true,
+    "LocalShadow": false,
+    "LocalUnused": true,
+    "FunctionUnused": true
   },
-  "lintErrors": false,
-  "typeErrors": false,
-  "globals": []
+  "lintErrors": true,
+  "globals": ["game", "script", "workspace", "plugin", "_G", "shared"]
 }

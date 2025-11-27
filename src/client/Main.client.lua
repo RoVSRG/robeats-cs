@@ -3,7 +3,7 @@ local ContentProvider = game:GetService("ContentProvider")
 local React = require(ReplicatedStorage.Packages.React)
 local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 
-local App = require(script.Parent.App)
+local App = require(script.Parent:WaitForChild("App"))
 local SongDatabase = require(ReplicatedStorage.SongDatabase)
 local EnvironmentSetup = require(ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 local GetSettings = ReplicatedStorage.Remotes.Functions.GetSettings
@@ -26,24 +26,30 @@ end
 local function initialize()
 	-- 1. Cleanup
 	game:GetService("StarterGui"):ClearAllChildren()
-	
+
 	-- 2. Setup Env
 	setupLighting()
 	EnvironmentSetup:initial_setup()
-	
+
 	-- 3. Start Loading (Async)
 	for _, skin in require(ReplicatedStorage.Skins):key_itr() do
-		task.spawn(function() ContentProvider:PreloadAsync({ skin }) end)
+		task.spawn(function()
+			ContentProvider:PreloadAsync({ skin })
+		end)
 	end
-	
-	SongDatabase:LoadAllSongs() 
-	
-    -- 4. Load Settings
+
+	SongDatabase:LoadAllSongs()
+
+	-- 4. Load Settings
 	task.spawn(handlePlayerSettings)
 
 	-- 5. Mount App
-    local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-	local root = ReactRoblox.createRoot(playerGui)
+	local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	local mainGui = playerGui:WaitForChild("Main")
+	mainGui.ResetOnSpawn = false
+	mainGui.IgnoreGuiInset = true
+
+	local root = ReactRoblox.createRoot(mainGui)
 	root:render(React.createElement(App))
 end
 

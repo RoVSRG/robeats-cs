@@ -9,6 +9,14 @@ local useEffect = React.useEffect
 local function PlayerCount(props)
 	local count, setCount = useState(0)
 
+	local position = props.Position or UDim2.new(0, 10, 0.95, 0)
+	local size = props.Size or UDim2.new(0, 200, 0, 30)
+	local anchorPoint = props.AnchorPoint
+	local textScaled = props.TextScaled
+	local textSize = props.TextSize or 14
+	local textColor = props.TextColor3 or Color3.fromRGB(150, 150, 150)
+	local font = props.Font or Enum.Font.Gotham
+
 	useEffect(function()
 		local function update()
 			setCount(#Players:GetPlayers())
@@ -25,15 +33,20 @@ local function PlayerCount(props)
 		end
 	end, {})
 
+	local template = props.TextTemplate or "%d players online"
+
 	return e("TextLabel", {
-		Text = count .. " Players Online",
-		Size = UDim2.new(0, 200, 0, 30),
-		Position = props.Position or UDim2.new(0, 10, 0.95, 0), -- Bottom Left default
+		Text = string.format(template, count),
+		Size = size,
+		Position = position,
+		AnchorPoint = anchorPoint,
 		BackgroundTransparency = 1,
-		TextColor3 = Color3.fromRGB(150, 150, 150),
-		Font = Enum.Font.Gotham,
-		TextSize = 14,
+		TextColor3 = textColor,
+		Font = font,
+		TextSize = textSize,
+		TextScaled = textScaled,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextStrokeTransparency = props.TextStrokeTransparency,
 	})
 end
 

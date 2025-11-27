@@ -1,11 +1,16 @@
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 local React = require(ReplicatedStorage.Packages.React)
 local SongDatabase = require(ReplicatedStorage.SongDatabase)
 
 local ScreenContext = require(ReplicatedStorage.Contexts.ScreenContext)
+local Screens = require(ReplicatedStorage.ScreenRegistry)
 
--- Import Screens
-local MainMenu = require(script.Parent.Parent.gui.screens.MainMenu.MainMenu)
+local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local MAIN_RESOLUTION = Vector2.new(1280, 720)
+local MAX_SCALE = 1.5
 
 local e = React.createElement
 local useState = React.useState
@@ -49,22 +54,74 @@ local function App()
 	local currentScreen, setCurrentScreen = useState("MainMenu")
 
 	useEffect(function()
+		local mainGui = playerGui:FindFirstChild("Main")
+		if not mainGui then
+			return function() end -- Return empty cleanup function
+		end
+
+		local uiScale = mainGui:FindFirstChildOfClass("UIScale") or Instance.new("UIScale")
+		uiScale.Parent = mainGui
+
+		local function refreshScaling(camera)
+			if not camera then
+				return
+			end
+
+			local viewportSize: Vector2 = camera.ViewportSize
+			local scale = math.min(viewportSize.X / MAIN_RESOLUTION.X, viewportSize.Y / MAIN_RESOLUTION.Y)
+			uiScale.Scale = math.min(scale, MAX_SCALE)
+		end
+
+		local viewportConn: RBXScriptConnection? = nil
+		local function connectCamera(camera)
+			if viewportConn then
+				viewportConn:Disconnect()
+				viewportConn = nil
+			end
+
+			if camera then
+				viewportConn = camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+					refreshScaling(camera)
+				end)
+				refreshScaling(camera)
+			end
+		end
+
+		local cameraConn = Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+			connectCamera(Workspace.CurrentCamera)
+		end)
+
+		connectCamera(Workspace.CurrentCamera)
+
+		return function()
+			if cameraConn then
+				cameraConn:Disconnect()
+			end
+			if viewportConn then
+				viewportConn:Disconnect()
+			end
+		end
+	end, {})
+
+	useEffect(function()
 		if not isLoaded then
 			if SongDatabase.IsLoaded then
 				setIsLoaded(true)
+				return function() end -- Empty cleanup
 			else
 				local conn
 				conn = SongDatabase.Loaded.Event:Connect(function()
 					setIsLoaded(true)
 					conn:Disconnect()
 				end)
-				return function() 
-					if conn then 
-						conn:Disconnect() 
-					end 
+				return function()
+					if conn then
+						conn:Disconnect()
+					end
 				end
 			end
 		end
+		return function() end -- Empty cleanup when already loaded
 	end, {isLoaded})
 
 	local function switchScreen(screenName)
@@ -76,38 +133,35 @@ local function App()
 		if not isLoaded then
 			return e(LoadingScreen)
 		end
-		
-		if currentScreen == "MainMenu" then
-			return e(MainMenu)
-		else
-			-- Generic Placeholder for missing/archived screens
-			return e("Frame", {
-				Size = UDim2.fromScale(1, 1),
-				BackgroundColor3 = Color3.fromRGB(20, 20, 20),
-			}, {
-				Label = e("TextLabel", {
-					Text = "Screen not implemented yet: " .. currentScreen,
-					TextColor3 = Color3.fromRGB(255, 255, 255),
-					Size = UDim2.fromScale(1, 1),
-					BackgroundTransparency = 1,
-					Font = Enum.Font.GothamBold,
-					TextSize = 24
-				}),
-				BackButton = e("TextButton", {
-					Text = "Back to Menu",
-					Size = UDim2.fromOffset(200, 50),
-					Position = UDim2.fromScale(0.5, 0.6),
-					AnchorPoint = Vector2.new(0.5, 0.5),
-					BackgroundColor3 = Color3.fromRGB(50, 50, 50),
-					TextColor3 = Color3.fromRGB(255, 255, 255),
-					[React.Event.MouseButton1Click] = function()
-						switchScreen("MainMenu")
-					end
-				}, {
-					UICorner = e("UICorner", { CornerRadius = UDim.new(0, 8) })
-				})
+
+		local ScreenComponent = Screens[currentScreen]
+
+		if ScreenComponent then
+			-- Pass screenName and onBack props for PlaceholderScreen compatibility
+			return e(ScreenComponent, {
+				screenName = currentScreen,
+				onBack = function()
+					switchScreen("MainMenu")
+				end,
 			})
 		end
+
+		-- Fallback for completely unknown screens (shouldn't happen)
+		return e("Frame", {
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = Color3.fromRGB(20, 20, 20),
+		}, {
+			Label = e("TextLabel", {
+				Text = "Unknown screen: " .. currentScreen,
+				TextColor3 = Color3.fromRGB(255, 100, 100),
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.GothamBold,
+				TextSize = 24,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				TextYAlignment = Enum.TextYAlignment.Center,
+			}),
+		})
 	end
 
 	return e(ScreenContext.Provider, {
@@ -116,12 +170,7 @@ local function App()
 			switchScreen = switchScreen
 		}
 	}, {
-		AppContainer = e("ScreenGui", {
-			ResetOnSpawn = false,
-			IgnoreGuiInset = true,
-		}, {
-			Content = renderScreen()
-		})
+		Content = renderScreen()
 	})
 end
 

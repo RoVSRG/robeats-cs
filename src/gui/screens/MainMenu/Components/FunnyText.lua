@@ -51,8 +51,9 @@ local function FunnyText(props)
 
 	return e("TextLabel", {
 		Text = text,
-		Font = Enum.Font.FredokaOne, -- Assuming font, check original if needed
+		Font = props.Font or Enum.Font.SourceSans,
 		TextSize = props.TextSize or 24,
+		TextScaled = props.TextScaled or false,
 		TextColor3 = props.TextColor3 or Color3.fromRGB(255, 255, 255),
 		BackgroundTransparency = 1,
 		Size = props.Size or UDim2.new(1, 0, 0, 30),

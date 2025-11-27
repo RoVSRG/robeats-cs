@@ -17,6 +17,15 @@
       "Packages": {
         "$path": "Packages"
       },
+      "hooks": {
+        "$path": "src/hooks"
+      },
+      "gui": {
+        "$className": "Folder",
+        "components": {
+          "$path": "src/gui/components"
+        }
+      },
       "Remotes": {
         "$className": "Folder",
         "Events": {
