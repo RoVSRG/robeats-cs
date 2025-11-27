@@ -1,9 +1,9 @@
 {
   "languageMode": "nonstrict",
   "aliases": {
-    "shared": "roblox/src/shared",
-    "client": "roblox/src/client",
-    "server": "roblox/src/server"
+    "shared": "src/shared",
+    "client": "src/client",
+    "server": "src/server"
   },
   "lint": {
     "*": true
