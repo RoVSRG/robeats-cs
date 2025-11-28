@@ -209,7 +209,7 @@ export async function start(
   });
 
   app.get('/', async (_req, reply) => {
-    return reply.send({ status: 'ok1' });
+    return reply.send({ status: 'Everything works!' });
   });
 
   try {

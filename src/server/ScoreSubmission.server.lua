@@ -1,4 +1,4 @@
-local SDK = require(game.ServerScriptService.Services.SDK)
+local SDK = require(game.ServerScriptService.SDK)
 local Function = require(game.ServerScriptService:WaitForChild("Utils"):WaitForChild("Function"))
 local Protect = require(game.ServerScriptService:WaitForChild("Protect"))
 local Leaderstats = require(game.ServerScriptService:WaitForChild("Leaderstats"))
@@ -137,9 +137,5 @@ Remotes.Functions.GetProfile.OnServerInvoke = getProfile
 game:GetService("Players").PlayerAdded:Connect(function(player)
 	print("Player added: " .. player.Name)
 
-	Queue.addToQueue(function(userId, name)
-		SDK.Players.join(userId, name)
-	end, player.UserId, player.Name)
-
-	print("Player " .. player.Name .. " has joined.")
+	SDK.Players.join(player.UserId, player.Name)
 end)

@@ -45,7 +45,7 @@ const playersRoutes: FastifyPluginAsync<
         description: 'Register or update a player in the system',
         body: PlayerJoinSchema,
         response: {
-          200: { type: 'null' },
+          200: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] },
           400: ErrorResponseSchema,
           401: UnauthorizedResponseSchema,
           500: ErrorResponseSchema,
@@ -70,7 +70,7 @@ const playersRoutes: FastifyPluginAsync<
           );
         }
 
-        return reply.status(200).send();
+        return reply.status(200).send({ status: 'ok' });
       } catch (err: any) {
         (req as any).log.error(err);
         return reply.status(500).send({ error: err.message });

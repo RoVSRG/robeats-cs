@@ -4,10 +4,10 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "npm run infra:up && prisma migrate deploy && npm run prisma:generate && tsx watch src/index.ts",
+    "dev": "npm run infra:up && prisma --config prisma/prisma.config.ts migrate deploy && npm run prisma:generate && tsx watch src/index.ts",
     "infra:up": "docker compose up -d db valkey && echo 'Waiting for DB...' && node -e \"setTimeout(() => {}, 5000)\"",
     "infra:down": "docker compose down",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "prisma --config prisma/prisma.config.ts generate",
     "tsc:build": "tsc -b",
     "build": "npm run prisma:generate && tsc -b",
     "sdk-generate": "node sdk/generate-types.js",
@@ -16,8 +16,8 @@
     "lint:check": "eslint src --ext .ts,.js",
     "test": "echo \"Warning: no tests specified\" && exit 0",
     "rebuild": "docker compose up -d --build --force-recreate",
-    "db:migrate": "npx prisma migrate deploy",
-    "db:studio": "npx prisma studio"
+    "db:migrate": "npx prisma --config prisma/prisma.config.ts migrate deploy",
+    "db:studio": "npx prisma --config prisma/prisma.config.ts studio"
   },
   "keywords": [],
   "author": "",

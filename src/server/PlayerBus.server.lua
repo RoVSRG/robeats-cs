@@ -1,4 +1,4 @@
-local SDK = require(game.ServerScriptService.Services.SDK)
+local SDK = require(game.ServerScriptService.SDK)
 
 local DataStoreService = game:GetService("DataStoreService")
 local LocalizationService = game:GetService("LocalizationService")

@@ -4,13 +4,15 @@ local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local ConfigModule = script:FindFirstChild("SDKConfig")
-		or ServerScriptService:FindFirstChild("SDKConfig")
-		or ReplicatedStorage:FindFirstChild("SDKConfig")
+local CONFIG_NAME = "SDKConfig"
+
+local ConfigModule = script:FindFirstChild(CONFIG_NAME)
+	or ServerScriptService:FindFirstChild(CONFIG_NAME)
+	or ReplicatedStorage:FindFirstChild(CONFIG_NAME)
 local ExternalConfig = nil
 if ConfigModule then
 	local ok, cfg = pcall(function()
-		return require(ConfigModule :: any)
+		return require(ConfigModule :: any) :: any
 	end)
 	if ok and type(cfg) == "table" then
 		ExternalConfig = cfg
@@ -99,11 +101,15 @@ local function request(method: "GET" | "POST", path: string, body: any?, query: 
 	end
 
 	local url = Config.BaseUrl .. path
-	
+
 	if query then
 		local queryString = ""
 		for k, v in pairs(query) do
-			queryString = queryString .. (queryString == "" and "?" or "&") .. k .. "=" .. HttpService:UrlEncode(tostring(v))
+			queryString = queryString
+				.. (queryString == "" and "?" or "&")
+				.. k
+				.. "="
+				.. HttpService:UrlEncode(tostring(v))
 		end
 		url = url .. queryString
 	end
@@ -161,6 +167,9 @@ function Players.join(userId: number, name: string): boolean
 		userId = userId,
 		name = name,
 	})
+
+	print(res)
+
 	return res ~= nil
 end
 
@@ -189,7 +198,10 @@ function Scores.submit(submission: ScoreSubmission): PlayerProfile?
 	return request("POST", "/scores", submission)
 end
 
-function Scores.getHistory(playerId: number, songKey: string): { scores: { ScoreData & { player_id: string?, hash: string, created_at: string } } }?
+function Scores.getHistory(
+	playerId: number,
+	songKey: string
+): { scores: { ScoreData & { player_id: string?, hash: string, created_at: string } } }?
 	return request("GET", "/scores/" .. tostring(playerId) .. "/" .. songKey)
 end
 
