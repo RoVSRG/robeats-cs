@@ -8,11 +8,7 @@ YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-# Regenerate sourcemap if project file changed
-if [ default.project.json -nt sourcemap.json ]; then
-    echo -e "${YELLOW}Regenerating sourcemap...${NC}"
-    rojo sourcemap default.project.json --output sourcemap.json
-fi
+rojo sourcemap default.project.json --output sourcemap.json
 
 # Determine files to analyze
 if [ $# -eq 0 ]; then

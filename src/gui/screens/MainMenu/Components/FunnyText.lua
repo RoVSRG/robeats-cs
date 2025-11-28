@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
+local UI = require(ReplicatedStorage.Util.UI)
 
-local e = React.createElement
 local useEffect = React.useEffect
 local useState = React.useState
 
@@ -49,17 +49,16 @@ local function FunnyText(props)
 		end
 	end, {})
 
-	return e("TextLabel", {
+	return UI.Text({
 		Text = text,
-		Font = props.Font or Enum.Font.SourceSans,
+		Font = props.Font or Enum.Font.SourceSansLight,
 		TextSize = props.TextSize or 24,
 		TextScaled = props.TextScaled or false,
 		TextColor3 = props.TextColor3 or Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 1,
 		Size = props.Size or UDim2.new(1, 0, 0, 30),
 		Position = props.Position,
-		AnchorPoint = props.AnchorPoint,
-		TextXAlignment = Enum.TextXAlignment.Left, -- Default
+		AnchorPoint = props.AnchorPoint or Vector2.new(0, 0.5),
+		TextXAlignment = Enum.TextXAlignment.Left,
 	})
 end
 

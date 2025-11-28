@@ -1,71 +1,17 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local React = require(ReplicatedStorage.Packages.React)
+local UI = require(ReplicatedStorage.Util.UI)
 local ScreenContext = require(ReplicatedStorage.Contexts.ScreenContext)
 
-local e = React.createElement
-local useState = React.useState
-local useContext = React.useContext
-
-local function MenuButton(props)
-	local hover, setHover = useState(false)
-	local text = props.text
-	local onClick = props.onClick
-	local size = props.Size or props.size or UDim2.new(1, 0, 0, 40)
-	local position = props.Position or props.position
-	local anchorPoint = props.AnchorPoint or props.anchorPoint or Vector2.new(0, 0)
-
-	return e("TextButton", {
-		Text = text,
-		Size = size,
-		Position = position,
-		AnchorPoint = anchorPoint,
-		BackgroundColor3 = hover and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(17, 17, 17),
-		TextColor3 = hover and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(255, 255, 255),
-		Font = Enum.Font.GothamBold,
-		TextSize = 18,
-		AutoButtonColor = false,
-		BorderSizePixel = 0,
-		TextXAlignment = Enum.TextXAlignment.Left,
-
-		[React.Event.MouseEnter] = function() setHover(true) end,
-		[React.Event.MouseLeave] = function() setHover(false) end,
-		[React.Event.MouseButton1Click] = onClick,
-	}, {
-		UICorner = e("UICorner", { CornerRadius = UDim.new(0, 4) }),
-		Padding = e("UIPadding", { PaddingLeft = UDim.new(0, 10) }),
-	})
-end
-
 local function MenuBar(props)
+	local context = React.useContext(ScreenContext)
 	local isStudio = RunService:IsStudio()
-	local context = useContext(ScreenContext)
-	local buttons = props.buttons or {
-		{
-			text = "Play",
-			onClick = function() context.switchScreen("SongSelect") end,
-		},
-		{
-			text = "Options",
-			onClick = function() context.switchScreen("Options") end,
-		},
-		{
-			text = "Rankings",
-			onClick = function() context.switchScreen("YourScores") end,
-		},
-		{
-			text = "Global Leaderboard",
-			onClick = function() context.switchScreen("GlobalRanking") end,
-		},
-		{
-			text = "Changelog",
-			onClick = function() context.switchScreen("Changelog") end,
-		},
-	}
 
-	local includeStudioButton = if props.includeStudioButton == nil then true else props.includeStudioButton
+	local buttons = props.buttons or {}
+	local includeStudio = if props.includeStudioButton == nil then true else props.includeStudioButton
 
-	if isStudio and includeStudioButton then
+	if isStudio and includeStudio then
 		table.insert(buttons, {
 			text = "Song Editor (Studio)",
 			onClick = function()
@@ -74,38 +20,78 @@ local function MenuBar(props)
 		})
 	end
 
-	local shouldUseLayout = true
-	for _, button in ipairs(buttons) do
-		if button.Position or button.position then
-			shouldUseLayout = false
-			break
-		end
+	local children = {}
+
+	children.Outline = UI.Frame({
+		Size = UDim2.new(1, 0, 0.1, 0),
+		Position = UDim2.new(0, 0, -0.1, 0),
+		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+		BorderSizePixel = 0,
+		children = {
+			UI.Element("UIGradient", {
+				Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, Color3.fromRGB(217, 25, 255)),
+					ColorSequenceKeypoint.new(0.5, Color3.fromRGB(156, 139, 211)),
+					ColorSequenceKeypoint.new(1, Color3.fromRGB(88, 200, 177)),
+				}),
+			}),
+		},
+	})
+
+	children.Stabilizer = UI.Frame({
+		Size = UDim2.new(1, 0, 0.25, 0),
+		BackgroundColor3 = Color3.fromRGB(22, 22, 22),
+		BorderSizePixel = 0,
+	})
+
+	local buttonChildren = {}
+	buttonChildren.Layout = UI.List({
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 0),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	})
+
+	if #buttons == 0 then
+		table.insert(buttons, {
+			text = "Back",
+			Visible = false,
+			onClick = function()
+				context.switchScreen("MainMenu")
+			end,
+		})
 	end
 
-	return e("Frame", {
-		Size = props.Size or UDim2.new(0, 250, 0.6, 0),
-		Position = props.Position or UDim2.new(0.05, 0, 0.2, 0),
-		AnchorPoint = props.AnchorPoint,
+	for index, button in ipairs(buttons) do
+		buttonChildren["Button" .. index] = UI.Button({
+			Size = UDim2.new(0.111, 0, 1, 0),
+			Visible = if button.Visible == nil then true else button.Visible,
+			Text = button.text,
+			TextProps = {
+				TextXAlignment = Enum.TextXAlignment.Center,
+			},
+			onClick = button.onClick or function()
+				context.switchScreen(button.target or "MainMenu")
+			end,
+		})
+	end
+
+	children.Buttons = UI.Frame({
+		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
-	}, {
-		Layout = shouldUseLayout and e("UIListLayout", {
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = props.Padding or UDim.new(0, 10),
-		}) or nil,
-		Buttons = e(React.Fragment, nil, (function()
-			local children = {}
-			for index, button in ipairs(buttons) do
-				children[index] = e(MenuButton, {
-					text = button.text,
-					onClick = button.onClick,
-					Size = button.Size,
-					Position = button.Position or button.position,
-					AnchorPoint = button.AnchorPoint or button.anchorPoint,
-					LayoutOrder = index,
-				})
-			end
-			return children
-		end)())
+		children = buttonChildren,
+	})
+
+	children.Corner = UI.Corner({ CornerRadius = UDim.new(0, 4) })
+
+	return UI.Frame({
+		Size = props.Size or UDim2.new(1, 0, 0.05, 0),
+		Position = props.Position or UDim2.new(0, 0, 1, 0),
+		AnchorPoint = props.AnchorPoint or Vector2.new(0, 1),
+		BackgroundColor3 = Color3.fromRGB(22, 22, 22),
+		BorderSizePixel = 0,
+		children = children,
 	})
 end
 

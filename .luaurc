@@ -1,5 +1,5 @@
 {
-  "languageMode": "strict",
+  "languageMode": "nonstrict",
   "aliases": {
     "ReplicatedStorage": "src/shared",
     "ServerScriptService": "src/server",
@@ -13,5 +13,12 @@
     "FunctionUnused": true
   },
   "lintErrors": true,
-  "globals": ["game", "script", "workspace", "plugin", "_G", "shared"]
+  "globals": [
+    "game",
+    "script",
+    "workspace",
+    "plugin",
+    "_G",
+    "shared"
+  ]
 }

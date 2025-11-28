@@ -1,8 +1,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
+local UI = require(ReplicatedStorage.Util.UI)
 
-local e = React.createElement
 local useState = React.useState
 local useEffect = React.useEffect
 
@@ -16,6 +16,7 @@ local function PlayerCount(props)
 	local textSize = props.TextSize or 14
 	local textColor = props.TextColor3 or Color3.fromRGB(150, 150, 150)
 	local font = props.Font or Enum.Font.Gotham
+	local textAlignment = props.TextXAlignment or Enum.TextXAlignment.Center
 
 	useEffect(function()
 		local function update()
@@ -35,17 +36,16 @@ local function PlayerCount(props)
 
 	local template = props.TextTemplate or "%d players online"
 
-	return e("TextLabel", {
+	return UI.Text({
 		Text = string.format(template, count),
 		Size = size,
 		Position = position,
 		AnchorPoint = anchorPoint,
-		BackgroundTransparency = 1,
 		TextColor3 = textColor,
 		Font = font,
 		TextSize = textSize,
 		TextScaled = textScaled,
-		TextXAlignment = Enum.TextXAlignment.Left,
+		TextXAlignment = textAlignment,
 		TextStrokeTransparency = props.TextStrokeTransparency,
 	})
 end
