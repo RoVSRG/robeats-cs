@@ -52,11 +52,12 @@
   },
   "include": [
     "src/**/*",
-    "prisma/**/*.ts"
+    "prisma/**/*.ts",
+    "prisma.config.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "prisma/prisma.config.ts"
+    "prisma.config.ts"
   ]
 }
