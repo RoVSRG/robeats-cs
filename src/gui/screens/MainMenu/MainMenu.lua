@@ -8,6 +8,7 @@ local MenuBar = require(script.Parent.Components.MenuBar)
 local Profile = require(script.Parent.Components.Profile)
 local FunnyText = require(script.Parent.Components.FunnyText)
 local PlayerCount = require(script.Parent.Components.PlayerCount)
+local Gato = require(script.Parent.Components.Gato)
 
 local function MainMenu()
 	local screenContext = React.useContext(ScreenContext)
@@ -41,6 +42,10 @@ local function MainMenu()
 						Text = "PLAY",
 						TextProps = {
 							TextXAlignment = Enum.TextXAlignment.Left,
+							TextSize = 18,
+						},
+						children = {
+							UI.Padding({ PaddingLeft = UDim.new(0, 10) }),
 						},
 						onClick = function()
 							screenContext.switchScreen("SongSelect")
@@ -53,6 +58,10 @@ local function MainMenu()
 						Text = "OPTIONS",
 						TextProps = {
 							TextXAlignment = Enum.TextXAlignment.Left,
+							TextSize = 18,
+						},
+						children = {
+							UI.Padding({ PaddingLeft = UDim.new(0, 10) }),
 						},
 						onClick = function()
 							screenContext.switchScreen("Options")
@@ -65,6 +74,10 @@ local function MainMenu()
 						Text = "CHANGELOG",
 						TextProps = {
 							TextXAlignment = Enum.TextXAlignment.Left,
+							TextSize = 18,
+						},
+						children = {
+							UI.Padding({ PaddingLeft = UDim.new(0, 10) }),
 						},
 						onClick = function()
 							screenContext.switchScreen("Changelog")
@@ -77,6 +90,10 @@ local function MainMenu()
 						Text = "RANKINGS",
 						TextProps = {
 							TextXAlignment = Enum.TextXAlignment.Left,
+							TextSize = 18,
+						},
+						children = {
+							UI.Padding({ PaddingLeft = UDim.new(0, 10) }),
 						},
 						onClick = function()
 							screenContext.switchScreen("YourScores")
@@ -89,6 +106,10 @@ local function MainMenu()
 						Text = "GLOBAL LEADERBOARD",
 						TextProps = {
 							TextXAlignment = Enum.TextXAlignment.Left,
+							TextSize = 18,
+						},
+						children = {
+							UI.Padding({ PaddingLeft = UDim.new(0, 10) }),
 						},
 						onClick = function()
 							screenContext.switchScreen("GlobalRanking")
@@ -126,6 +147,8 @@ local function MainMenu()
 					MenuBar = MenuBar({
 						includeStudioButton = false,
 					}),
+
+					Gato = Gato(),
 				},
 			}),
 		},

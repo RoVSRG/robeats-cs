@@ -140,13 +140,14 @@ function UI.Button(rawProps: ButtonProps?)
 	if variant == "text" then
 		local buttonProps = shallowCopy(props)
 		buttonProps.AutoButtonColor = buttonProps.AutoButtonColor or false
-		buttonProps.BackgroundColor3 = hover and theme.colors.buttonHover or (buttonProps.BackgroundColor3 or theme.colors.button)
+		buttonProps.BackgroundColor3 = hover and theme.colors.buttonHover
+			or (buttonProps.BackgroundColor3 or theme.colors.button)
 		buttonProps.BorderSizePixel = buttonProps.BorderSizePixel or 0
 		buttonProps.Text = text or ""
 		buttonProps.Font = textProps.Font or theme.fonts.bold
 		buttonProps.TextColor3 = textProps.TextColor3 or (hover and Color3.new(0, 0, 0) or theme.colors.textPrimary)
-		buttonProps.TextScaled = if textProps.TextScaled == nil then true else textProps.TextScaled
-		buttonProps.TextSize = textProps.TextSize
+		buttonProps.TextScaled = if textProps.TextScaled == nil then false else textProps.TextScaled
+		buttonProps.TextSize = textProps.TextSize or theme.textSize
 		buttonProps.TextStrokeTransparency = textProps.TextStrokeTransparency
 		buttonProps.TextXAlignment = textProps.TextXAlignment or Enum.TextXAlignment.Left
 		buttonProps.TextYAlignment = textProps.TextYAlignment
@@ -171,7 +172,8 @@ function UI.Button(rawProps: ButtonProps?)
 
 	local imageProps = shallowCopy(props)
 	imageProps.AutoButtonColor = imageProps.AutoButtonColor or false
-	imageProps.BackgroundColor3 = hover and theme.colors.buttonHover or (imageProps.BackgroundColor3 or theme.colors.button)
+	imageProps.BackgroundColor3 = hover and theme.colors.buttonHover
+		or (imageProps.BackgroundColor3 or theme.colors.button)
 	imageProps.BorderSizePixel = imageProps.BorderSizePixel or 0
 	imageProps.ImageTransparency = imageProps.ImageTransparency or 1
 	imageProps[React.Event.MouseButton1Click] = onClick
@@ -193,7 +195,7 @@ function UI.Button(rawProps: ButtonProps?)
 			Font = textProps.Font or theme.fonts.bold,
 			TextColor3 = textProps.TextColor3 or (hover and Color3.new(0, 0, 0) or theme.colors.textPrimary),
 			TextScaled = if textProps.TextScaled == nil then true else textProps.TextScaled,
-			TextSize = textProps.TextSize,
+			TextSize = textProps.TextSize or theme.textSize,
 			TextStrokeTransparency = textProps.TextStrokeTransparency,
 			TextXAlignment = textProps.TextXAlignment or Enum.TextXAlignment.Left,
 			TextYAlignment = textProps.TextYAlignment,
