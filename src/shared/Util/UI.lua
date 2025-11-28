@@ -2,20 +2,48 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
 local Theme = require(ReplicatedStorage.Contexts.ThemeContext)
 
+type Children = { [any]: any }
+type BaseProps = { [string]: any, children: Children? }
+type TextProps = {
+	Font: Enum.Font?,
+	TextColor3: Color3?,
+	TextScaled: boolean?,
+	TextSize: number?,
+	TextStrokeTransparency: number?,
+	TextXAlignment: Enum.TextXAlignment?,
+	TextYAlignment: Enum.TextYAlignment?,
+	TextWrapped: boolean?,
+	RichText: boolean?,
+	LineHeight: number?,
+	Size: UDim2?,
+}
+type ButtonProps = BaseProps & {
+	Text: string?,
+	TextProps: TextProps?,
+	Image: string?,
+	AutoButtonColor: boolean?,
+	BackgroundColor3: Color3?,
+	BorderSizePixel: number?,
+	ImageTransparency: number?,
+	CornerRadius: UDim?,
+	onClick: (() -> ())?,
+}
+
 local e = React.createElement
 
-local function shallowCopy(source)
+local function shallowCopy(source: { [any]: any }?): { [any]: any }
 	local copy = {}
-	for key, value in pairs(source) do
-		copy[key] = value
+	if source then
+		for key, value in pairs(source) do
+			copy[key] = value
+		end
 	end
 	return copy
 end
 
-local function pullChildren(props)
-	local children = props.children or props[React.Children]
+local function pullChildren(props: BaseProps): Children
+	local children = props.children
 	props.children = nil
-	props[React.Children] = nil
 	return children or {}
 end
 
@@ -33,7 +61,7 @@ local function mergeChildren(first, others)
 	return combined
 end
 
-local function applyDefaults(theme, kind, props)
+local function applyDefaults(theme: any, kind: string, props: { [any]: any })
 	local applied = {}
 	for key, value in pairs(props) do
 		applied[key] = value
@@ -72,7 +100,7 @@ function UI.Image(rawProps)
 	return e("ImageLabel", props, children)
 end
 
-function UI.Text(rawProps)
+function UI.Text(rawProps: BaseProps?)
 	rawProps = rawProps or {}
 	local theme = React.useContext(Theme.Context)
 	local props = applyDefaults(theme, "TextLabel", shallowCopy(rawProps))
@@ -80,7 +108,7 @@ function UI.Text(rawProps)
 	return e("TextLabel", props, children)
 end
 
-function UI.Button(rawProps)
+function UI.Button(rawProps: ButtonProps?)
 	rawProps = rawProps or {}
 	local theme = React.useContext(Theme.Context)
 	local props = shallowCopy(rawProps)
@@ -97,38 +125,65 @@ function UI.Button(rawProps)
 	local textProps = props.TextProps or {}
 	props.TextProps = nil
 
-	local function moveTextProp(key)
-		if props[key] ~= nil then
-			textProps[key] = props[key]
-			props[key] = nil
-		end
+	local hasImage = props.Image ~= nil or props.image ~= nil
+	local hasText = text ~= nil
+
+	local variant
+	if hasImage and hasText then
+		variant = "image-text"
+	elseif hasImage then
+		variant = "image"
+	else
+		variant = "text"
 	end
 
-	moveTextProp("TextXAlignment")
-	moveTextProp("TextYAlignment")
-	moveTextProp("TextColor3")
-	moveTextProp("TextScaled")
-	moveTextProp("TextSize")
-	moveTextProp("TextStrokeTransparency")
-	moveTextProp("TextWrapped")
-	moveTextProp("Font")
-	moveTextProp("RichText")
-	moveTextProp("LineHeight")
+	if variant == "text" then
+		local buttonProps = shallowCopy(props)
+		buttonProps.AutoButtonColor = buttonProps.AutoButtonColor or false
+		buttonProps.BackgroundColor3 = hover and theme.colors.buttonHover or (buttonProps.BackgroundColor3 or theme.colors.button)
+		buttonProps.BorderSizePixel = buttonProps.BorderSizePixel or 0
+		buttonProps.Text = text or ""
+		buttonProps.Font = textProps.Font or theme.fonts.bold
+		buttonProps.TextColor3 = textProps.TextColor3 or (hover and Color3.new(0, 0, 0) or theme.colors.textPrimary)
+		buttonProps.TextScaled = if textProps.TextScaled == nil then true else textProps.TextScaled
+		buttonProps.TextSize = textProps.TextSize
+		buttonProps.TextStrokeTransparency = textProps.TextStrokeTransparency
+		buttonProps.TextXAlignment = textProps.TextXAlignment or Enum.TextXAlignment.Left
+		buttonProps.TextYAlignment = textProps.TextYAlignment
+		buttonProps.TextWrapped = if textProps.TextWrapped == nil then true else textProps.TextWrapped
+		buttonProps.RichText = textProps.RichText
+		buttonProps.LineHeight = textProps.LineHeight
 
-	props.AutoButtonColor = props.AutoButtonColor or false
-	props.BackgroundColor3 = hover and theme.colors.buttonHover or (props.BackgroundColor3 or theme.colors.button)
-	props.BorderSizePixel = props.BorderSizePixel or 0
-	props.ImageTransparency = props.ImageTransparency or 1
-	props[React.Event.MouseButton1Click] = onClick
-	props[React.Event.MouseEnter] = function()
+		buttonProps[React.Event.MouseButton1Click] = onClick
+		buttonProps[React.Event.MouseEnter] = function()
+			setHover(true)
+		end
+		buttonProps[React.Event.MouseLeave] = function()
+			setHover(false)
+		end
+
+		if buttonProps.CornerRadius ~= false then
+			children._corner = e("UICorner", { CornerRadius = buttonProps.CornerRadius or theme.corner })
+		end
+
+		return e("TextButton", buttonProps, children)
+	end
+
+	local imageProps = shallowCopy(props)
+	imageProps.AutoButtonColor = imageProps.AutoButtonColor or false
+	imageProps.BackgroundColor3 = hover and theme.colors.buttonHover or (imageProps.BackgroundColor3 or theme.colors.button)
+	imageProps.BorderSizePixel = imageProps.BorderSizePixel or 0
+	imageProps.ImageTransparency = imageProps.ImageTransparency or 1
+	imageProps[React.Event.MouseButton1Click] = onClick
+	imageProps[React.Event.MouseEnter] = function()
 		setHover(true)
 	end
-	props[React.Event.MouseLeave] = function()
+	imageProps[React.Event.MouseLeave] = function()
 		setHover(false)
 	end
 
 	local textChild
-	if text then
+	if hasText then
 		textChild = e("TextLabel", {
 			Text = text,
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -148,11 +203,12 @@ function UI.Button(rawProps)
 		})
 	end
 
-	if props.CornerRadius ~= false then
-		children._corner = e("UICorner", { CornerRadius = props.CornerRadius or theme.corner })
+	if imageProps.CornerRadius ~= false then
+		children._corner = e("UICorner", { CornerRadius = imageProps.CornerRadius or theme.corner })
+		imageProps.CornerRadius = nil
 	end
 
-	return e("ImageButton", props, mergeChildren(textChild, children))
+	return e("ImageButton", imageProps, mergeChildren(textChild, children))
 end
 
 function UI.List(rawProps)
@@ -176,7 +232,7 @@ function UI.Corner(rawProps)
 	return e("UICorner", props, children)
 end
 
-function UI.Element(instanceType, rawProps)
+function UI.Element(instanceType: string, rawProps)
 	rawProps = rawProps or {}
 	local props = shallowCopy(rawProps)
 	local children = pullChildren(props)
