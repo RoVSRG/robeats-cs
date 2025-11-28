@@ -1,51 +1,42 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
-local UI = require(ReplicatedStorage.Util.UI)
+local UI = require(ReplicatedStorage.Components.Primitives)
 
-local useState = React.useState
-local useEffect = React.useEffect
+local e = React.createElement
 
 local function PlayerCount(props)
-	local count, setCount = useState(0)
+	local count, setCount = React.useState(0)
 
-	local position = props.Position or UDim2.new(0, 10, 0.95, 0)
-	local size = props.Size or UDim2.new(0, 200, 0, 30)
-	local anchorPoint = props.AnchorPoint
-	local textScaled = props.TextScaled
-	local textSize = props.TextSize or 14
-	local textColor = props.TextColor3 or Color3.fromRGB(150, 150, 150)
-	local font = props.Font or Enum.Font.Gotham
-	local textAlignment = props.TextXAlignment or Enum.TextXAlignment.Center
-
-	useEffect(function()
+	React.useEffect(function()
 		local function update()
 			setCount(#Players:GetPlayers())
 		end
-		
+
 		update()
-		
-		local conn1 = Players.PlayerAdded:Connect(update)
-		local conn2 = Players.PlayerRemoving:Connect(update)
-		
+
+		local added = Players.PlayerAdded:Connect(update)
+		local removing = Players.PlayerRemoving:Connect(update)
+
 		return function()
-			conn1:Disconnect()
-			conn2:Disconnect()
+			added:Disconnect()
+			removing:Disconnect()
 		end
 	end, {})
 
 	local template = props.TextTemplate or "%d players online"
 
-	return UI.Text({
+	return e(UI.TextLabel, {
 		Text = string.format(template, count),
-		Size = size,
-		Position = position,
-		AnchorPoint = anchorPoint,
-		TextColor3 = textColor,
-		Font = font,
-		TextSize = textSize,
-		TextScaled = textScaled,
-		TextXAlignment = textAlignment,
+		Size = props.Size,
+		Position = props.Position,
+		AnchorPoint = props.AnchorPoint,
+		BackgroundTransparency = 1,
+		TextColor3 = props.TextColor3,
+		Font = props.Font,
+		TextSize = props.TextSize,
+		TextScaled = props.TextScaled,
+		TextXAlignment = props.TextXAlignment,
 		TextStrokeTransparency = props.TextStrokeTransparency,
 	})
 end

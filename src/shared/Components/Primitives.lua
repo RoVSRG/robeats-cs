@@ -1,0 +1,97 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local React = require(ReplicatedStorage.Packages.React)
+local Theme = require(ReplicatedStorage.Components.Theme)
+
+local e = React.createElement
+
+local function merge(base, extra)
+	local out = {}
+	for k, v in pairs(base) do
+		out[k] = v
+	end
+	if extra then
+		for k, v in pairs(extra) do
+			out[k] = v
+		end
+	end
+	return out
+end
+
+local function splitChildren(props)
+	if not props then
+		return {}, nil
+	end
+
+	local children = props.children
+	local cleaned = {}
+	for k, v in pairs(props) do
+		if k ~= "children" then
+			cleaned[k] = v
+		end
+	end
+	return cleaned, children
+end
+
+local Primitives = {}
+
+Primitives.Frame = function(props)
+	local cleaned, children = splitChildren(props)
+	return e("Frame", cleaned, children)
+end
+
+Primitives.TextLabel = function(props)
+	local cleaned, children = splitChildren(props)
+	local defaults = {
+		BackgroundTransparency = 1,
+		Font = Theme.fonts.body,
+		TextColor3 = Theme.colors.textPrimary,
+		TextSize = Theme.textSize,
+	}
+	return e("TextLabel", merge(defaults, cleaned), children)
+end
+
+Primitives.TextButton = function(props)
+	local cleaned, children = splitChildren(props)
+	local defaults = {
+		AutoButtonColor = false,
+		BorderSizePixel = 0,
+		BackgroundColor3 = Theme.colors.button,
+		Font = Theme.fonts.bold,
+		TextColor3 = Theme.colors.textPrimary,
+		TextScaled = true,
+	}
+	return e("TextButton", merge(defaults, cleaned), children)
+end
+
+Primitives.ImageLabel = function(props)
+	local cleaned, children = splitChildren(props)
+	local defaults = {
+		BackgroundTransparency = 1,
+	}
+	return e("ImageLabel", merge(defaults, cleaned), children)
+end
+
+Primitives.ImageButton = function(props)
+	local cleaned, children = splitChildren(props)
+	local defaults = {
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+	}
+	return e("ImageButton", merge(defaults, cleaned), children)
+end
+
+Primitives.UICorner = function(props)
+	return e("UICorner", props or { CornerRadius = Theme.corner })
+end
+
+Primitives.UIPadding = function(props)
+	return e("UIPadding", props)
+end
+
+Primitives.UIListLayout = function(props)
+	return e("UIListLayout", props)
+end
+
+Primitives.Theme = Theme
+
+return Primitives
