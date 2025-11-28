@@ -11,7 +11,7 @@
     "songs:build": "npm run songs:build-rbx",
     "dev": "npm run infra:up && npm run prisma:generate && tsx watch backend/src/index.ts",
     "download-types": "curl -o roblox.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/refs/heads/main/scripts/globalTypes.d.luau",
-    "lint": "rojo sourcemap && luau-lsp analyze --defs=roblox.d.luau src"
+    "lint": "./lint.sh"
   },
   "workspaces": [
     "backend"

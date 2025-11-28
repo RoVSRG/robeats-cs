@@ -7,11 +7,11 @@ local useState = React.useState
 local useEffect = React.useEffect
 
 local function Profile(props)
-	local profileData, setProfileData = useState(Transient.profile:get())
+	local profileData, setProfileData = useState(Transient.profile:get() or {})
 
 	useEffect(function()
 		local disconnect = Transient.profile:on(function(newData)
-			setProfileData(newData)
+			setProfileData(newData or {})
 		end)
 
 		return disconnect
@@ -35,7 +35,7 @@ local function Profile(props)
 				AnchorPoint = Vector2.new(0, 0.5),
 				Position = UDim2.new(0.015, 0, 0.5, 0),
 				Size = UDim2.new(0.6, 0, 0.9, 0),
-				Image = profileData.avatar,
+				Image = profileData.avatar or "",
 				BackgroundColor3 = Color3.fromRGB(11, 11, 11),
 				children = {
 					UI.Corner({ CornerRadius = UDim.new(0, 4) }),
@@ -45,7 +45,7 @@ local function Profile(props)
 			Username = UI.Text({
 				Position = UDim2.new(0.29, 0, 0.06, 0),
 				Size = UDim2.new(0.5, 0, 0.25, 0),
-				Text = profileData.name,
+				Text = profileData.name or "",
 				Font = Enum.Font.GothamBold,
 				TextScaled = true,
 				TextStrokeTransparency = 0.5,
@@ -55,7 +55,7 @@ local function Profile(props)
 			Rank = UI.Text({
 				Position = UDim2.new(0.825, 0, 0.06, 0),
 				Size = UDim2.new(0.155, 0, 0.25, 0),
-				Text = profileData.rank,
+				Text = profileData.rank or "",
 				Font = Enum.Font.GothamBold,
 				TextScaled = true,
 				TextStrokeTransparency = 0.5,
@@ -65,7 +65,7 @@ local function Profile(props)
 			Stats = UI.Text({
 				Position = UDim2.new(0.29, 0, 0.32, 0),
 				Size = UDim2.new(0.5, 0, 0.15, 0),
-				Text = string.format("%%: %.2f | # Played: %d", profileData.accuracy, profileData.playCount),
+				Text = string.format("%%: %.2f | # Played: %d", profileData.accuracy or 0, profileData.playCount or 0),
 				Font = Enum.Font.Gotham,
 				TextScaled = true,
 				TextStrokeTransparency = 0.5,
@@ -75,7 +75,7 @@ local function Profile(props)
 			Tier = UI.Text({
 				Position = UDim2.new(0.48, 0, 0.65, 0),
 				Size = UDim2.new(0.5, 0, 0.15, 0),
-				Text = profileData.tier,
+				Text = profileData.tier or "",
 				Font = Enum.Font.Gotham,
 				TextScaled = true,
 				TextStrokeTransparency = 0.5,
@@ -85,7 +85,7 @@ local function Profile(props)
 			Rating = UI.Text({
 				Position = UDim2.new(0.296, 0, 0.6201, 0),
 				Size = UDim2.new(0.281, 0, 0.187, 0),
-				Text = string.format("%.2f", profileData.rating),
+				Text = string.format("%.2f", profileData.rating or 0),
 				Font = Enum.Font.GothamBold,
 				TextScaled = true,
 				TextStrokeTransparency = 0.5,

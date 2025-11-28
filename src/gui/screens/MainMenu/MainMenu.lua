@@ -26,8 +26,8 @@ local function MainMenu()
 					UI.Corner({ CornerRadius = UDim.new(0, 4) }),
 
 					FunnyText = FunnyText({
-						Position = UDim2.new(0.005582159, 0, 0.074548907, 0),
-						Size = UDim2.new(0.6840974, 0, 0.08, 0),
+						Position = UDim2.new(0, 30, 0, 38),
+						Size = UDim2.fromOffset(300, 30),
 						AnchorPoint = Vector2.new(0, 0.5),
 						TextSize = 18,
 						TextScaled = true,
