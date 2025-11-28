@@ -36,7 +36,13 @@ local Primitives = {}
 
 Primitives.Frame = function(props)
 	local cleaned, children = splitChildren(props)
-	return e("Frame", cleaned, children)
+
+	local defaults = {
+		BackgroundColor3 = Theme.colors.background,
+		BorderSizePixel = 0,
+	}
+
+	return e("Frame", merge(defaults, cleaned), children)
 end
 
 Primitives.TextLabel = function(props)
@@ -46,6 +52,7 @@ Primitives.TextLabel = function(props)
 		Font = Theme.fonts.body,
 		TextColor3 = Theme.colors.textPrimary,
 		TextSize = Theme.textSize,
+		TextScaled = false,
 	}
 	return e("TextLabel", merge(defaults, cleaned), children)
 end
@@ -58,7 +65,7 @@ Primitives.TextButton = function(props)
 		BackgroundColor3 = Theme.colors.button,
 		Font = Theme.fonts.bold,
 		TextColor3 = Theme.colors.textPrimary,
-		TextScaled = true,
+		TextScaled = false,
 	}
 	return e("TextButton", merge(defaults, cleaned), children)
 end

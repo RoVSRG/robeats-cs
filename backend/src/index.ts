@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import { createClient as createValkeyClient } from 'redis';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '#prisma';
 
 async function connectToValkey() {
@@ -62,7 +64,12 @@ async function connectToValkey() {
 
 (async () => {
   try {
-    const prisma = new PrismaClient();
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+    const prisma = new PrismaClient({
+      adapter: new PrismaPg(pool),
+    });
     await prisma.$connect();
     console.log('Connected to the database successfully (Prisma)');
 

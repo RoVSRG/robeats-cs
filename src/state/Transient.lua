@@ -30,10 +30,10 @@ end)
 ----------------------------------------------------------------
 
 Transient.profileAttributes = {
-	name = Val.new(""),
+	name = Val.new("Player"),
 	avatar = Val.new(""),
-	tier = Val.new(""),
-	rank = Val.new(""),
+	tier = Val.new("NIL"),
+	rank = Val.new("#???"),
 	rating = Val.new(0),
 	xpProgress = Val.new(0.0),
 	accuracy = Val.new(0.0),

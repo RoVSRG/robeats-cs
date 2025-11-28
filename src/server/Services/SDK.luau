@@ -1,6 +1,21 @@
 --!strict
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local ConfigModule = script:FindFirstChild("SDKConfig")
+		or ServerScriptService:FindFirstChild("SDKConfig")
+		or ReplicatedStorage:FindFirstChild("SDKConfig")
+local ExternalConfig = nil
+if ConfigModule then
+	local ok, cfg = pcall(function()
+		return require(ConfigModule :: any)
+	end)
+	if ok and type(cfg) == "table" then
+		ExternalConfig = cfg
+	end
+end
 
 export type Grade = "F" | "D" | "C" | "B" | "A" | "S" | "SS"
 
@@ -63,13 +78,23 @@ type APIConfig = {
 }
 
 local Config: APIConfig = {
-	BaseUrl = "http://127.0.0.1:3000", -- Default local dev
-	ApiKey = "dev_change_me",
+	BaseUrl = ExternalConfig and ExternalConfig.BaseUrl or "http://127.0.0.1:3000",
+	ApiKey = ExternalConfig and ExternalConfig.ApiKey or "dev_change_me",
 }
+
+local warnedHttpDisabled = false
 
 local function request(method: "GET" | "POST", path: string, body: any?, query: { [string]: string }?)
 	if not RunService:IsServer() then
 		warn("[SDK] Cannot make HTTP requests from the client.")
+		return nil
+	end
+
+	if not HttpService.HttpEnabled then
+		if not warnedHttpDisabled then
+			warn("[SDK] HttpService.HttpEnabled is false; enable HTTP requests in Game Settings > Security.")
+			warnedHttpDisabled = true
+		end
 		return nil
 	end
 
