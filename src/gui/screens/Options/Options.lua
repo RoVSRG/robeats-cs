@@ -12,31 +12,68 @@ local SaveSettings = ReplicatedStorage.Remotes.Events.SaveSettings
 local e = React.createElement
 
 local NAV_ITEMS = {
-	{ key = "General", label = "General" },
-	{ key = "Input", label = "Input" },
-	{ key = "VisualEffects", label = "Visual Effects" },
-	{ key = "2D", label = "2D" },
-	{ key = "Skins", label = "Skins" },
+	{ key = "General", label = "General", icon = "⚙️" },
+	{ key = "Input", label = "Input", icon = "⌨️" },
+	{ key = "VisualEffects", label = "Visual Effects", icon = "💥" },
+	{ key = "2D", label = "2D", icon = "⭕" },
+	{ key = "Skins", label = "Skins", icon = "🖌️" },
 }
 
 local function NavButton(props)
 	local isActive = props.active
+	local isHovering, setIsHovering = React.useState(false)
+
+	local backgroundColor
+	if isActive then
+		backgroundColor = Color3.fromRGB(60, 60, 60)
+	elseif isHovering then
+		backgroundColor = Color3.fromRGB(50, 50, 50)
+	else
+		backgroundColor = Color3.fromRGB(40, 40, 40)
+	end
 
 	return e(UI.TextButton, {
-		Text = props.label,
-		Size = UDim2.new(1, 0, 0.0737, 0),
-		BackgroundColor3 = isActive and Color3.fromRGB(60, 60, 60) or Color3.fromRGB(40, 40, 40),
-		TextColor3 = Color3.fromRGB(255, 255, 255),
-		TextSize = 18,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Font = UI.Theme.fonts.body,
+		Text = "",
+		Size = UDim2.fromScale(1, 0),
+		BackgroundColor3 = backgroundColor,
 		AutoButtonColor = false,
 		BorderSizePixel = 0,
 		LayoutOrder = props.layoutOrder,
 		[React.Event.MouseButton1Click] = props.onClick,
+		[React.Event.MouseEnter] = function()
+			setIsHovering(true)
+		end,
+		[React.Event.MouseLeave] = function()
+			setIsHovering(false)
+		end,
 	}, {
+		Flex = e("UIFlexItem", {
+			FlexMode = Enum.UIFlexMode.Fill,
+		}),
 		Padding = e(UI.UIPadding, { PaddingLeft = UDim.new(0, 10) }),
 		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
+
+		Icon = props.icon and e(UI.TextLabel, {
+			Text = props.icon,
+			Size = UDim2.fromOffset(63, 57),
+			Position = UDim2.new(0.47, 0, 0.12, 0),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(222, 222, 222),
+			TextSize = 71,
+			TextTransparency = 0.63,
+			Font = UI.Theme.fonts.bold,
+		}),
+
+		Label = e(UI.TextLabel, {
+			Text = props.label,
+			Size = UDim2.fromOffset(96, 34),
+			Position = UDim2.new(0.033, 0, 0.45, 0),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(222, 222, 222),
+			TextSize = 32,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Font = UI.Theme.fonts.bold,
+		}),
 	})
 end
 
@@ -66,6 +103,7 @@ end
 local function Options()
 	local screenContext = React.useContext(ScreenContext)
 	local activePage, setActivePage = React.useState("General")
+	local backHover, setBackHover = React.useState(false)
 
 	local function handleBack()
 		SaveSettings:FireServer(SettingsSerializer.get_serialized_opts())
@@ -80,6 +118,7 @@ local function Options()
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			Padding = UDim.new(0.005, 1),
+			Wraps = false,
 		}),
 		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
 	}
@@ -87,6 +126,7 @@ local function Options()
 	for index, item in ipairs(NAV_ITEMS) do
 		navButtons["Button" .. item.key] = e(NavButton, {
 			label = item.label,
+			icon = item.icon,
 			layoutOrder = index,
 			active = activePage == item.key,
 			onClick = function()
@@ -153,13 +193,19 @@ local function Options()
 				Text = "Back",
 				Size = UDim2.new(0.154, 0, 0.075, 0),
 				Position = UDim2.new(0.192, 0, 0.922, 0),
-				BackgroundColor3 = Color3.fromRGB(199, 47, 47),
+				BackgroundColor3 = backHover and Color3.fromRGB(209, 57, 57) or Color3.fromRGB(199, 47, 47),
 				TextColor3 = Color3.fromRGB(0, 0, 0),
 				TextSize = 22,
 				Font = UI.Theme.fonts.body,
 				AutoButtonColor = false,
 				BorderSizePixel = 2,
 				[React.Event.MouseButton1Click] = handleBack,
+				[React.Event.MouseEnter] = function()
+					setBackHover(true)
+				end,
+				[React.Event.MouseLeave] = function()
+					setBackHover(false)
+				end,
 			}, {
 				e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
 			}),
