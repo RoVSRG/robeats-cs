@@ -12,6 +12,7 @@ local React = require(ReplicatedStorage.Packages.React)
 -- Import existing screens from StarterGui.Screens
 local Screens = StarterGui:WaitForChild("Screens")
 local MainMenu = require(Screens.MainMenu.MainMenu)
+local SongSelect = require(Screens.SongSelect.SongSelect)
 local Options = require(Screens.Options.Options)
 local Changelog = require(Screens.Changelog.Changelog)
 
@@ -59,7 +60,7 @@ end
 -- As screens are implemented, replace PlaceholderScreen with actual imports
 local ScreenRegistry = {
 	MainMenu = MainMenu,
-	SongSelect = PlaceholderScreen,
+	SongSelect = SongSelect,
 	Options = Options,
 	Changelog = Changelog,
 	GlobalRanking = PlaceholderScreen,
