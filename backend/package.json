@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "npm run services:up && prisma --config prisma.config.ts migrate deploy && npm run prisma:generate && tsx watch src/index.ts",
+    "dev": "npm run services:up && npm run prisma:migrate && npm run prisma:generate && tsx watch src/index.ts",
     "services:up": "docker compose up -d db valkey && echo 'Waiting for DB...' && node -e \"setTimeout(() => {}, 5000)\"",
     "services:down": "docker compose down",
     "services:restart": "docker compose up -d --build --force-recreate",
