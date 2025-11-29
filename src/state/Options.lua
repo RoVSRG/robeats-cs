@@ -35,6 +35,7 @@ local Options = {
 		increment = 1,
 		min = 1,
 		max = 100,
+		layoutOrder = 1,
 	}),
 	AudioOffset = Val.new(0):asOption({
 		type = "int",
@@ -43,6 +44,7 @@ local Options = {
 		increment = 1,
 		min = -1000,
 		max = 1000,
+		layoutOrder = 2,
 	}),
 	HitOffset = Val.new(0):asOption({
 		type = "int",
@@ -51,6 +53,7 @@ local Options = {
 		increment = 1,
 		min = -1000,
 		max = 1000,
+		layoutOrder = 3,
 	}),
 	OverallDifficulty = Val.new(8):asOption({
 		type = "int",
@@ -59,6 +62,7 @@ local Options = {
 		increment = 1,
 		min = 0,
 		max = 10,
+		layoutOrder = 4,
 	}),
 	Mods = Val.new({}), -- Array of active mods
 
@@ -67,18 +71,21 @@ local Options = {
 		type = "bool",
 		displayName = "2D Enabled",
 		category = "2D",
+		layoutOrder = 1,
 	}),
 	Skin2D = Val.new(nil), -- 2D skin name (nil = auto-select)
 	Upscroll = Val.new(false):asOption({
 		type = "bool",
 		displayName = "Use Upscroll",
 		category = "2D",
+		layoutOrder = 2,
 	}),
 	NoteColor = Val.new(Color3.fromRGB(246, 253, 139)), -- Note color
 	NoteColorAffects2D = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Inherit 3D Note Color",
 		category = "2D",
+		layoutOrder = 3,
 	}),
 
 	-- Visual Settings - Effects
@@ -89,24 +96,28 @@ local Options = {
 		increment = 10,
 		min = 0,
 		max = 500,
+		layoutOrder = 1,
 	}),
 	LaneCoverEnabled = Val.new(false):asOption({
 		type = "bool",
 		displayName = "Lane Cover Enabled",
 		category = "VisualEffects",
+		layoutOrder = 2,
 	}),
 	LaneCoverPct = Val.new(0):asOption({
 		type = "int",
 		displayName = "Lane Cover Height",
-		category = "",
+		category = "VisualEffects",
 		increment = 1,
 		min = 0,
 		max = 100,
+		layoutOrder = 3,
 	}),
 	HideReceptorGlow = Val.new(false):asOption({
 		type = "bool",
 		displayName = "Hide Receptor Glow",
 		category = "VisualEffects",
+		layoutOrder = 4,
 	}),
 	ReceptorTransparency = Val.new(0):asOption({
 		type = "int",
@@ -115,21 +126,25 @@ local Options = {
 		increment = 10,
 		min = 0,
 		max = 100,
+		layoutOrder = 5,
 	}),
 	LnTransparency = Val.new(false):asOption({
 		type = "bool",
 		displayName = "Transparent Long Notes",
 		category = "VisualEffects",
+		layoutOrder = 6,
 	}),
 	HideLnTails = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Hide Long Note Tails",
 		category = "VisualEffects",
+		layoutOrder = 7,
 	}),
 	ShowHitLighting = Val.new(false):asOption({
 		type = "bool",
 		displayName = "Show Hit Lighting",
 		category = "VisualEffects",
+		layoutOrder = 8,
 	}),
 
 	-- Judgement Visibility
@@ -137,31 +152,37 @@ local Options = {
 		type = "bool",
 		displayName = "Show Marvelous Judgements",
 		category = "VisualEffects",
+		layoutOrder = 9,
 	}),
 	ShowPerfect = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Show Perfect Judgements",
 		category = "VisualEffects",
+		layoutOrder = 10,
 	}),
 	ShowGreat = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Show Great Judgements",
 		category = "VisualEffects",
+		layoutOrder = 11,
 	}),
 	ShowGood = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Show Good Judgements",
 		category = "VisualEffects",
+		layoutOrder = 12,
 	}),
 	ShowBad = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Show Bad Judgements",
 		category = "VisualEffects",
+		layoutOrder = 13,
 	}),
 	ShowMiss = Val.new(true):asOption({
 		type = "bool",
 		displayName = "Show Miss Judgements",
 		category = "VisualEffects",
+		layoutOrder = 14,
 	}),
 
 	-- Audio Settings
