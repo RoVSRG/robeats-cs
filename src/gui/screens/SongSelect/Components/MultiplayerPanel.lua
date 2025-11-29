@@ -16,11 +16,9 @@ local e = React.createElement
 ]]
 local function MultiplayerPanel(props)
 	return e(UI.Frame, {
-		Position = props.position,
-		Size = props.size,
+		Size = props.size or UDim2.new(0.35, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
 		BorderSizePixel = 0,
-		Visible = false, -- Hidden by default (multiplayer not implemented yet)
 	}, {
 		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
 

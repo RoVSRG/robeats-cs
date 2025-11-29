@@ -3,8 +3,8 @@ local React = require(ReplicatedStorage.Packages.React)
 
 local UI = require(ReplicatedStorage.Components.Primitives)
 local ScreenContext = require(ReplicatedStorage.Contexts.ScreenContext)
+local L = require(ReplicatedStorage.Components.LayoutUtils)
 
--- Debug: Check Components folder exists
 local ComponentsFolder = script.Parent.Components
 
 local SongList = require(ComponentsFolder.SongList.SongList)
@@ -64,32 +64,41 @@ local function SongSelect()
 			Size = UDim2.fromOffset(1049, 442),
 			BackgroundTransparency = 1,
 		}, {
-			-- Left side: Song list with search, filters, and virtual scrolling (40% width)
+			-- Horizontal layout for 3 columns
+			Layout = L.HList({ padding = 5 }),
+
+			-- Column 1: Song list (35% width)
 			SongList = e(SongList, {
-				size = UDim2.new(0.4, 0, 1, 0),
-				position = UDim2.fromScale(0, 0),
+				size = UDim2.new(0.35, 0, 1, 0),
 				viewportHeight = 442,
 			}),
 
-			-- Top-right: Song info panel (60% width, 50% height)
-			SongInfoPanel = e(SongInfoPanel, {
-				position = UDim2.new(0.41, 0, 0, 0),
-				size = UDim2.new(0.59, 0, 0.49, 0),
+			-- Column 2: Leaderboard + SongInfo vertical split (29% width)
+			Column2 = e(UI.Frame, {
+				Size = UDim2.new(0.29, 0, 1, 0),
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+			}, {
+				-- Vertical layout for split
+				Layout = L.VList({ padding = 5 }),
+
+				-- Leaderboard (top 66%)
+				LeaderboardPanel = e(LeaderboardPanel, {
+					size = UDim2.new(1, 0, 0.66, 0),
+				}),
+
+				-- SongInfo (bottom 34%)
+				SongInfoPanel = e(SongInfoPanel, {
+					size = UDim2.new(1, 0, 0.34, 0),
+				}),
 			}),
 
-			-- Bottom-right: Leaderboard panel (60% width, 50% height)
-			LeaderboardPanel = e(LeaderboardPanel, {
-				position = UDim2.new(0.41, 0, 0.51, 0),
-				size = UDim2.new(0.59, 0, 0.49, 0),
-			}),
-
-			-- Multiplayer panel (hidden by default)
+			-- Column 3: Multiplayer panel (35% width)
 			MultiplayerPanel = e(MultiplayerPanel, {
-				position = UDim2.new(0.41, 0, 0.51, 0),
-				size = UDim2.new(0.59, 0, 0.49, 0),
+				size = UDim2.new(0.35, 0, 1, 0),
 			}),
 
-			-- Back button (top-left, outside container)
+			-- Back button (top-left, outside columns)
 			BackButton = e(UI.TextButton, {
 				Text = "Back",
 				Size = UDim2.new(0, 100, 0, 40),
@@ -111,7 +120,7 @@ local function SongSelect()
 				e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
 			}),
 
-			-- Play button (bottom-right, outside container)
+			-- Play button (bottom-right, outside columns)
 			PlayButton = e(UI.TextButton, {
 				Text = "Play",
 				Size = UDim2.new(0, 100, 0, 40),

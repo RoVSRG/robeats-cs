@@ -51,8 +51,7 @@ local function SongInfoPanel(props)
 	local totalHolds = songData and (songData.TotalHoldNotes or 0) or 0
 
 	return e(UI.Frame, {
-		Position = props.position or UDim2.new(0.41, 0, 0, 0),
-		Size = props.size or UDim2.new(0.59, 0, 0.49, 0),
+		Size = props.size or UDim2.new(1, 0, 0.34, 0),
 		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
 		BorderSizePixel = 0,
 	}, {

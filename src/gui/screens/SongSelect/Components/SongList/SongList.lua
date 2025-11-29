@@ -48,8 +48,7 @@ local function SongList(props)
 	end, {})
 
 	return e(UI.Frame, {
-		Size = props.size or UDim2.fromScale(0.4, 1),
-		Position = props.position or UDim2.fromScale(0, 0),
+		Size = props.size or UDim2.new(0.35, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(29, 28, 29),
 		BorderSizePixel = 0,
 	}, {
