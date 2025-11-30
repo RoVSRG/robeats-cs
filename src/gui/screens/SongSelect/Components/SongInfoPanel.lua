@@ -3,23 +3,21 @@ local React = require(ReplicatedStorage.Packages.React)
 
 local UI = require(ReplicatedStorage.Components.Primitives)
 local useTransient = require(ReplicatedStorage.hooks.useTransient)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
-local Transient = require(ReplicatedStorage.State.Transient)
 local SongDatabase = require(ReplicatedStorage.SongDatabase)
+local NpsGraph = require(script.Parent.NpsGraph)
 
 local e = React.createElement
 local useState = React.useState
 local useEffect = React.useEffect
 
 --[[
-	SongInfoPanel - Displays selected song details and rate selector
+	SongInfoPanel - Displays selected song details and NPS graph
 
-	Subscribes to Transient.song.selected and Transient.song.rate
+	Subscribes to Transient.song.selected
 ]]
 local function SongInfoPanel(props)
 	local selectedSongId = useTransient("song.selected")
 	local rate = useTransient("song.rate")
-	local setRate = useValSetter(Transient.song.rate)
 
 	local songData, setSongData = useState(nil)
 
@@ -33,18 +31,7 @@ local function SongInfoPanel(props)
 		end
 	end, { selectedSongId })
 
-	-- Rate control handlers
-	local function incrementRate()
-		local newRate = math.min(200, rate + 5)
-		setRate(newRate)
-	end
-
-	local function decrementRate()
-		local newRate = math.max(50, rate - 5)
-		setRate(newRate)
-	end
-
-	-- Calculate adjusted NPS based on rate
+	-- Calculate stats (adjusted by rate for display)
 	local avgNps = songData and (songData.AverageNPS or 0) * (rate / 100) or 0
 	local maxNps = songData and (songData.MaxNPS or 0) * (rate / 100) or 0
 	local totalNotes = songData and (songData.TotalSingleNotes or 0) or 0
@@ -142,8 +129,8 @@ local function SongInfoPanel(props)
 				LayoutOrder = 2,
 			}),
 
-			TotalNotes = e(UI.TextLabel, {
-				Text = string.format("Total Notes: %d", totalNotes),
+			NotesInfo = e(UI.TextLabel, {
+				Text = string.format("Notes: %d (%d holds)", totalNotes + totalHolds, totalHolds),
 				Size = UDim2.new(1, 0, 0, 18),
 				BackgroundTransparency = 1,
 				TextColor3 = Color3.fromRGB(200, 200, 200),
@@ -151,87 +138,15 @@ local function SongInfoPanel(props)
 				TextXAlignment = Enum.TextXAlignment.Left,
 				Font = UI.Theme.fonts.body,
 				LayoutOrder = 3,
-			}),
-
-			TotalHolds = e(UI.TextLabel, {
-				Text = string.format("Total Holds: %d", totalHolds),
-				Size = UDim2.new(1, 0, 0, 18),
-				BackgroundTransparency = 1,
-				TextColor3 = Color3.fromRGB(200, 200, 200),
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Font = UI.Theme.fonts.body,
-				LayoutOrder = 4,
 			}),
 		}),
 
-		-- Rate selector
-		RateControl = e(UI.Frame, {
-			Size = UDim2.new(1, 0, 0, 40),
-			BackgroundTransparency = 1,
-			LayoutOrder = 5,
-		}, {
-			Layout = e(UI.UIListLayout, {
-				FillDirection = Enum.FillDirection.Horizontal,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Padding = UDim.new(0, 10),
-			}),
-
-			Label = e(UI.TextLabel, {
-				Text = "Rate:",
-				Size = UDim2.new(0, 50, 1, 0),
-				BackgroundTransparency = 1,
-				TextColor3 = Color3.fromRGB(200, 200, 200),
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Font = UI.Theme.fonts.body,
-				LayoutOrder = 1,
-			}),
-
-			DecButton = e(UI.TextButton, {
-				Text = "-",
-				Size = UDim2.new(0, 30, 0, 30),
-				BackgroundColor3 = Color3.fromRGB(57, 57, 57),
-				TextColor3 = Color3.fromRGB(230, 230, 230),
-				TextSize = 18,
-				Font = UI.Theme.fonts.body,
-				AutoButtonColor = false,
-				BorderSizePixel = 0,
-				LayoutOrder = 2,
-				[React.Event.MouseButton1Click] = decrementRate,
-			}, {
-				e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
-			}),
-
-			RateDisplay = e(UI.TextLabel, {
-				Text = string.format("%d%%", rate),
-				Size = UDim2.new(0, 60, 0, 30),
-				BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-				TextColor3 = Color3.fromRGB(230, 230, 230),
-				TextSize = 14,
-				Font = UI.Theme.fonts.body,
-				BorderSizePixel = 0,
-				LayoutOrder = 3,
-			}, {
-				e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
-			}),
-
-			IncButton = e(UI.TextButton, {
-				Text = "+",
-				Size = UDim2.new(0, 30, 0, 30),
-				BackgroundColor3 = Color3.fromRGB(57, 57, 57),
-				TextColor3 = Color3.fromRGB(230, 230, 230),
-				TextSize = 18,
-				Font = UI.Theme.fonts.body,
-				AutoButtonColor = false,
-				BorderSizePixel = 0,
-				LayoutOrder = 4,
-				[React.Event.MouseButton1Click] = incrementRate,
-			}, {
-				e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
-			}),
+		-- NPS Graph
+		NpsGraphComponent = songData and e(NpsGraph, {
+			size = UDim2.new(1, 0, 0, 80),
+			songData = songData,
+			rate = rate,
+			layoutOrder = 5,
 		}),
 
 		-- Placeholder if no song selected

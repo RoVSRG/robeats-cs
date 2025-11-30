@@ -12,6 +12,10 @@ local useEffect = React.useEffect
 
 local GetLeaderboard = ReplicatedStorage.Remotes.Functions.GetLeaderboard
 
+-- Toggle states for future implementation
+local showLocalScores = false
+local ratingFilter = "Rating" -- "Rating", "Friends", "All"
+
 --[[
 	LeaderboardPanel - Displays leaderboard for selected song
 
@@ -93,22 +97,6 @@ local function LeaderboardPanel(props)
 			LayoutOrder = 1,
 		}),
 
-		-- Best score
-		Best = leaderboardData and leaderboardData.best and e(UI.TextLabel, {
-			Text = string.format(
-				"Best: %.2f SR | %.2f%% | %.2fx",
-				leaderboardData.best.rating,
-				leaderboardData.best.accuracy,
-				leaderboardData.best.rate / 100
-			),
-			Size = UDim2.new(1, 0, 0, 20),
-			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(180, 180, 180),
-			TextSize = 14,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.body,
-			LayoutOrder = 2,
-		}),
 
 		-- Loading state
 		Loading = isLoading and e(UI.TextLabel, {
@@ -132,15 +120,15 @@ local function LeaderboardPanel(props)
 			LayoutOrder = 3,
 		}),
 
-		-- Leaderboard entries (simplified - would need virtual scroll for many entries)
+		-- Leaderboard entries (reduced height to make room for bottom controls)
 		Entries = leaderboardData and leaderboardData.leaderboard and e("ScrollingFrame", {
-			Size = UDim2.new(1, 0, 1, -60),
+			Size = UDim2.new(1, 0, 1, -90),
+			Position = UDim2.new(0, 0, 0, 50),
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			ScrollBarThickness = 4,
 			CanvasSize = UDim2.fromOffset(0, 0),
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
-			LayoutOrder = 3,
 		}, {
 			Layout = e(UI.UIListLayout, {
 				FillDirection = Enum.FillDirection.Vertical,
@@ -197,6 +185,66 @@ local function LeaderboardPanel(props)
 
 				return entries
 			end)()),
+		}),
+
+		-- Best score label (bottom-center, absolute positioning)
+		BestLabel = leaderboardData and leaderboardData.best and e(UI.TextLabel, {
+			Text = string.format(
+				"Best: %.2f SR | %.2f%% | %.2fx",
+				leaderboardData.best.rating,
+				leaderboardData.best.accuracy,
+				leaderboardData.best.rate / 100
+			),
+			Size = UDim2.new(0.66, 0, 0, 20),
+			Position = UDim2.new(0.5, 0, 1, -25),
+			AnchorPoint = Vector2.new(0.5, 0),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(180, 180, 180),
+			TextSize = 12,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Font = UI.Theme.fonts.body,
+		}),
+
+		-- Local toggle button (bottom-left, hidden initially)
+		LocalToggle = false and e(UI.TextButton, {
+			Text = "View Local Scores",
+			Size = UDim2.new(0.277, 0, 0, 22),
+			Position = UDim2.new(0.01, 0, 1, -24),
+			AnchorPoint = Vector2.new(0, 0),
+			BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+			TextColor3 = Color3.fromRGB(200, 200, 200),
+			TextSize = 10,
+			Font = UI.Theme.fonts.body,
+			AutoButtonColor = false,
+			BorderSizePixel = 0,
+			Visible = false,
+			[React.Event.MouseButton1Click] = function()
+				-- Toggle local/online scores (future implementation)
+				warn("Local scores toggle - not implemented")
+			end,
+		}, {
+			e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
+		}),
+
+		-- Rating toggle button (bottom-right, hidden initially)
+		RatingToggle = false and e(UI.TextButton, {
+			Text = "Rating ▼",
+			Size = UDim2.new(0.277, 0, 0, 22),
+			Position = UDim2.new(0.99, 0, 1, -24),
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+			TextColor3 = Color3.fromRGB(200, 200, 200),
+			TextSize = 10,
+			Font = UI.Theme.fonts.body,
+			AutoButtonColor = false,
+			BorderSizePixel = 0,
+			Visible = false,
+			[React.Event.MouseButton1Click] = function()
+				-- Cycle through rating filters (future implementation)
+				warn("Rating filter toggle - not implemented")
+			end,
+		}, {
+			e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
 		}),
 	})
 end

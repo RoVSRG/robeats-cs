@@ -11,10 +11,14 @@ local SongList = require(ComponentsFolder.SongList.SongList)
 local SongInfoPanel = require(ComponentsFolder.SongInfoPanel)
 local LeaderboardPanel = require(ComponentsFolder.LeaderboardPanel)
 local MultiplayerPanel = require(ComponentsFolder.MultiplayerPanel)
+local ModsButton = require(ComponentsFolder.ModsButton)
+local OptionsButton = require(ComponentsFolder.OptionsButton)
+local UnrankedDisclaimer = require(ComponentsFolder.UnrankedDisclaimer)
 
 local SongDatabase = require(ReplicatedStorage.SongDatabase)
 local Transient = require(ReplicatedStorage.State.Transient)
 local SPUtil = require(ReplicatedStorage.Shared.SPUtil)
+local useTransient = require(ReplicatedStorage.hooks.useTransient)
 
 local e = React.createElement
 
@@ -28,12 +32,23 @@ local function SongSelect()
 	local backHover, setBackHover = React.useState(false)
 	local playHover, setPlayHover = React.useState(false)
 
+	local selectedSongId = useTransient("song.selected")
+
 	-- Load all songs on mount
 	React.useEffect(function()
 		if not SongDatabase.IsLoaded then
 			SongDatabase:LoadAllSongs()
 		end
 	end, {})
+
+	-- Check if selected song is unranked
+	local isUnranked = React.useMemo(function()
+		if selectedSongId then
+			local songData = SongDatabase:GetSongByKey(selectedSongId)
+			return songData and songData.Ranked == false
+		end
+		return false
+	end, { selectedSongId })
 
 	local function handleBack()
 		screenContext.switchScreen("MainMenu")
@@ -61,7 +76,7 @@ local function SongSelect()
 		Container = e(UI.Frame, {
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(1049, 442),
+			Size = UDim2.fromOffset(831, 433),
 			BackgroundTransparency = 1,
 		}, {
 			-- Horizontal layout for 3 columns
@@ -98,14 +113,15 @@ local function SongSelect()
 				size = UDim2.new(0.35, 0, 1, 0),
 			}),
 
-			-- Back button (top-left, outside columns)
+			-- Back button (bottom-left within container)
 			BackButton = e(UI.TextButton, {
 				Text = "Back",
-				Size = UDim2.new(0, 100, 0, 40),
-				Position = UDim2.new(0, 0, 0, -50),
+				Size = UDim2.fromScale(0.074, 0.075),
+				Position = UDim2.fromScale(0.006, 0.913),
+				AnchorPoint = Vector2.new(0, 0),
 				BackgroundColor3 = backHover and Color3.fromRGB(209, 57, 57) or Color3.fromRGB(199, 47, 47),
 				TextColor3 = Color3.fromRGB(255, 255, 255),
-				TextSize = 18,
+				TextSize = 16,
 				Font = UI.Theme.fonts.body,
 				AutoButtonColor = false,
 				BorderSizePixel = 2,
@@ -120,14 +136,15 @@ local function SongSelect()
 				e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
 			}),
 
-			-- Play button (bottom-right, outside columns)
+			-- Play button (bottom within container)
 			PlayButton = e(UI.TextButton, {
 				Text = "Play",
-				Size = UDim2.new(0, 100, 0, 40),
-				Position = UDim2.new(1, -100, 1, 10),
+				Size = UDim2.fromScale(0.324, 0.075),
+				Position = UDim2.fromScale(0.324, 0.913),
+				AnchorPoint = Vector2.new(0, 0),
 				BackgroundColor3 = playHover and Color3.fromRGB(70, 190, 83) or Color3.fromRGB(60, 180, 73),
 				TextColor3 = Color3.fromRGB(0, 0, 0),
-				TextSize = 18,
+				TextSize = 16,
 				Font = UI.Theme.fonts.bold,
 				AutoButtonColor = false,
 				BorderSizePixel = 2,
@@ -140,6 +157,25 @@ local function SongSelect()
 				end,
 			}, {
 				e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
+			}),
+
+			-- Mods button (middle bottom)
+			Mods = e(ModsButton, {
+				size = UDim2.fromScale(0.112, 0.055),
+				position = UDim2.fromScale(0.528, 0.683),
+			}),
+
+			-- Options button (middle bottom)
+			Options = e(OptionsButton, {
+				size = UDim2.fromScale(0.287, 0.055),
+				position = UDim2.fromScale(0.354, 0.683),
+			}),
+
+			-- Unranked disclaimer (conditional)
+			UnrankedDisclaimerBanner = isUnranked and e(UnrankedDisclaimer, {
+				position = UDim2.fromScale(0.08, 0.85),
+				size = UDim2.fromOffset(700, 40),
+				visible = true,
 			}),
 		}),
 	})
