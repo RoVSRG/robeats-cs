@@ -9,6 +9,8 @@ local HoldingNoteEffect2D = require(game.ReplicatedStorage.RobeatsGameCore.Effec
 local TriggerNoteEffect2D = require(game.ReplicatedStorage.RobeatsGameCore.Effects.TriggerNoteEffect2D)
 local RenderableHit = require(game.ReplicatedStorage.RobeatsGameCore.RenderableHit)
 local Skins = require(game.ReplicatedStorage.Skins)
+local GameStats = require(game.ReplicatedStorage.State.GameStats)
+local EffectsManager = require(game.ReplicatedStorage.RobeatsGameCore.EffectsManager)
 
 local SingleNote2D = {}
 SingleNote2D.Type = "SingleNote2D"
@@ -76,12 +78,9 @@ function SingleNote2D:new(_game, _track_index, _slot_index, _creation_time_ms, _
 			self:update_visual(_t)
 			
 			if self:should_remove() then
-				_game._score_manager:register_hit(
-					NoteResult.Miss,
-					_slot_index,
-					_track_index,
-					HitParams:new():set_play_sfx(false):set_play_hold_effect(false):set_time_miss(true)
-				)
+				local params = HitParams:new():set_play_sfx(false):set_play_hold_effect(false):set_time_miss(true)
+				GameStats.recordHit(NoteResult.Miss, params)
+				EffectsManager.playHitEffect(_game, NoteResult.Miss, _slot_index, _track_index, params)
 			end
 		end
 	end
@@ -121,13 +120,9 @@ function SingleNote2D:new(_game, _track_index, _slot_index, _creation_time_ms, _
 			))
 		end
 
-		_game._score_manager:register_hit(
-			note_result,
-			_slot_index,
-			_track_index,
-			HitParams:new():set_play_hold_effect(true, _position),
-			renderable_hit
-		)
+		local params = HitParams:new():set_play_hold_effect(true, _position)
+		GameStats.recordHit(note_result, params, renderable_hit)
+		EffectsManager.playHitEffect(_game, note_result, _slot_index, _track_index, params, renderable_hit)
 
 		_state = SingleNote2D.State.DoRemove
 	end

@@ -1,6 +1,6 @@
 local HitParams = {}
 
---Hit Parameters associated with every ScoreManager:register_hit call
+--Hit Parameters associated with every GameStats.recordHit call
 function HitParams:new()
 	local self = {}
 	--Should play SFX for this hit

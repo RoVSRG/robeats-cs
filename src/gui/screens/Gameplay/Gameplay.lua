@@ -1,13 +1,26 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
-local React = require(ReplicatedStorage.Packages.React)
+local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 
+local React = require(ReplicatedStorage.Packages.React)
 local UI = require(ReplicatedStorage.Components.Primitives)
 local ScreenContext = require(ReplicatedStorage.Contexts.ScreenContext)
-local RobeatsGameWrapper = require(ReplicatedStorage.Modules.RobeatsGameWrapper)
 local Transient = require(ReplicatedStorage.State.Transient)
 local Game = require(ReplicatedStorage.State.Game)
+local GameStats = require(ReplicatedStorage.State.GameStats)
+
+-- Engine imports
+local RobeatsGame = require(ReplicatedStorage.RobeatsGameCore.RobeatsGame)
+local EnvironmentSetup = require(ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
+local SongDatabase = require(ReplicatedStorage.SongDatabase)
+local Replay = require(ReplicatedStorage.RobeatsGameCore.Replay)
+local CurveUtil = require(ReplicatedStorage.Shared.CurveUtil)
+local Rating = require(ReplicatedStorage.Calculator.Rating)
+local Options = require(ReplicatedStorage.State.Options)
+
+local Remotes = ReplicatedStorage.Remotes
 
 local e = React.createElement
 local useState = React.useState
@@ -25,6 +38,9 @@ local JUDGEMENT_COLORS = {
 	miss = Color3.fromRGB(255, 0, 0), -- Red
 }
 
+-- Seconds to wait for audio to load before starting anyway
+local AUDIO_LOAD_TIMEOUT = 5
+
 --[[
 	Gameplay - Main gameplay screen
 
@@ -35,13 +51,14 @@ local JUDGEMENT_COLORS = {
 ]]
 local function Gameplay()
 	local screenContext = useContext(ScreenContext)
-	local gameWrapperRef = useRef(nil)
+	local gameRef = useRef(nil)
+	local updateConnectionRef = useRef(nil)
 
 	-- Game state
 	local gameState, setGameState = useState("loading")
 	local isPaused, setIsPaused = useState(false)
 
-	-- Stats state
+	-- Stats state (subscribed from GameStats)
 	local score, setScore = useState(0)
 	local accuracy, setAccuracy = useState(100)
 	local combo, setCombo = useState(0)
@@ -62,6 +79,7 @@ local function Gameplay()
 	useEffect(function()
 		local songKey = Transient.song.selected:get()
 		local rate = Transient.song.rate:get()
+		local songData = SongDatabase:GetSongByKey(songKey)
 
 		if not songKey then
 			warn("[Gameplay] No song selected, returning to SongSelect")
@@ -69,84 +87,197 @@ local function Gameplay()
 			return
 		end
 
-		-- Create game wrapper
-		local gameWrapper = RobeatsGameWrapper.new()
-		gameWrapperRef.current = gameWrapper
+		-- Hide core GUI during gameplay
+		StarterGui:SetCoreGuiEnabled("PlayerList", false)
+		StarterGui:SetCoreGuiEnabled("Chat", false)
 
-		-- Subscribe to events
+		-- Create game instance directly
+		local game = RobeatsGame.new(EnvironmentSetup:get_game_environment_center_position())
+		gameRef.current = game
+		Game.currentGame:set(game)
+
+		-- Create replay for recording
+		local replay = Replay:new({ viewing = false })
+
+		-- Load the song
+		game:load(songKey, 0, replay)
+
+		-- Subscribe to GameStats reactive values
 		local connections = {}
 
-		table.insert(
-			connections,
-			gameWrapper.stateChanged:Connect(function(newState)
-				setGameState(newState)
-			end)
-		)
+		table.insert(connections, GameStats.score:on(function(value)
+			setScore(value)
+		end))
 
-		table.insert(
-			connections,
-			gameWrapper.scoreChanged:Connect(function(stats)
-				setScore(stats.score)
-				setAccuracy(stats.accuracy)
-				setCombo(stats.combo)
-				setMaxCombo(stats.maxCombo)
-				setJudgements({
-					marvelous = stats.marvelous,
-					perfect = stats.perfect,
-					great = stats.great,
-					good = stats.good,
-					bad = stats.bad,
-					miss = stats.miss,
+		table.insert(connections, GameStats.accuracy:on(function(value)
+			setAccuracy(value * 100) -- Convert to percentage
+		end))
+
+		table.insert(connections, GameStats.combo:on(function(value)
+			setCombo(value)
+		end))
+
+		table.insert(connections, GameStats.maxCombo:on(function(value)
+			setMaxCombo(value)
+		end))
+
+		-- Subscribe to individual judgement counts
+		table.insert(connections, GameStats.marvelous:on(function(value)
+			setJudgements(function(prev)
+				return { marvelous = value, perfect = prev.perfect, great = prev.great, good = prev.good, bad = prev.bad, miss = prev.miss }
+			end)
+		end))
+
+		table.insert(connections, GameStats.perfect:on(function(value)
+			setJudgements(function(prev)
+				return { marvelous = prev.marvelous, perfect = value, great = prev.great, good = prev.good, bad = prev.bad, miss = prev.miss }
+			end)
+		end))
+
+		table.insert(connections, GameStats.great:on(function(value)
+			setJudgements(function(prev)
+				return { marvelous = prev.marvelous, perfect = prev.perfect, great = value, good = prev.good, bad = prev.bad, miss = prev.miss }
+			end)
+		end))
+
+		table.insert(connections, GameStats.good:on(function(value)
+			setJudgements(function(prev)
+				return { marvelous = prev.marvelous, perfect = prev.perfect, great = prev.great, good = value, bad = prev.bad, miss = prev.miss }
+			end)
+		end))
+
+		table.insert(connections, GameStats.bad:on(function(value)
+			setJudgements(function(prev)
+				return { marvelous = prev.marvelous, perfect = prev.perfect, great = prev.great, good = prev.good, bad = value, miss = prev.miss }
+			end)
+		end))
+
+		table.insert(connections, GameStats.miss:on(function(value)
+			setJudgements(function(prev)
+				return { marvelous = prev.marvelous, perfect = prev.perfect, great = prev.great, good = prev.good, bad = prev.bad, miss = value }
+			end)
+		end))
+
+		-- Subscribe to game state changes
+		table.insert(connections, game:getStateChanged():Connect(function(newState)
+			setGameState(newState)
+
+			if newState == RobeatsGame.State.Finished then
+				-- Build results from GameStats
+				local results = GameStats.getResults()
+				results.songKey = songKey
+				results.rate = rate
+				results.rating = Rating.calculateRating(rate / 100, results.accuracy, songData.Difficulty)
+
+				Game.results = results
+
+				-- Submit score to server
+				local response = Remotes.Functions.SubmitScore:InvokeServer(results, {
+					rate = rate,
+					hash = Transient.song.hash:get(),
+					overallDifficulty = Options.OverallDifficulty:get(),
 				})
-			end)
-		)
 
-		table.insert(
-			connections,
-			gameWrapper.updated:Connect(function(currentTime, songLength, _, prog)
-				setProgress(prog)
-				setCurrentTimeMs(currentTime or 0)
-				setSongLengthMs(songLength or 0)
-			end)
-		)
-
-		table.insert(
-			connections,
-			gameWrapper.songFinished:Connect(function(stats)
-				-- Store results for Results screen
-				Game.results = stats
-				Game.results.songKey = songKey
-				Game.results.rate = rate
+				local profile = response.result
+				if profile then
+					Transient.updateProfilePartial({
+						rank = "#" .. profile.rank,
+						rating = profile.rating,
+						accuracy = profile.accuracy or 0,
+						playCount = profile.playCount or 0,
+					})
+				end
 
 				-- Small delay before transitioning
 				task.delay(1, function()
 					screenContext.switchScreen("Results")
 				end)
-			end)
-		)
+			end
+		end))
 
-		-- Load and start song
-		local loadSuccess = gameWrapper:loadSong({
-			songKey = songKey,
-			recordReplay = true,
-		})
-
-		if loadSuccess then
-			gameWrapper:start()
-		else
-			warn("[Gameplay] Failed to load song")
-			screenContext.switchScreen("SongSelect")
+		-- Wait for audio to load
+		local function waitForAudio(timeoutSec: number): boolean | nil
+			local audioManager = game and game._audio_manager
+			if not audioManager then
+				return false
+			end
+			local bgm = audioManager:get_bgm()
+			local startT = tick()
+			while tick() - startT < timeoutSec do
+				if bgm.IsLoaded then
+					return true
+				end
+				-- Check if we've been destroyed early
+				if gameRef.current == nil then
+					return nil
+				end
+				task.wait(0.05)
+			end
+			return bgm.IsLoaded == true
 		end
+
+		local loaded = waitForAudio(AUDIO_LOAD_TIMEOUT)
+
+		if loaded == nil then
+			print("[Gameplay] Early quit, not continuing")
+			return
+		end
+
+		if not loaded then
+			warn(string.format("[Gameplay] Audio failed to load within %ds, starting without it", AUDIO_LOAD_TIMEOUT))
+		end
+
+		-- Start the game
+		game:startGame()
+
+		-- Setup update loop
+		updateConnectionRef.current = RunService.Heartbeat:Connect(function(dt: number)
+			local currentGame = gameRef.current
+			if currentGame and currentGame:getState() == RobeatsGame.State.Playing then
+				local dt_scale = CurveUtil:DeltaTimeToTimescale(dt)
+				currentGame:update(dt_scale)
+
+				-- Update progress
+				local audioManager = currentGame._audio_manager
+				if audioManager then
+					local currentTime = audioManager:get_current_time_ms()
+					local songLength = audioManager:get_song_length_ms()
+					setCurrentTimeMs(currentTime or 0)
+					setSongLengthMs(songLength or 0)
+					if songLength and songLength > 0 then
+						setProgress(currentTime / songLength)
+					end
+				end
+			end
+		end)
 
 		-- Cleanup on unmount
 		return function()
+			-- Disconnect all Val subscriptions
 			for _, conn in ipairs(connections) do
-				conn:Disconnect()
+				if typeof(conn) == "function" then
+					conn() -- Val unsubscribe functions
+				else
+					conn:Disconnect() -- Signal connections
+				end
 			end
-			if gameWrapperRef.current then
-				gameWrapperRef.current:destroy()
-				gameWrapperRef.current = nil
+
+			-- Stop update loop
+			if updateConnectionRef.current then
+				updateConnectionRef.current:Disconnect()
+				updateConnectionRef.current = nil
 			end
+
+			-- Teardown game
+			if gameRef.current then
+				gameRef.current:teardown()
+				gameRef.current = nil
+				Game.currentGame:set(nil)
+			end
+
+			-- Restore core GUI
+			StarterGui:SetCoreGuiEnabled("PlayerList", true)
+			StarterGui:SetCoreGuiEnabled("Chat", true)
 		end
 	end, {})
 
@@ -158,16 +289,17 @@ local function Gameplay()
 			end
 
 			if input.KeyCode == Enum.KeyCode.Escape then
-				local gw = gameWrapperRef.current
-				if not gw then
+				local game = gameRef.current
+				if not game then
 					return
 				end
 
-				if gw:getState() == "playing" then
-					gw:pause()
+				local state = game:getState()
+				if state == RobeatsGame.State.Playing then
+					game:pause()
 					setIsPaused(true)
-				elseif gw:getState() == "paused" then
-					gw:resume()
+				elseif state == RobeatsGame.State.Paused then
+					game:resume()
 					setIsPaused(false)
 				end
 			end
@@ -180,17 +312,19 @@ local function Gameplay()
 
 	-- Pause menu handlers
 	local function handleResume()
-		local gw = gameWrapperRef.current
-		if gw then
-			gw:resume()
+		local game = gameRef.current
+		if game then
+			game:resume()
 			setIsPaused(false)
 		end
 	end
 
 	local function handleQuit()
-		local gw = gameWrapperRef.current
-		if gw then
-			gw:stop()
+		local game = gameRef.current
+		if game then
+			game:teardown()
+			gameRef.current = nil
+			Game.currentGame:set(nil)
 		end
 		screenContext.switchScreen("SongSelect")
 	end

@@ -1,6 +1,10 @@
 local Val = require(game.ReplicatedStorage.Libraries.Val)
+local GameStats = require(game.ReplicatedStorage.State.GameStats)
 
 local Game = {}
+
+-- Re-export GameStats for convenience
+Game.stats = GameStats
 
 -- Current game results (set after gameplay finishes)
 Game.results = nil :: {

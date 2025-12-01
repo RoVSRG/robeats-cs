@@ -7,6 +7,8 @@ local GameTrack = require(game.ReplicatedStorage.RobeatsGameCore.Enums.GameTrack
 local SPUtil = require(game.ReplicatedStorage.Shared.SPUtil)
 local EnvironmentSetup = require(game.ReplicatedStorage.RobeatsGameCore.EnvironmentSetup)
 local HitParams = require(game.ReplicatedStorage.RobeatsGameCore.HitParams)
+local GameStats = require(game.ReplicatedStorage.State.GameStats)
+local EffectsManager = require(game.ReplicatedStorage.RobeatsGameCore.EffectsManager)
 
 local NoteTrackSystem2D = {}
 
@@ -92,13 +94,9 @@ function NoteTrackSystem2D:new(_game, _game_slot)
 		end
 
 		if hit_found == false then
-			_game._score_manager:register_hit(
-				NoteResult.Miss,
-				_game_slot,
-				track_index,
-				HitParams:new():set_play_hold_effect(false):set_whiff_miss(true):set_ghost_tap(true),
-				nil
-			)
+			local params = HitParams:new():set_play_hold_effect(false):set_whiff_miss(true):set_ghost_tap(true)
+			GameStats.recordHit(NoteResult.Miss, params)
+			EffectsManager.playHitEffect(_game, NoteResult.Miss, _game_slot, track_index, params)
 		end
 
 		return nil -- No note result when no hit found

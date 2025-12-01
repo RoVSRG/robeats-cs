@@ -8,6 +8,8 @@ local HoldingNoteEffect = require(game.ReplicatedStorage.RobeatsGameCore.Effects
 local FlashEvery = require(game.ReplicatedStorage.Shared.FlashEvery)
 local RenderableHit = require(game.ReplicatedStorage.RobeatsGameCore.RenderableHit)
 local TriggerNoteEffect = require(game.ReplicatedStorage.RobeatsGameCore.Effects.TriggerNoteEffect)
+local GameStats = require(game.ReplicatedStorage.State.GameStats)
+local EffectsManager = require(game.ReplicatedStorage.RobeatsGameCore.EffectsManager)
 
 local HeldNote = {}
 HeldNote.Type = "HeldNote"
@@ -273,12 +275,9 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 				> (_hit_time_ms - _game._audio_manager:get_note_remove_time())
 			then
 				--Time missed first hit
-				_game._score_manager:register_hit(
-					NoteResult.Miss,
-					_slot_index,
-					_track_index,
-					HitParams:new():set_play_sfx(false):set_play_hold_effect(false):set_time_miss(true)
-				)
+				local params = HitParams:new():set_play_sfx(false):set_play_hold_effect(false):set_time_miss(true)
+				GameStats.recordHit(NoteResult.Miss, params)
+				EffectsManager.playHitEffect(_game, NoteResult.Miss, _slot_index, _track_index, params)
 
 				_game._effects:add_effect(HoldingNoteEffect:new(_game, get_head_position(), NoteResult.Miss))
 
@@ -310,12 +309,9 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 					_game._effects:add_effect(HoldingNoteEffect:new(_game, get_tail_position(), NoteResult.Miss))
 
 					--Time missed second hit
-					_game._score_manager:register_hit(
-						NoteResult.Miss,
-						_slot_index,
-						_track_index,
-						HitParams:new():set_play_sfx(false):set_play_hold_effect(false):set_time_miss(true)
-					)
+					local params = HitParams:new():set_play_sfx(false):set_play_hold_effect(false):set_time_miss(true)
+					GameStats.recordHit(NoteResult.Miss, params)
+					EffectsManager.playHitEffect(_game, NoteResult.Miss, _slot_index, _track_index, params)
 				end
 
 				_state = HeldNote.State.DoRemove
@@ -366,12 +362,9 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 			end
 
 			--Hit the first note
-			_game._score_manager:register_hit(
-				note_result,
-				_slot_index,
-				_track_index,
-				HitParams:new():set_play_hold_effect(false):set_held_note_begin(true)
-			)
+			local params = HitParams:new():set_play_hold_effect(false):set_held_note_begin(true)
+			GameStats.recordHit(note_result, params, renderable_hit)
+			EffectsManager.playHitEffect(_game, note_result, _slot_index, _track_index, params, renderable_hit)
 
 			_did_trigger_head = true
 			_state = HeldNote.State.Holding
@@ -385,13 +378,9 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 			end
 
 			--Missed the first note, hit the second note
-			_game._score_manager:register_hit(
-				note_result,
-				_slot_index,
-				_track_index,
-				HitParams:new():set_play_hold_effect(true, get_tail_position()),
-				renderable_hit
-			)
+			local params = HitParams:new():set_play_hold_effect(true, get_tail_position())
+			GameStats.recordHit(note_result, params, renderable_hit)
+			EffectsManager.playHitEffect(_game, note_result, _slot_index, _track_index, params, renderable_hit)
 
 			_did_trigger_tail = true
 			_state = HeldNote.State.Passed
@@ -422,26 +411,18 @@ function HeldNote:new(_game, _track_index, _slot_index, _creation_time_ms, _hit_
 		if _state == HeldNote.State.Holding or _state == HeldNote.State.HoldMissedActive then
 			if note_result == NoteResult.Miss then
 				--Holding or missed first hit, missed second hit
-				_game._score_manager:register_hit(
-					note_result,
-					_slot_index,
-					_track_index,
-					HitParams:new():set_play_hold_effect(false),
-					renderable_hit
-				)
+				local params = HitParams:new():set_play_hold_effect(false)
+				GameStats.recordHit(note_result, params, renderable_hit)
+				EffectsManager.playHitEffect(_game, note_result, _slot_index, _track_index, params, renderable_hit)
 				_state = HeldNote.State.HoldMissedActive
 			else
 				if _show_trigger_fx then
 					_game._effects:add_effect(TriggerNoteEffect:new(_game, get_tail_position(), note_result))
 				end
 				--Holding or missed first hit, hit second hit
-				_game._score_manager:register_hit(
-					note_result,
-					_slot_index,
-					_track_index,
-					HitParams:new():set_play_hold_effect(true, get_tail_position()),
-					renderable_hit
-				)
+				local params = HitParams:new():set_play_hold_effect(true, get_tail_position())
+				GameStats.recordHit(note_result, params, renderable_hit)
+				EffectsManager.playHitEffect(_game, note_result, _slot_index, _track_index, params, renderable_hit)
 				_did_trigger_tail = true
 				_state = HeldNote.State.Passed
 			end

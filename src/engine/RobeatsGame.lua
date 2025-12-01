@@ -4,7 +4,7 @@ local SPDict = require(game.ReplicatedStorage.Shared.SPDict)
 local AudioManager = require(game.ReplicatedStorage.RobeatsGameCore.AudioManager)
 local ObjectPool = require(game.ReplicatedStorage.RobeatsGameCore.ObjectPool)
 local SFXManager = require(game.ReplicatedStorage.RobeatsGameCore.SFXManager)
-local ScoreManager = require(game.ReplicatedStorage.RobeatsGameCore.ScoreManager)
+local EffectsManager = require(game.ReplicatedStorage.RobeatsGameCore.EffectsManager)
 local NoteTrackSystem = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrackSystem)
 local NoteTrackSystem2D = require(game.ReplicatedStorage.RobeatsGameCore.NoteTrack.NoteTrackSystem2D)
 local EffectSystem = require(game.ReplicatedStorage.RobeatsGameCore.Effects.EffectSystem)
@@ -20,6 +20,7 @@ local FlashEvery = require(game.ReplicatedStorage.Shared.FlashEvery)
 
 local Options = require(game.ReplicatedStorage.State.Options)
 local Transient = require(game.ReplicatedStorage.State.Transient)
+local GameStats = require(game.ReplicatedStorage.State.GameStats)
 
 -- local Flipper = require(game.ReplicatedStorage.Packages.Flipper)
 
@@ -29,22 +30,71 @@ local ContentProvider = game:GetService("ContentProvider")
 local StarterGui = game:GetService("StarterGui")
 
 local RobeatsGame = {}
+
+-- Legacy Mode enum (kept for compatibility during transition)
 RobeatsGame.Mode = {
 	Setup = 1,
 	Game = 2,
 	GameEnded = 3,
 }
 
+-- New lifecycle states
+RobeatsGame.State = {
+	Idle = "idle",
+	Loading = "loading",
+	Ready = "ready",
+	Playing = "playing",
+	Paused = "paused",
+	Finished = "finished",
+}
+
 function RobeatsGame.new(_game_environment_center_position: Vector3)
 	local self = {
 		_tracksystems = SPDict:new(),
 		_audio_manager = nil,
-		_score_manager = nil,
 		_effects = EffectSystem:new(),
 		_input = InputUtil:new(),
 		_sfx_manager = SFXManager:new(),
 		_object_pool = ObjectPool:new(),
 	}
+
+	-- Lifecycle state
+	local _state = RobeatsGame.State.Idle
+	local _stateChanged = Signal.new()
+
+	function self:getState()
+		return _state
+	end
+	-- Legacy alias for compatibility
+	self.get_state = self.getState
+
+	function self:_setState(newState)
+		local oldState = _state
+		_state = newState
+		_stateChanged:Fire(newState, oldState)
+	end
+	-- Legacy alias for compatibility
+	self._set_state = self._setState
+
+	function self:getStateChanged()
+		return _stateChanged
+	end
+	-- Legacy alias for compatibility
+	self.get_state_changed = self.getStateChanged
+
+	function self:pause()
+		if _state == RobeatsGame.State.Playing then
+			self:_setState(RobeatsGame.State.Paused)
+			self._audio_manager:pause()
+		end
+	end
+
+	function self:resume()
+		if _state == RobeatsGame.State.Paused then
+			self:_setState(RobeatsGame.State.Playing)
+			self._audio_manager:resume()
+		end
+	end
 
 	local left_tar_orientation = math.rad(13.5)
 	local right_tar_orientation = math.rad(-13.5)
@@ -136,7 +186,6 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 
 	self._audio_manager = AudioManager:new(self)
-	self._score_manager = ScoreManager:new(self)
 
 	self._mode_changed = Signal.new()
 
@@ -157,6 +206,8 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 		self._mode_changed:Fire(_current_mode)
 
 		if val == RobeatsGame.Mode.GameEnded then
+			self:_setState(RobeatsGame.State.Finished)
+
 			if StarterGui:GetCoreGuiEnabled("PlayerList") == false then
 				StarterGui:SetCoreGuiEnabled("PlayerList", true)
 			end
@@ -311,7 +362,10 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 		end
 	end
 
-	function self:start_game(_start_time_ms)
+	function self:startGame(_start_time_ms)
+		-- Reset stats for new game
+		GameStats.reset()
+
 		local floor
 
 		if self:get_2d_mode() then
@@ -326,11 +380,14 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 
 		self._audio_manager:start_play(_start_time_ms)
 		self:set_mode(RobeatsGame.Mode.Game)
+		self:_setState(RobeatsGame.State.Playing)
 
 		if floor then
 			floor.Parent = EnvironmentSetup:get_local_elements_folder()
 		end
 	end
+	-- Legacy alias for compatibility
+	self.start_game = self.startGame
 
 	function self:get_tracksystem(index)
 		return self._tracksystems:get(index)
@@ -381,7 +438,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 							itr_index,
 							Replay.HitType.Press,
 							note_result,
-							self._score_manager:get_end_records()
+							GameStats.getEndRecords()
 						)
 
 						if self:is_mod_active(Mods.Sway) then
@@ -417,7 +474,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 							itr_index,
 							Replay.HitType.Release,
 							note_result,
-							self._score_manager:get_end_records()
+							GameStats.getEndRecords()
 						)
 
 						if self:is_mod_active(Mods.Sway) then
@@ -442,7 +499,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 			end
 
 			self._sfx_manager:update()
-			self._score_manager:update()
+			EffectsManager.update()
 
 			self._effects:update(dt_scale)
 
@@ -456,6 +513,8 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 
 	function self:load(_song_key, _local_player_slot, _replay: any?)
+		self:_setState(RobeatsGame.State.Loading)
+
 		-- replay = Replay.perfect(SongDatabase:get_hash_for_key(_song_key), Options.SongRate:get())
 		replay = _replay or Replay:new({ viewing = false })
 
@@ -507,6 +566,7 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 		self:setup_world(_local_player_slot)
 
 		self._config = config
+		self:_setState(RobeatsGame.State.Ready)
 	end
 
 	function self:is_viewing_replay()
@@ -514,6 +574,8 @@ function RobeatsGame.new(_game_environment_center_position: Vector3)
 	end
 
 	function self:teardown()
+		self:_setState(RobeatsGame.State.Idle)
+
 		for _, val in self:tracksystems_itr() do
 			val:teardown()
 		end
