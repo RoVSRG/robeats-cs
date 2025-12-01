@@ -51,12 +51,14 @@ local function LeaderboardPanel(props)
 			end
 
 			-- Fetch leaderboard from server
-			local success, response = pcall(function()
+			local _, response = pcall(function()
 				return GetLeaderboard:InvokeServer(songData.MD5Hash)
 			end)
 
-			if success and response and response.leaderboard then
-				setLeaderboardData(response)
+			print("Leaderboard response:", response, response and response.result and #response.result.leaderboard)
+
+			if response and response.success and response.result then
+				setLeaderboardData(response.result)
 			else
 				setLeaderboardData(nil)
 			end
@@ -88,17 +90,16 @@ local function LeaderboardPanel(props)
 		}),
 
 		-- Header
-		Header = e(UI.TextLabel, {
-			Text = "Leaderboard",
-			Size = UDim2.new(1, 0, 0, 25),
-			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(255, 255, 255),
-			TextSize = 18,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.bold,
-			LayoutOrder = 1,
-		}),
-
+		-- Header = e(UI.TextLabel, {
+		-- 	Text = "Leaderboard",
+		-- 	Size = UDim2.new(1, 0, 0, 25),
+		-- 	BackgroundTransparency = 1,
+		-- 	TextColor3 = Color3.fromRGB(255, 255, 255),
+		-- 	TextSize = 18,
+		-- 	TextXAlignment = Enum.TextXAlignment.Left,
+		-- 	Font = UI.Theme.fonts.bold,
+		-- 	LayoutOrder = 1,
+		-- }),
 
 		-- Loading state
 		Loading = isLoading and e(UI.TextLabel, {
@@ -131,7 +132,10 @@ local function LeaderboardPanel(props)
 			ScrollBarThickness = 4,
 			CanvasSize = UDim2.fromOffset(0, 0),
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
+			LayoutOrder = 1,
 		}, {
+			UI.FlexItem({ Mode = Enum.UIFlexMode.Fill }),
+
 			Layout = e(UI.UIListLayout, {
 				FillDirection = Enum.FillDirection.Vertical,
 				HorizontalAlignment = Enum.HorizontalAlignment.Left,
@@ -139,72 +143,154 @@ local function LeaderboardPanel(props)
 				Padding = UDim.new(0, 3),
 			}),
 
-			-- Render top entries
-			Entries = React.createElement(React.Fragment, nil, (function()
-				local entries = {}
-				local leaderboard = leaderboardData.leaderboard or {}
+			-- Render top entries (archive-style slots)
+			Entries = React.createElement(
+				React.Fragment,
+				nil,
+				(function()
+					local entries = {}
+					local leaderboard = leaderboardData.leaderboard or {}
 
-				for i, entry in ipairs(leaderboard) do
-					if i <= 10 then -- Show top 10
-						entries["Entry_" .. i] = e(UI.Frame, {
-							Size = UDim2.new(1, -10, 0, 30),
-							BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-							BorderSizePixel = 0,
-							LayoutOrder = i,
-						}, {
-							Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
-							Padding = e(UI.UIPadding, {
-								PaddingLeft = UDim.new(0, 8),
-								PaddingRight = UDim.new(0, 8),
-							}),
+					for i, entry in ipairs(leaderboard) do
+						if i <= 10 then -- Show top 10
+							local isLocalPlayer = tostring(entry.user_id) == tostring(game.Players.LocalPlayer.UserId)
+							local rate = (tonumber(entry.rate) or 100) / 100
 
-							Name = e(UI.TextLabel, {
-								Text = string.format("#%d. %s", i, entry.player_name),
-								Size = UDim2.new(0.5, 0, 1, 0),
-								Position = UDim2.fromScale(0, 0),
-								BackgroundTransparency = 1,
-								TextColor3 = entry.user_id == game.Players.LocalPlayer.UserId
-									and Color3.fromRGB(62, 184, 255)
-									or Color3.fromRGB(200, 200, 200),
-								TextSize = 12,
-								TextXAlignment = Enum.TextXAlignment.Left,
-								Font = UI.Theme.fonts.body,
-							}),
+							entries["Entry_" .. i] = e(UI.Frame, {
+								Size = UDim2.new(1, 0, 0, 45),
+								BackgroundColor3 = Color3.fromRGB(20, 20, 20),
+								BackgroundTransparency = 0.85,
+								BorderSizePixel = 2,
+								BorderColor3 = Color3.fromRGB(27, 42, 53),
+								LayoutOrder = i,
+							}, {
+								Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 9) }),
+								Padding = e(UI.UIPadding, {
+									PaddingLeft = UDim.new(0, 6),
+									PaddingRight = UDim.new(0, 6),
+									PaddingTop = UDim.new(0, 4),
+									PaddingBottom = UDim.new(0, 4),
+								}),
 
-							Stats = e(UI.TextLabel, {
-								Text = string.format("%.2f SR | %.2f%%", entry.rating, entry.accuracy),
-								Size = UDim2.new(0.5, 0, 1, 0),
-								Position = UDim2.fromScale(0.5, 0),
-								BackgroundTransparency = 1,
-								TextColor3 = Color3.fromRGB(180, 180, 180),
-								TextSize = 11,
-								TextXAlignment = Enum.TextXAlignment.Right,
-								Font = UI.Theme.fonts.body,
-							}),
-						})
+								-- Avatar thumbnail
+								Avatar = e(UI.ImageLabel, {
+									Size = UDim2.fromOffset(31, 31),
+									Position = UDim2.fromScale(0, 0.5),
+									AnchorPoint = Vector2.new(0, 0.5),
+									Image = entry.user_id and string.format(
+										"rbxthumb://type=AvatarHeadShot&id=%s&w=150&h=150",
+										entry.user_id
+									) or "",
+									BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+								}, {
+									Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
+								}),
+
+								-- Data container
+								Data = e(UI.Frame, {
+									Size = UDim2.new(1, -40, 1, 0),
+									Position = UDim2.fromOffset(38, 0),
+									BackgroundTransparency = 1,
+								}, {
+									-- Player name with rank
+									Player = e(UI.TextLabel, {
+										Text = string.format("%d. %s", i, entry.player_name or "Unknown"),
+										Size = UDim2.new(0.7, 0, 0, 14),
+										Position = UDim2.fromScale(0, 0.08),
+										BackgroundTransparency = 1,
+										TextColor3 = isLocalPlayer and Color3.fromRGB(62, 184, 255)
+											or Color3.fromRGB(214, 214, 214),
+										TextSize = 13,
+										TextScaled = false,
+										TextXAlignment = Enum.TextXAlignment.Left,
+										TextStrokeTransparency = 0,
+										Font = Enum.Font.GothamBold,
+									}),
+
+									-- Primary stats row
+									Primary = e(UI.Frame, {
+										Size = UDim2.new(1, 0, 0, 13),
+										Position = UDim2.fromScale(0, 0.48),
+										BackgroundTransparency = 1,
+									}, {
+										Layout = e(UI.UIListLayout, {
+											FillDirection = Enum.FillDirection.Horizontal,
+											VerticalAlignment = Enum.VerticalAlignment.Center,
+											Padding = UDim.new(0, 6),
+										}),
+
+										-- Rating/Accuracy text
+										PrimaryText = e(UI.TextLabel, {
+											Text = string.format(
+												"%.2f SR | %.2f%%",
+												tonumber(entry.rating) or 0,
+												tonumber(entry.accuracy) or 0
+											),
+											Size = UDim2.fromOffset(120, 13),
+											BackgroundTransparency = 1,
+											TextColor3 = Color3.fromRGB(255, 255, 255),
+											TextSize = 10,
+											TextXAlignment = Enum.TextXAlignment.Left,
+											TextStrokeTransparency = 0,
+											Font = Enum.Font.GothamMedium,
+											LayoutOrder = 1,
+										}),
+
+										-- Rate badge
+										Rate = rate ~= 1
+											and e(UI.TextLabel, {
+												Text = string.format("%.2fx", rate),
+												Size = UDim2.fromOffset(31, 12),
+												BackgroundColor3 = Color3.fromRGB(158, 0, 63),
+												TextColor3 = Color3.fromRGB(255, 255, 255),
+												TextSize = 9,
+												Font = Enum.Font.GothamBold,
+												LayoutOrder = 2,
+											}, {
+												Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
+											}),
+									}),
+
+									-- Score display
+									Score = e(UI.TextLabel, {
+										Text = string.format("%d", tonumber(entry.score) or 0),
+										Size = UDim2.new(0.4, 0, 0, 10),
+										Position = UDim2.new(1, 0, 0.08, 0),
+										AnchorPoint = Vector2.new(1, 0),
+										BackgroundTransparency = 1,
+										TextColor3 = Color3.fromRGB(180, 180, 180),
+										TextSize = 10,
+										TextXAlignment = Enum.TextXAlignment.Right,
+										TextStrokeTransparency = 0,
+										Font = Enum.Font.GothamMedium,
+									}),
+								}),
+							})
+						end
 					end
-				end
 
-				return entries
-			end)()),
+					return entries
+				end)()
+			),
 		}),
 
 		-- Best score label (bottom-center, absolute positioning)
 		BestLabel = leaderboardData and leaderboardData.best and e(UI.TextLabel, {
 			Text = string.format(
 				"Best: %.2f SR | %.2f%% | %.2fx",
-				leaderboardData.best.rating,
-				leaderboardData.best.accuracy,
-				leaderboardData.best.rate / 100
+				tonumber(leaderboardData.best.rating) or 0,
+				tonumber(leaderboardData.best.accuracy) or 0,
+				(tonumber(leaderboardData.best.rate) or 100) / 100
 			),
 			Size = UDim2.new(0.66, 0, 0, 20),
 			Position = UDim2.new(0.5, 0, 1, -25),
 			AnchorPoint = Vector2.new(0.5, 0),
 			BackgroundTransparency = 1,
 			TextColor3 = Color3.fromRGB(180, 180, 180),
-			TextSize = 12,
+			TextSize = 14,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Font = UI.Theme.fonts.body,
+			LayoutOrder = 2,
 		}),
 
 		-- Local toggle button (bottom-left, hidden initially)
