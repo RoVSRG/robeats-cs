@@ -49,13 +49,13 @@ local function MultiplayerSongInfo(props)
 	local function incrementRate()
 		local newRate = math.min(200, rate + 5)
 		setRate(newRate)
-		FX.PlaySelect()
+		FX.PlaySound("Tap")
 	end
 
 	local function decrementRate()
 		local newRate = math.max(50, rate - 5)
 		setRate(newRate)
-		FX.PlaySelect()
+		FX.PlaySound("Tap")
 	end
 
 	-- Calculate song duration in minutes:seconds (Length is in ms, scaled by rate)
