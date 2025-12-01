@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 local React = require(ReplicatedStorage.Packages.React)
 
 local UI = require(ReplicatedStorage.Components.Primitives)
@@ -17,11 +18,11 @@ local useContext = React.useContext
 -- Archive-exact colors for judgement grades
 local JUDGEMENT_COLORS = {
 	marvelous = Color3.fromRGB(255, 255, 255), -- White
-	perfect = Color3.fromRGB(255, 255, 0),     -- Yellow
-	great = Color3.fromRGB(0, 255, 0),         -- Green
-	good = Color3.fromRGB(0, 165, 255),        -- Blue (#00A5FF)
-	bad = Color3.fromRGB(255, 0, 255),         -- Magenta
-	miss = Color3.fromRGB(255, 0, 0),          -- Red
+	perfect = Color3.fromRGB(255, 255, 0), -- Yellow
+	great = Color3.fromRGB(0, 255, 0), -- Green
+	good = Color3.fromRGB(0, 165, 255), -- Blue (#00A5FF)
+	bad = Color3.fromRGB(255, 0, 255), -- Magenta
+	miss = Color3.fromRGB(255, 0, 0), -- Red
 }
 
 --[[
@@ -75,42 +76,54 @@ local function Gameplay()
 		-- Subscribe to events
 		local connections = {}
 
-		table.insert(connections, gameWrapper.stateChanged:Connect(function(newState)
-			setGameState(newState)
-		end))
-
-		table.insert(connections, gameWrapper.scoreChanged:Connect(function(stats)
-			setScore(stats.score)
-			setAccuracy(stats.accuracy)
-			setCombo(stats.combo)
-			setMaxCombo(stats.maxCombo)
-			setJudgements({
-				marvelous = stats.marvelous,
-				perfect = stats.perfect,
-				great = stats.great,
-				good = stats.good,
-				bad = stats.bad,
-				miss = stats.miss,
-			})
-		end))
-
-		table.insert(connections, gameWrapper.updated:Connect(function(currentTime, songLength, _, prog)
-			setProgress(prog)
-			setCurrentTimeMs(currentTime or 0)
-			setSongLengthMs(songLength or 0)
-		end))
-
-		table.insert(connections, gameWrapper.songFinished:Connect(function(stats)
-			-- Store results for Results screen
-			Game.results = stats
-			Game.results.songKey = songKey
-			Game.results.rate = rate
-
-			-- Small delay before transitioning
-			task.delay(1, function()
-				screenContext.switchScreen("Results")
+		table.insert(
+			connections,
+			gameWrapper.stateChanged:Connect(function(newState)
+				setGameState(newState)
 			end)
-		end))
+		)
+
+		table.insert(
+			connections,
+			gameWrapper.scoreChanged:Connect(function(stats)
+				setScore(stats.score)
+				setAccuracy(stats.accuracy)
+				setCombo(stats.combo)
+				setMaxCombo(stats.maxCombo)
+				setJudgements({
+					marvelous = stats.marvelous,
+					perfect = stats.perfect,
+					great = stats.great,
+					good = stats.good,
+					bad = stats.bad,
+					miss = stats.miss,
+				})
+			end)
+		)
+
+		table.insert(
+			connections,
+			gameWrapper.updated:Connect(function(currentTime, songLength, _, prog)
+				setProgress(prog)
+				setCurrentTimeMs(currentTime or 0)
+				setSongLengthMs(songLength or 0)
+			end)
+		)
+
+		table.insert(
+			connections,
+			gameWrapper.songFinished:Connect(function(stats)
+				-- Store results for Results screen
+				Game.results = stats
+				Game.results.songKey = songKey
+				Game.results.rate = rate
+
+				-- Small delay before transitioning
+				task.delay(1, function()
+					screenContext.switchScreen("Results")
+				end)
+			end)
+		)
 
 		-- Load and start song
 		local loadSuccess = gameWrapper:loadSong({
@@ -140,11 +153,15 @@ local function Gameplay()
 	-- Handle pause input
 	useEffect(function()
 		local connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-			if gameProcessed then return end
+			if gameProcessed then
+				return
+			end
 
 			if input.KeyCode == Enum.KeyCode.Escape then
 				local gw = gameWrapperRef.current
-				if not gw then return end
+				if not gw then
+					return
+				end
 
 				if gw:getState() == "playing" then
 					gw:pause()
@@ -187,9 +204,16 @@ local function Gameplay()
 	end
 
 	-- Calculate total notes for graph bars
-	local totalJudgements = judgements.marvelous + judgements.perfect + judgements.great + judgements.good + judgements.bad + judgements.miss
+	local totalJudgements = judgements.marvelous
+		+ judgements.perfect
+		+ judgements.great
+		+ judgements.good
+		+ judgements.bad
+		+ judgements.miss
 	local function getGraphWidth(count)
-		if totalJudgements == 0 then return 0 end
+		if totalJudgements == 0 then
+			return 0
+		end
 		return count / totalJudgements
 	end
 
@@ -235,10 +259,130 @@ local function Gameplay()
 		})
 	end
 
+	-- Helper to create a player slot (archive CompeteScreen structure)
+	local function createPlayerSlot(slotIndex, playerData)
+		local yPosition = (slotIndex - 1) * 0.2 -- 0%, 20%, 40%, 60%, 80%
+		local isVisible = playerData ~= nil
+		local playerName = playerData and playerData.name or ""
+		local playerScore = playerData and playerData.score or 0
+		local playerCombo = playerData and playerData.combo or 0
+		local playerAccuracy = playerData and playerData.accuracy or 100
+		local playerRating = playerData and playerData.rating or 0
+		local userId = playerData and playerData.userId
+
+		-- Format stats line: rating | score | accuracy%
+		local statsText = string.format("%.2f | %d | %.2f%%", playerRating, playerScore, playerAccuracy)
+
+		-- Get avatar thumbnail URL
+		local avatarUrl = userId and string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", userId) or ""
+
+		return e(UI.Frame, {
+			Size = UDim2.fromOffset(358, 58),
+			Position = UDim2.fromScale(0, yPosition),
+			BackgroundColor3 = Color3.fromRGB(25, 25, 25), -- #191919
+			Visible = isVisible,
+			ZIndex = 10,
+		}, {
+			Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
+
+			-- Left frame background
+			Frame = e(UI.Frame, {
+				Size = UDim2.fromOffset(89, 58),
+				Position = UDim2.fromScale(0, 0),
+				BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+				ZIndex = 0,
+			}),
+
+			-- Avatar
+			Avatar = e(UI.ImageLabel, {
+				Size = UDim2.fromOffset(48, 48),
+				Position = UDim2.fromScale(0.014, 0.09),
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				Image = avatarUrl,
+				ZIndex = 11,
+			}, {
+				Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
+			}),
+
+			-- Player name
+			PlayerName = e(UI.TextLabel, {
+				Text = playerName,
+				Size = UDim2.fromOffset(200, 26),
+				Position = UDim2.fromScale(0.229, 0),
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 18,
+				Font = Enum.Font.GothamMedium,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextStrokeTransparency = 0,
+				TextScaled = true,
+				ZIndex = 11,
+			}),
+
+			-- Stats (rating | score | accuracy%)
+			Stats = e(UI.TextLabel, {
+				Text = statsText,
+				Size = UDim2.fromOffset(180, 31),
+				Position = UDim2.fromScale(0.229, 0.455),
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 14,
+				Font = Enum.Font.GothamMedium,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextYAlignment = Enum.TextYAlignment.Top,
+				TextStrokeTransparency = 0,
+				ZIndex = 11,
+			}),
+
+			-- Combo
+			Combo = e(UI.TextLabel, {
+				Text = playerCombo .. "x",
+				Size = UDim2.fromOffset(98, 25),
+				Position = UDim2.fromScale(0.706, 0.457),
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 24,
+				Font = Enum.Font.GothamMedium,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				TextStrokeTransparency = 0,
+				ZIndex = 11,
+			}),
+		})
+	end
+
+	-- Get local player data for player slot display
+	local localPlayer = Players.LocalPlayer
+	local localPlayerData = {
+		userId = localPlayer.UserId,
+		name = localPlayer.DisplayName,
+		score = score,
+		combo = combo,
+		accuracy = accuracy,
+		rating = 0, -- TODO: Calculate play rating based on accuracy and song difficulty
+	}
+
 	return e(UI.Frame, {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 	}, {
+		-- CompeteScreen: Player slots on left side (archive-accurate)
+		-- Position: 0%, 30% from top
+		-- Size: 358x403 pixels
+		CompeteScreen = e(UI.Frame, {
+			Size = UDim2.fromOffset(358, 403),
+			Position = UDim2.fromScale(0, 0.3),
+			BackgroundTransparency = 1,
+			ZIndex = 10,
+		}, {
+			-- Player slot 1 (local player)
+			Player1 = createPlayerSlot(1, localPlayerData),
+			-- Player slots 2-5 (for multiplayer - hidden in singleplayer)
+			Player2 = createPlayerSlot(2, nil),
+			Player3 = createPlayerSlot(3, nil),
+			Player4 = createPlayerSlot(4, nil),
+			Player5 = createPlayerSlot(5, nil),
+		}),
+
 		-- MAWindow: Archive-accurate stats panel (right side)
 		-- Position: 58.67% from left, 11.36% from top
 		-- Size: 157x168 pixels
@@ -324,8 +468,8 @@ local function Gameplay()
 		-- TimeBar: Archive-accurate progress bar at bottom
 		-- Position: Y=98.8%, Height=2.47%
 		TimeBar = e(UI.Frame, {
-			Size = UDim2.new(1, 0, 0.0247, 0),
-			Position = UDim2.fromScale(0, 0.988),
+			Size = UDim2.new(1, 0, 0, 10),
+			Position = UDim2.fromScale(0, 1),
 			AnchorPoint = Vector2.new(0, 1),
 			BackgroundColor3 = Color3.fromRGB(44, 44, 44), -- #2C2C2C
 			BackgroundTransparency = 0.6,
