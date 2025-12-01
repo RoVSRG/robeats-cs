@@ -6,89 +6,90 @@ local UI = require(ReplicatedStorage.Components.Primitives)
 local e = React.createElement
 local useMemo = React.useMemo
 
+-- Max NPS for scaling (from archive)
+local MAX_NPS = 35
+
+--[[
+	getNpsGraphColor - Color function from archive exactly
+
+	Gradient based on NPS value:
+	- 0-7: Blue tones
+	- 7-14: Blue-cyan
+	- 14-21: Purple-pink
+	- 21-28: Pink-orange
+	- 28-35: Orange-red
+	- 35-42: Dark red
+	- 42+: Very dark red
+]]
+local function getNpsGraphColor(num)
+	local x = 0
+	if num < 7 then
+		x = num / 7
+		return Color3.new(0.1 + x * 0.1, 0.1 + x * 0.1, 0.8 + x * 0.2)
+	elseif num < 14 then
+		x = (num - 7) / 7
+		return Color3.new(0.2 + 0.4 * x, 0.2 + 0.2 * x, 1.0)
+	elseif num < 21 then
+		x = (num - 14) / 7
+		return Color3.new(0.6 + 0.4 * x, 0.4 - 0.2 * x, 1.0 - 0.3 * x)
+	elseif num < 28 then
+		x = (num - 21) / 7
+		return Color3.new(1.0, 0.2 + 0.2 * x, 0.7 - 0.5 * x)
+	elseif num < 35 then
+		x = (num - 28) / 7
+		return Color3.new(1.0, 0.4 - 0.3 * x, 0.2 - 0.15 * x)
+	elseif num < 42 then
+		x = (num - 35) / 7
+		return Color3.new(1.0 - 0.3 * x, 0.1 - x * 0.1, 0.05 - 0.05 * x)
+	else
+		return Color3.new(0.7, 0.0, 0.0)
+	end
+end
+
 --[[
 	NpsGraph - Visualizes NPS (Notes Per Second) over time
 
-	Shows a bar graph of NPS distribution throughout the song
+	Matches archive_screens/SongSelect/SongInfo exactly:
+	- Uses NPSGraph string data from song (comma-separated values)
+	- Each bar: Size = (1/slices, slice/MAX_NPS), colored by getNpsGraphColor
+	- GraphContainer with UIListLayout (Horizontal, Bottom aligned)
 ]]
 local function NpsGraph(props)
 	local songData = props.songData
 	local rate = props.rate or 100
 
-	-- Generate NPS data for visualization
+	-- Parse NPS data from song's NPSGraph field (comma-separated string)
 	local npsData = useMemo(function()
-		if not songData then
+		if not songData or not songData.NPSGraph then
 			return nil
 		end
 
-		-- Check if song has timeline data (preferred)
-		if songData.NPSTimeline and #songData.NPSTimeline > 0 then
-			-- Apply rate adjustment to timeline
-			local timeline = {}
-			for i, nps in ipairs(songData.NPSTimeline) do
-				timeline[i] = nps * (rate / 100)
-			end
-			return timeline
-		end
+		local dataString = songData.NPSGraph
+		local points = string.split(dataString, ",")
+		local data = {}
 
-		-- Fallback: Generate approximate 4-segment timeline from avg/max
-		local avg = (songData.AverageNPS or 0) * (rate / 100)
-		local max = (songData.MaxNPS or 0) * (rate / 100)
-
-		return {
-			avg * 0.8, -- Intro
-			avg * 1.1, -- Build
-			max * 0.9, -- Peak
-			avg * 0.7, -- Outro
-		}
-	end, { songData, rate })
-
-	-- Calculate max NPS for scaling
-	local maxNps = useMemo(function()
-		if not npsData then
-			return 0
-		end
-
-		local max = 0
-		for _, nps in ipairs(npsData) do
-			if nps > max then
-				max = nps
+		for i, point in ipairs(points) do
+			local num = tonumber(point)
+			if num then
+				data[i] = num
 			end
 		end
-		return max
-	end, { npsData })
 
-	-- Helper: Get color for NPS value (gradient based on intensity)
-	local function getNpsColor(nps, max)
-		if max == 0 then
-			return Color3.fromRGB(100, 100, 100)
-		end
+		return #data > 0 and data or nil
+	end, { songData })
 
-		local intensity = nps / max
-
-		if intensity < 0.25 then
-			-- Low NPS: Blue
-			return Color3.fromRGB(62, 130, 255)
-		elseif intensity < 0.5 then
-			-- Medium-low NPS: Cyan
-			return Color3.fromRGB(62, 200, 255)
-		elseif intensity < 0.75 then
-			-- Medium-high NPS: Green
-			return Color3.fromRGB(80, 200, 120)
-		else
-			-- High NPS: Yellow/Orange
-			return Color3.fromRGB(255, 200, 50)
-		end
-	end
-
-	-- Generate bar elements
+	-- Generate bar elements matching archive exactly
 	local bars = {}
 	if npsData then
-		for i, nps in ipairs(npsData) do
-			local heightScale = maxNps > 0 and (nps / maxNps) or 0
-			bars["Bar" .. i] = e(UI.Frame, {
-				Size = UDim2.new(1 / #npsData, -2, heightScale, 0),
-				BackgroundColor3 = getNpsColor(nps, maxNps),
+		local slices = #npsData
+
+		for i, slice in ipairs(npsData) do
+			-- Apply rate adjustment
+			local adjustedSlice = slice * rate / 100
+
+			bars["Bar" .. i] = e("Frame", {
+				Size = UDim2.fromScale(1 / slices, adjustedSlice / MAX_NPS),
+				BackgroundColor3 = getNpsGraphColor(adjustedSlice),
 				BorderSizePixel = 0,
 				LayoutOrder = i,
 			})
@@ -96,87 +97,146 @@ local function NpsGraph(props)
 	end
 
 	return e(UI.Frame, {
-		Size = props.size or UDim2.new(1, 0, 0, 100),
+		Size = props.size or UDim2.fromScale(1, 0.527),
+		Position = props.position or UDim2.fromScale(0, 0.224),
 		BackgroundColor3 = Color3.fromRGB(25, 25, 25),
 		BorderSizePixel = 0,
-		LayoutOrder = props.layoutOrder,
+		ClipsDescendants = true,
 	}, {
 		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
-		Padding = e(UI.UIPadding, {
-			PaddingTop = UDim.new(0, 5),
-			PaddingBottom = UDim.new(0, 5),
-			PaddingLeft = UDim.new(0, 5),
-			PaddingRight = UDim.new(0, 5),
-		}),
 
-		-- Graph container with bars
+		-- GraphContainer - Position (0, 0.00121), Size (1, 0.9991)
 		GraphContainer = e(UI.Frame, {
-			Size = UDim2.fromScale(1, 1),
+			Position = UDim2.fromScale(0, 0.00121),
+			Size = UDim2.fromScale(1, 0.9991),
 			BackgroundTransparency = 1,
-			ZIndex = 1,
+			BorderSizePixel = 0,
 		}, {
+			-- UIListLayout: Horizontal, Center, Bottom, LayoutOrder sort, no padding
 			Layout = e(UI.UIListLayout, {
 				FillDirection = Enum.FillDirection.Horizontal,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				VerticalAlignment = Enum.VerticalAlignment.Bottom,
 				SortOrder = Enum.SortOrder.LayoutOrder,
-				Padding = UDim.new(0, 2),
+				Padding = UDim.new(0, 0),
 			}),
 
 			-- Dynamic bars
 			Bars = React.createElement(React.Fragment, nil, bars),
 		}),
 
-		-- Guide lines overlay
+		-- LineLabels - horizontal marker lines at NPS thresholds (ZIndex 0)
 		LineLabels = e(UI.Frame, {
-			Size = UDim2.fromScale(1, 1),
+			Position = UDim2.fromScale(0, 0.00121),
+			Size = UDim2.fromScale(1, 0.9991),
 			BackgroundTransparency = 1,
-			ZIndex = 2,
+			BorderSizePixel = 0,
+			ZIndex = 0,
 		}, {
-			Layout = e(UI.UIListLayout, {
-				FillDirection = Enum.FillDirection.Vertical,
-				HorizontalAlignment = Enum.HorizontalAlignment.Center,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Padding = UDim.new(0.33, 0),
+			-- Part1: 7 NPS line (position 1 - 7/35 = 0.8)
+			Part1 = e("Frame", {
+				Position = UDim2.fromScale(0, 0.7939),
+				Size = UDim2.fromScale(1, 0.01124),
+				BackgroundColor3 = Color3.new(0.2, 0.2, 1), -- Blue
+				BackgroundTransparency = 0.7,
+				BorderSizePixel = 0,
+				ZIndex = 0,
 			}),
 
-			-- 75% line
-			Line1 = e(UI.Frame, {
-				Size = UDim2.new(1, 0, 0, 1),
-				BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			-- Part2: 14 NPS line (position 1 - 14/35 = 0.6)
+			Part2 = e("Frame", {
+				Position = UDim2.fromScale(0, 0.5917),
+				Size = UDim2.fromScale(1, 0.01124),
+				BackgroundColor3 = Color3.new(0.6, 0.2, 1), -- Purple
+				BackgroundTransparency = 0.7,
 				BorderSizePixel = 0,
-				LayoutOrder = 1,
+				ZIndex = 0,
 			}),
 
-			-- 50% line
-			Line2 = e(UI.Frame, {
-				Size = UDim2.new(1, 0, 0, 1),
-				BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			-- Part3: 21 NPS line (position 1 - 21/35 = 0.4)
+			Part3 = e("Frame", {
+				Position = UDim2.fromScale(0, 0.3895),
+				Size = UDim2.fromScale(1, 0.01124),
+				BackgroundColor3 = Color3.new(1, 0.098, 1), -- Pink
+				BackgroundTransparency = 0.7,
 				BorderSizePixel = 0,
-				LayoutOrder = 2,
+				ZIndex = 0,
 			}),
 
-			-- 25% line
-			Line3 = e(UI.Frame, {
-				Size = UDim2.new(1, 0, 0, 1),
-				BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			-- Part4: 28 NPS line (position 1 - 28/35 = 0.2)
+			Part4 = e("Frame", {
+				Position = UDim2.fromScale(0, 0.1873),
+				Size = UDim2.fromScale(1, 0.01124),
+				BackgroundColor3 = Color3.new(1, 0.2, 0.098), -- Orange-red
+				BackgroundTransparency = 0.7,
 				BorderSizePixel = 0,
-				LayoutOrder = 3,
+				ZIndex = 0,
 			}),
 		}),
 
-		-- Max NPS label overlay
-		MaxLabel = maxNps > 0 and e(UI.TextLabel, {
-			Text = string.format("%.1f NPS", maxNps),
-			Size = UDim2.new(0, 60, 0, 15),
-			Position = UDim2.new(1, -65, 0, 5),
+		-- TextLabels - NPS threshold labels (ZIndex 2)
+		TextLabels = e(UI.Frame, {
+			Position = UDim2.fromScale(0, 0.00121),
+			Size = UDim2.fromScale(1, 0.9991),
 			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(180, 180, 180),
-			TextSize = 10,
-			TextXAlignment = Enum.TextXAlignment.Right,
-			Font = UI.Theme.fonts.body,
-			ZIndex = 3,
+			BorderSizePixel = 0,
+			ZIndex = 2,
+		}, {
+			-- Label for 7 NPS
+			Part1 = e(UI.TextLabel, {
+				Position = UDim2.fromScale(0.0213, 0.7939),
+				Size = UDim2.fromScale(0.2, 0),
+				Text = "7",
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 12,
+				TextStrokeTransparency = 0,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Font = Enum.Font.GothamMedium,
+				ZIndex = 2,
+			}),
+
+			-- Label for 14 NPS
+			Part2 = e(UI.TextLabel, {
+				Position = UDim2.fromScale(0.0213, 0.5917),
+				Size = UDim2.fromScale(0.2, 0),
+				Text = "14",
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 12,
+				TextStrokeTransparency = 0,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Font = Enum.Font.GothamMedium,
+				ZIndex = 2,
+			}),
+
+			-- Label for 21 NPS
+			Part3 = e(UI.TextLabel, {
+				Position = UDim2.fromScale(0.0213, 0.3895),
+				Size = UDim2.fromScale(0.2, 0),
+				Text = "21",
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 12,
+				TextStrokeTransparency = 0,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Font = Enum.Font.GothamMedium,
+				ZIndex = 2,
+			}),
+
+			-- Label for 28 NPS
+			Part4 = e(UI.TextLabel, {
+				Position = UDim2.fromScale(0.0213, 0.1873),
+				Size = UDim2.fromScale(0.2, 0),
+				Text = "28",
+				BackgroundTransparency = 1,
+				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextSize = 12,
+				TextStrokeTransparency = 0,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Font = Enum.Font.GothamMedium,
+				ZIndex = 2,
+			}),
 		}),
 
 		-- No data placeholder
@@ -186,7 +246,7 @@ local function NpsGraph(props)
 			BackgroundTransparency = 1,
 			TextColor3 = Color3.fromRGB(120, 120, 120),
 			TextSize = 12,
-			Font = UI.Theme.fonts.body,
+			Font = Enum.Font.GothamMedium,
 		}),
 	})
 end

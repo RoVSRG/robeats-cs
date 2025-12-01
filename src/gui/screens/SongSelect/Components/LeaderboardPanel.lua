@@ -66,8 +66,10 @@ local function LeaderboardPanel(props)
 	end, { selectedSongId })
 
 	return e(UI.Frame, {
-		Size = props.size or UDim2.new(1, 0, 0.66, 0),
-		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+		Size = props.size or UDim2.fromScale(0.28691363, 0.6625),
+		Position = props.position or UDim2.fromScale(0.35406363, 0.0125),
+		BackgroundTransparency = 1,
+		ClipsDescendants = true,
 		BorderSizePixel = 0,
 	}, {
 		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),

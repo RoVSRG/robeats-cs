@@ -81,6 +81,7 @@ local function PaginatedList(props)
 
 	return e(UI.Frame, {
 		Size = props.size or UDim2.fromScale(1, 1),
+		Position = props.position or UDim2.fromScale(0, 0),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 	}, {
@@ -90,10 +91,11 @@ local function PaginatedList(props)
 			Position = UDim2.fromScale(0, 0),
 			CanvasSize = UDim2.fromOffset(0, 0),
 			AutomaticCanvasSize = Enum.AutomaticSize.Y,
-			ScrollBarThickness = 6,
+			ScrollBarThickness = 8,
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			ScrollingDirection = Enum.ScrollingDirection.Y,
+			Active = true,
 		}, children),
 
 		-- Pagination controls

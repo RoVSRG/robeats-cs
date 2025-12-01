@@ -11,9 +11,14 @@ local useState = React.useState
 local useEffect = React.useEffect
 
 --[[
-	SongInfoPanel - Displays selected song details and NPS graph
+	SongInfoPanel - Displays NPS stats and graph for selected song
 
-	Subscribes to Transient.song.selected
+	Archive structure (middle bottom panel):
+	- NpsGraph: Position (0, 0.224), Size (1, 0.527)
+	- NotesInfo: Position (0, 0.775), Size (1, 0.08782), Left aligned
+	- AverageNpsInfo: Position (0, 0.775), Size (1, 0.08782), Center aligned
+	- ReleasesInfo: Position (0, 0.875), Size (1, 0.08782), Left aligned
+	- MaxNpsInfo: Position (0, 0.875), Size (1, 0.08782), Center aligned
 ]]
 local function SongInfoPanel(props)
 	local selectedSongId = useTransient("song.selected")
@@ -38,126 +43,91 @@ local function SongInfoPanel(props)
 	local totalHolds = songData and (songData.TotalHoldNotes or 0) or 0
 
 	return e(UI.Frame, {
-		Size = props.size or UDim2.new(1, 0, 0.34, 0),
-		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+		Size = props.size or UDim2.fromScale(0.28691363, 0.325),
+		Position = props.position or UDim2.fromScale(0.35406363, 0.675),
+		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 	}, {
-		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
-		Padding = e(UI.UIPadding, {
-			PaddingTop = UDim.new(0, 10),
-			PaddingBottom = UDim.new(0, 10),
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-		}),
-
-		Layout = e(UI.UIListLayout, {
-			FillDirection = Enum.FillDirection.Vertical,
-			HorizontalAlignment = Enum.HorizontalAlignment.Left,
-			VerticalAlignment = Enum.VerticalAlignment.Top,
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = UDim.new(0, 5),
-		}),
-
-		-- Song title
-		Title = songData and e(UI.TextLabel, {
-			Text = songData.SongName or "No Song Selected",
-			Size = UDim2.new(1, 0, 0, 25),
-			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(255, 255, 255),
-			TextSize = 20,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.bold,
-			LayoutOrder = 1,
-		}),
-
-		-- Artist
-		Artist = songData and e(UI.TextLabel, {
-			Text = "by " .. (songData.ArtistName or "Unknown"),
-			Size = UDim2.new(1, 0, 0, 18),
-			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(180, 180, 180),
-			TextSize = 14,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.body,
-			LayoutOrder = 2,
-		}),
-
-		-- Charter
-		Charter = songData and e(UI.TextLabel, {
-			Text = "mapped by " .. (songData.CharterName or "Unknown"),
-			Size = UDim2.new(1, 0, 0, 18),
-			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(150, 150, 150),
-			TextSize = 12,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.body,
-			LayoutOrder = 3,
-		}),
-
-		-- Stats container
-		Stats = songData and e(UI.Frame, {
-			Size = UDim2.new(1, 0, 0, 80),
-			BackgroundTransparency = 1,
-			LayoutOrder = 4,
-		}, {
-			Layout = e(UI.UIListLayout, {
-				FillDirection = Enum.FillDirection.Vertical,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Padding = UDim.new(0, 3),
-			}),
-
-			AvgNps = e(UI.TextLabel, {
-				Text = string.format("Avg. NPS: %.1f", avgNps),
-				Size = UDim2.new(1, 0, 0, 18),
-				BackgroundTransparency = 1,
-				TextColor3 = Color3.fromRGB(200, 200, 200),
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Font = UI.Theme.fonts.body,
-				LayoutOrder = 1,
-			}),
-
-			MaxNps = e(UI.TextLabel, {
-				Text = string.format("Max NPS: %.1f", maxNps),
-				Size = UDim2.new(1, 0, 0, 18),
-				BackgroundTransparency = 1,
-				TextColor3 = Color3.fromRGB(200, 200, 200),
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Font = UI.Theme.fonts.body,
-				LayoutOrder = 2,
-			}),
-
-			NotesInfo = e(UI.TextLabel, {
-				Text = string.format("Notes: %d (%d holds)", totalNotes + totalHolds, totalHolds),
-				Size = UDim2.new(1, 0, 0, 18),
-				BackgroundTransparency = 1,
-				TextColor3 = Color3.fromRGB(200, 200, 200),
-				TextSize = 14,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Font = UI.Theme.fonts.body,
-				LayoutOrder = 3,
-			}),
-		}),
-
-		-- NPS Graph
+		-- NPS Graph - Position (0, 0.224), Size (1, 0.527)
 		NpsGraphComponent = songData and e(NpsGraph, {
-			size = UDim2.new(1, 0, 0, 80),
+			position = UDim2.fromScale(0, 0.224),
+			size = UDim2.fromScale(1, 0.527),
 			songData = songData,
 			rate = rate,
-			layoutOrder = 5,
+		}),
+
+		-- NotesInfo (left aligned) - Position (0, 0.775), Size (1, 0.08782)
+		NotesInfo = songData and e(UI.TextLabel, {
+			Text = string.format("Total Notes: %d", totalNotes),
+			Position = UDim2.fromScale(0, 0.775),
+			Size = UDim2.fromScale(1, 0.08782456),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			TextScaled = true,
+			TextSize = 16,
+			TextStrokeTransparency = 0,
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Font = Enum.Font.GothamMedium,
+			BorderSizePixel = 0,
+		}),
+
+		-- AverageNpsInfo (center aligned) - Position (0, 0.775), Size (1, 0.08782)
+		AverageNpsInfo = songData and e(UI.TextLabel, {
+			Text = string.format("Avg. Nps: %0.1f", avgNps),
+			Position = UDim2.fromScale(0, 0.775),
+			Size = UDim2.fromScale(1, 0.08782456),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			TextScaled = true,
+			TextSize = 16,
+			TextStrokeTransparency = 0,
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Font = Enum.Font.GothamMedium,
+			BorderSizePixel = 0,
+		}),
+
+		-- ReleasesInfo (left aligned) - Position (0, 0.875), Size (1, 0.08782)
+		ReleasesInfo = songData and e(UI.TextLabel, {
+			Text = string.format("Total Holds: %d", totalHolds),
+			Position = UDim2.fromScale(0, 0.875),
+			Size = UDim2.fromScale(1, 0.08782456),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			TextScaled = true,
+			TextSize = 16,
+			TextStrokeTransparency = 0,
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Font = Enum.Font.GothamMedium,
+			BorderSizePixel = 0,
+		}),
+
+		-- MaxNpsInfo (center aligned) - Position (0, 0.875), Size (1, 0.08782)
+		MaxNpsInfo = songData and e(UI.TextLabel, {
+			Text = string.format("Max Nps: %0.1f", maxNps),
+			Position = UDim2.fromScale(0, 0.875),
+			Size = UDim2.fromScale(1, 0.08782456),
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			TextScaled = true,
+			TextSize = 16,
+			TextStrokeTransparency = 0,
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Font = Enum.Font.GothamMedium,
+			BorderSizePixel = 0,
 		}),
 
 		-- Placeholder if no song selected
 		NoSelection = not songData and e(UI.TextLabel, {
-			Text = "Select a song to view details",
+			Text = "Select a song",
 			Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 1,
 			TextColor3 = Color3.fromRGB(120, 120, 120),
-			TextSize = 16,
-			Font = UI.Theme.fonts.body,
-			LayoutOrder = 1,
+			TextSize = 14,
+			Font = Enum.Font.GothamMedium,
 		}),
 	})
 end

@@ -17,13 +17,16 @@ local function ModsButton(props)
 	return e(UI.TextButton, {
 		Text = "Mods",
 		Size = props.size or UDim2.fromScale(0.112, 0.055),
-		Position = props.position,
+		Position = props.position or UDim2.fromScale(0.528, 0.683),
 		BackgroundColor3 = hover and Color3.fromRGB(45, 45, 45) or Color3.fromRGB(35, 35, 35),
-		TextColor3 = Color3.fromRGB(230, 230, 230),
-		TextSize = 14,
-		Font = UI.Theme.fonts.body,
+		TextColor3 = Color3.fromRGB(202, 202, 202),
+		TextSize = 19,
+		Font = Enum.Font.GothamMedium,
 		AutoButtonColor = false,
-		BorderSizePixel = 0,
+		BorderSizePixel = 2,
+		BorderColor3 = Color3.fromRGB(13, 13, 13),
+		Visible = props.visible ~= nil and props.visible or false,
+		ZIndex = 10,
 		[React.Event.MouseButton1Click] = props.onClick or function()
 			warn("Mods not implemented")
 		end,

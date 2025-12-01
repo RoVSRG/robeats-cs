@@ -13,10 +13,10 @@ local e = React.createElement
 local function UnrankedDisclaimer(props)
 	return e(UI.Frame, {
 		Size = props.size or UDim2.fromOffset(705, 40),
-		Position = props.position,
-		BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+		Position = props.position or UDim2.fromScale(0.08039248, 1.0300233),
+		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 		BorderSizePixel = 0,
-		Visible = props.visible ~= false,
+		ClipsDescendants = true,
 	}, {
 		Layout = e(UI.UIListLayout, {
 			FillDirection = Enum.FillDirection.Vertical,
@@ -25,32 +25,36 @@ local function UnrankedDisclaimer(props)
 			Padding = UDim.new(0, 0),
 		}),
 
-		-- Top caution stripe
-		TopCaution = e(UI.Frame, {
+		-- Top caution stripe (tiled image)
+		TopCaution = e(UI.ImageLabel, {
 			Size = UDim2.new(1, 0, 0, 10),
-			BackgroundColor3 = Color3.fromRGB(255, 200, 0),
+			Image = "rbxassetid://449399728",
+			ScaleType = Enum.ScaleType.Tile,
+			TileSize = UDim2.new(0, 10, 1, 0),
 			BorderSizePixel = 0,
-			LayoutOrder = 1,
+			LayoutOrder = 0,
 		}),
 
 		-- Disclaimer text
 		Disclaimer = e(UI.TextLabel, {
-			Text = "⚠ UNRANKED SONG ⚠",
+			Text = "UNRANKED: Your Overall Difficulty must be set to 8 in Options for your score to submit to leaderboards.",
 			Size = UDim2.new(1, 0, 0, 20),
-			BackgroundColor3 = Color3.fromRGB(255, 200, 0),
-			TextColor3 = Color3.fromRGB(0, 0, 0),
-			TextSize = 14,
-			Font = UI.Theme.fonts.bold,
+			BackgroundTransparency = 1,
+			TextColor3 = Color3.fromRGB(240, 53, 53),
+			TextSize = 13,
+			Font = Enum.Font.GothamBold,
 			BorderSizePixel = 0,
-			LayoutOrder = 2,
+			LayoutOrder = 1,
 		}),
 
-		-- Bottom caution stripe
-		BottomCaution = e(UI.Frame, {
+		-- Bottom caution stripe (tiled image)
+		BottomCaution = e(UI.ImageLabel, {
 			Size = UDim2.new(1, 0, 0, 10),
-			BackgroundColor3 = Color3.fromRGB(255, 200, 0),
+			Image = "rbxassetid://449399728",
+			ScaleType = Enum.ScaleType.Tile,
+			TileSize = UDim2.new(0, 10, 1, 0),
 			BorderSizePixel = 0,
-			LayoutOrder = 3,
+			LayoutOrder = 2,
 		}),
 	})
 end

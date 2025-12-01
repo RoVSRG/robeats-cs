@@ -17,70 +17,54 @@ local e = React.createElement
 ]]
 local function MultiplayerPanel(props)
 	return e(UI.Frame, {
-		Size = props.size or UDim2.new(0.35, 0, 1, 0),
-		BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+		Size = props.size or UDim2.fromScale(0.33575, 1),
+		Position = props.position or UDim2.fromScale(0.64219815, 0),
+		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 	}, {
-		Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
-		Padding = e(UI.UIPadding, {
-			PaddingTop = UDim.new(0, 10),
-			PaddingBottom = UDim.new(0, 10),
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-		}),
-
-		-- Room info label (top)
+		-- Room info label (top) - Position (0.018, 0.0125), Size (0.964, 0.05)
 		RoomInfo = e(UI.TextLabel, {
-			Text = "No Multiplayer Session",
-			Size = UDim2.new(0.964, 0, 0, 20),
-			Position = UDim2.new(0.018, 0, 0, 0),
+			Text = "",
+			Size = UDim2.fromScale(0.9636363, 0.05),
+			Position = UDim2.fromScale(0.0181818, 0.0125),
 			BackgroundTransparency = 1,
-			TextColor3 = Color3.fromRGB(180, 180, 180),
+			TextColor3 = Color3.fromRGB(255, 255, 255),
 			TextSize = 14,
+			TextStrokeTransparency = 0,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.bold,
+			Font = Enum.Font.ArialBold,
 		}),
 
-		-- Room custom field (below room info)
+		-- Room custom field - Position (0.5, 0) AnchorPoint (0.5, 0), Size (0.964, 0.05), Visible = false
 		RoomCustomField = e(UI.TextBox, {
 			Text = "",
-			PlaceholderText = "Room settings...",
-			Size = UDim2.new(0.964, 0, 0, 25),
-			Position = UDim2.new(0.018, 0, 0, 25),
-			BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-			TextColor3 = Color3.fromRGB(200, 200, 200),
-			PlaceholderColor3 = Color3.fromRGB(120, 120, 120),
-			TextSize = 12,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Font = UI.Theme.fonts.body,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Size = UDim2.fromScale(0.9636363, 0.05),
+			Position = UDim2.fromScale(0.5, 0),
+			BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+			TextSize = 14,
+			TextStrokeTransparency = 0,
+			TextWrapped = true,
+			Font = Enum.Font.GothamMedium,
 			BorderSizePixel = 0,
-			ClearTextOnFocus = false,
+			Visible = false,
 		}, {
-			e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
-			e(UI.UIPadding, {
-				PaddingLeft = UDim.new(0, 6),
-				PaddingRight = UDim.new(0, 6),
-			}),
+			Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
 		}),
 
-		-- Players info panel (middle section)
+		-- Players info panel - Position (0.018, 0.0625), Size (0.964, 0.6625)
 		PlayersInfo = e(UI.Frame, {
-			Size = UDim2.new(0.964, 0, 0.662, 0),
-			Position = UDim2.new(0.018, 0, 0, 55),
-			BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+			Size = UDim2.fromScale(0.9636363, 0.6625),
+			Position = UDim2.fromScale(0.0181818, 0.0625),
+			BackgroundColor3 = Color3.fromRGB(25, 25, 25),
 			BorderSizePixel = 0,
 		}, {
 			Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
-			Padding = e(UI.UIPadding, {
-				PaddingTop = UDim.new(0, 8),
-				PaddingBottom = UDim.new(0, 8),
-				PaddingLeft = UDim.new(0, 8),
-				PaddingRight = UDim.new(0, 8),
-			}),
 
 			-- Players window (scrolling frame for player list)
 			PlayersWindow = e("ScrollingFrame", {
-				Size = UDim2.new(1, 0, 1, -40),
+				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
 				ScrollBarThickness = 4,
@@ -93,94 +77,82 @@ local function MultiplayerPanel(props)
 					SortOrder = Enum.SortOrder.LayoutOrder,
 					Padding = UDim.new(0, 5),
 				}),
-
-				-- Placeholder message
-				Placeholder = e(UI.TextLabel, {
-					Text = "No active multiplayer session",
-					Size = UDim2.new(1, 0, 0, 60),
-					BackgroundTransparency = 1,
-					TextColor3 = Color3.fromRGB(120, 120, 120),
-					TextSize = 13,
-					Font = UI.Theme.fonts.body,
-					LayoutOrder = 1,
-				}),
 			}),
 
-			-- Control buttons at bottom
+			-- Control buttons (hidden by default)
 			PasswordInput = e(UI.TextBox, {
 				Text = "",
 				PlaceholderText = "Password",
-				Size = UDim2.new(0.396, 0, 0, 26),
-				Position = UDim2.new(0, 0, 1, -28),
+				Size = UDim2.fromScale(0.396, 0.09),
+				Position = UDim2.fromScale(0, 0.91),
 				BackgroundColor3 = Color3.fromRGB(35, 35, 35),
 				TextColor3 = Color3.fromRGB(200, 200, 200),
 				PlaceholderColor3 = Color3.fromRGB(100, 100, 100),
 				TextSize = 11,
-				Font = UI.Theme.fonts.body,
+				Font = Enum.Font.GothamMedium,
 				BorderSizePixel = 0,
 				Visible = false,
 			}, {
-				e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
-				e(UI.UIPadding, {
-					PaddingLeft = UDim.new(0, 6),
-					PaddingRight = UDim.new(0, 6),
-				}),
+				Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
 			}),
 
 			KickButton = e(UI.TextButton, {
 				Text = "Kick",
-				Size = UDim2.new(0.151, 0, 0, 26),
-				Position = UDim2.new(0.41, 0, 1, -28),
+				Size = UDim2.fromScale(0.151, 0.09),
+				Position = UDim2.fromScale(0.41, 0.91),
 				BackgroundColor3 = Color3.fromRGB(150, 50, 50),
 				TextColor3 = Color3.fromRGB(255, 255, 255),
 				TextSize = 11,
-				Font = UI.Theme.fonts.body,
+				Font = Enum.Font.GothamMedium,
 				AutoButtonColor = false,
 				BorderSizePixel = 0,
 				Visible = false,
 			}, {
-				e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
+				Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
 			}),
 
 			TransferHostButton = e(UI.TextButton, {
 				Text = "Transfer Host",
-				Size = UDim2.new(0.377, 0, 0, 26),
-				Position = UDim2.new(0.623, 0, 1, -28),
+				Size = UDim2.fromScale(0.377, 0.09),
+				Position = UDim2.fromScale(0.623, 0.91),
 				BackgroundColor3 = Color3.fromRGB(70, 120, 180),
 				TextColor3 = Color3.fromRGB(255, 255, 255),
 				TextSize = 11,
-				Font = UI.Theme.fonts.body,
+				Font = Enum.Font.GothamMedium,
 				AutoButtonColor = false,
 				BorderSizePixel = 0,
 				Visible = false,
 			}, {
-				e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
+				Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 3) }),
 			}),
 		}),
 
-		-- Song info with rate controls (bottom section)
-		MultiplayerSongInfoPanel = e(MultiplayerSongInfo, {
-			size = UDim2.new(0.964, 0, 0.162, 0),
-			position = UDim2.new(0.018, 0, 0.737, 0),
+		-- Song info with rate controls - Position (0.018, 0.7375), Size (0.964, 0.1625)
+		SongInfo = e(MultiplayerSongInfo, {
+			size = UDim2.fromScale(0.9636363, 0.1625),
+			position = UDim2.fromScale(0.0181818, 0.7375),
 		}),
 
-		-- Leave/Join room button (very bottom)
+		-- Leave/Join room button - Position (0.02, 0.913), Size (0.724, 0.075), Visible = false
 		LeaveJoinRoom = e(UI.TextButton, {
-			Text = "Join Room",
-			Size = UDim2.new(0.724, 0, 0, 30),
-			Position = UDim2.new(0.018, 0, 0.913, 0),
-			BackgroundColor3 = Color3.fromRGB(60, 180, 73),
+			Text = "Create Room",
+			Size = UDim2.fromScale(0.724, 0.075),
+			Position = UDim2.fromScale(0.02, 0.913),
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			TextColor3 = Color3.fromRGB(0, 0, 0),
-			TextSize = 14,
-			Font = UI.Theme.fonts.bold,
+			TextSize = 20,
+			Font = Enum.Font.GothamMedium,
 			AutoButtonColor = false,
-			BorderSizePixel = 0,
+			BorderSizePixel = 2,
+			BorderColor3 = Color3.fromRGB(0, 0, 0),
+			Active = false,
+			Selectable = false,
+			Visible = false,
 			[React.Event.MouseButton1Click] = function()
-				-- Join/Leave room logic (future implementation)
-				warn("Join/Leave room - not implemented")
+				warn("Create/Join room - not implemented")
 			end,
 		}, {
-			e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
+			Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 4) }),
 		}),
 	})
 end
