@@ -105,95 +105,170 @@ local function Gameplay()
 		-- Subscribe to GameStats reactive values
 		local connections = {}
 
-		table.insert(connections, GameStats.score:on(function(value)
-			setScore(value)
-		end))
+		table.insert(
+			connections,
+			GameStats.score:on(function(value)
+				setScore(value)
+			end)
+		)
 
-		table.insert(connections, GameStats.accuracy:on(function(value)
-			setAccuracy(value * 100) -- Convert to percentage
-		end))
+		table.insert(
+			connections,
+			GameStats.accuracy:on(function(value)
+				setAccuracy(value * 100) -- Convert to percentage
+			end)
+		)
 
-		table.insert(connections, GameStats.combo:on(function(value)
-			setCombo(value)
-		end))
+		table.insert(
+			connections,
+			GameStats.combo:on(function(value)
+				setCombo(value)
+			end)
+		)
 
-		table.insert(connections, GameStats.maxCombo:on(function(value)
-			setMaxCombo(value)
-		end))
+		table.insert(
+			connections,
+			GameStats.maxCombo:on(function(value)
+				setMaxCombo(value)
+			end)
+		)
 
 		-- Subscribe to individual judgement counts
-		table.insert(connections, GameStats.marvelous:on(function(value)
-			setJudgements(function(prev)
-				return { marvelous = value, perfect = prev.perfect, great = prev.great, good = prev.good, bad = prev.bad, miss = prev.miss }
+		table.insert(
+			connections,
+			GameStats.marvelous:on(function(value)
+				setJudgements(function(prev)
+					return {
+						marvelous = value,
+						perfect = prev.perfect,
+						great = prev.great,
+						good = prev.good,
+						bad = prev.bad,
+						miss = prev.miss,
+					}
+				end)
 			end)
-		end))
+		)
 
-		table.insert(connections, GameStats.perfect:on(function(value)
-			setJudgements(function(prev)
-				return { marvelous = prev.marvelous, perfect = value, great = prev.great, good = prev.good, bad = prev.bad, miss = prev.miss }
+		table.insert(
+			connections,
+			GameStats.perfect:on(function(value)
+				setJudgements(function(prev)
+					return {
+						marvelous = prev.marvelous,
+						perfect = value,
+						great = prev.great,
+						good = prev.good,
+						bad = prev.bad,
+						miss = prev.miss,
+					}
+				end)
 			end)
-		end))
+		)
 
-		table.insert(connections, GameStats.great:on(function(value)
-			setJudgements(function(prev)
-				return { marvelous = prev.marvelous, perfect = prev.perfect, great = value, good = prev.good, bad = prev.bad, miss = prev.miss }
+		table.insert(
+			connections,
+			GameStats.great:on(function(value)
+				setJudgements(function(prev)
+					return {
+						marvelous = prev.marvelous,
+						perfect = prev.perfect,
+						great = value,
+						good = prev.good,
+						bad = prev.bad,
+						miss = prev.miss,
+					}
+				end)
 			end)
-		end))
+		)
 
-		table.insert(connections, GameStats.good:on(function(value)
-			setJudgements(function(prev)
-				return { marvelous = prev.marvelous, perfect = prev.perfect, great = prev.great, good = value, bad = prev.bad, miss = prev.miss }
+		table.insert(
+			connections,
+			GameStats.good:on(function(value)
+				setJudgements(function(prev)
+					return {
+						marvelous = prev.marvelous,
+						perfect = prev.perfect,
+						great = prev.great,
+						good = value,
+						bad = prev.bad,
+						miss = prev.miss,
+					}
+				end)
 			end)
-		end))
+		)
 
-		table.insert(connections, GameStats.bad:on(function(value)
-			setJudgements(function(prev)
-				return { marvelous = prev.marvelous, perfect = prev.perfect, great = prev.great, good = prev.good, bad = value, miss = prev.miss }
+		table.insert(
+			connections,
+			GameStats.bad:on(function(value)
+				setJudgements(function(prev)
+					return {
+						marvelous = prev.marvelous,
+						perfect = prev.perfect,
+						great = prev.great,
+						good = prev.good,
+						bad = value,
+						miss = prev.miss,
+					}
+				end)
 			end)
-		end))
+		)
 
-		table.insert(connections, GameStats.miss:on(function(value)
-			setJudgements(function(prev)
-				return { marvelous = prev.marvelous, perfect = prev.perfect, great = prev.great, good = prev.good, bad = prev.bad, miss = value }
+		table.insert(
+			connections,
+			GameStats.miss:on(function(value)
+				setJudgements(function(prev)
+					return {
+						marvelous = prev.marvelous,
+						perfect = prev.perfect,
+						great = prev.great,
+						good = prev.good,
+						bad = prev.bad,
+						miss = value,
+					}
+				end)
 			end)
-		end))
+		)
 
 		-- Subscribe to game state changes
-		table.insert(connections, game:getStateChanged():Connect(function(newState)
-			setGameState(newState)
+		table.insert(
+			connections,
+			game:getStateChanged():Connect(function(newState)
+				setGameState(newState)
 
-			if newState == RobeatsGame.State.Finished then
-				-- Build results from GameStats
-				local results = GameStats.getResults()
-				results.songKey = songKey
-				results.rate = rate
-				results.rating = Rating.calculateRating(rate / 100, results.accuracy, songData.Difficulty)
+				if newState == RobeatsGame.State.Finished then
+					-- Build results from GameStats
+					local results = GameStats.getResults()
+					results.songKey = songKey
+					results.rate = rate
+					results.rating = Rating.calculateRating(rate / 100, results.accuracy, songData.Difficulty)
 
-				Game.results = results
+					Game.results = results
 
-				-- Submit score to server
-				local response = Remotes.Functions.SubmitScore:InvokeServer(results, {
-					rate = rate,
-					hash = Transient.song.hash:get(),
-					overallDifficulty = Options.OverallDifficulty:get(),
-				})
-
-				local profile = response.result
-				if profile then
-					Transient.updateProfilePartial({
-						rank = "#" .. profile.rank,
-						rating = profile.rating,
-						accuracy = profile.accuracy or 0,
-						playCount = profile.playCount or 0,
+					-- Submit score to server
+					local response = Remotes.Functions.SubmitScore:InvokeServer(results, {
+						rate = rate,
+						hash = Transient.song.hash:get(),
+						overallDifficulty = Options.OverallDifficulty:get(),
 					})
-				end
 
-				-- Small delay before transitioning
-				task.delay(1, function()
-					screenContext.switchScreen("Results")
-				end)
-			end
-		end))
+					local profile = response.result
+					if profile then
+						Transient.updateProfilePartial({
+							rank = "#" .. profile.rank,
+							rating = profile.rating,
+							accuracy = profile.accuracy or 0,
+							playCount = profile.playCount or 0,
+						})
+					end
+
+					-- Small delay before transitioning
+					task.delay(1, function()
+						screenContext.switchScreen("Results")
+					end)
+				end
+			end)
+		)
 
 		-- Wait for audio to load
 		local function waitForAudio(timeoutSec: number): boolean | nil
@@ -288,7 +363,7 @@ local function Gameplay()
 				return
 			end
 
-			if input.KeyCode == Enum.KeyCode.Escape then
+			if input.KeyCode == Enum.KeyCode.One then
 				local game = gameRef.current
 				if not game then
 					return

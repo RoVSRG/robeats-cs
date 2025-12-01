@@ -231,6 +231,18 @@ function AudioManager:new(_game)
 		_bgm:Destroy()
 	end
 
+	function self:pause()
+		if _bgm.Playing then
+			_bgm:Pause()
+		end
+	end
+
+	function self:resume()
+		if not _bgm.Playing and _current_mode == AudioManager.Mode.Playing then
+			_bgm:Resume()
+		end
+	end
+
 	function self:is_ready_to_play()
 		return _current_audio_data ~= nil and _bgm.IsLoaded == true and _game:get_skin_loaded()
 	end
