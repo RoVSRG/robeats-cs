@@ -293,7 +293,12 @@ function AudioManager:new(_game)
 		_pre_start_time_ms = 0
 
 		if not _start_time_ms then
-			_start_time_ms = math.max(0, _hit_objects[1].Time - _note_prebuffer_time - _pre_countdown_time_ms)
+			-- Default to 0 if no hit objects exist
+			if _hit_objects and #_hit_objects > 0 then
+				_start_time_ms = math.max(0, _hit_objects[1].Time - _note_prebuffer_time - _pre_countdown_time_ms)
+			else
+				_start_time_ms = 0
+			end
 		end
 
 		_bgm_time_position = _start_time_ms / 1000

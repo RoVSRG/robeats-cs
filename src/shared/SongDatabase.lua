@@ -109,6 +109,11 @@ end
 local CompressMachine = require(game.ReplicatedStorage.Libraries.CompressMachine)
 
 function SongDatabase:GetHitObjectsForFolderName(name)
+	if not name then
+		warn("[SongDatabase] GetHitObjectsForFolderName called with nil name")
+		return nil
+	end
+
 	-- 1. Ask server for compressed chart string
 	local success, chartB64 = pcall(function()
 		return Functions.GetHitObjects:InvokeServer(name)
@@ -118,16 +123,36 @@ function SongDatabase:GetHitObjectsForFolderName(name)
 		warn("[SongDatabase] Failed to fetch hitobjects for", name)
 		return nil
 	end
- 
+
 	-- 2. Decode Base64 -> compressed binary
 	local compressed = CompressMachine.fromBase64(chartB64)
+	if not compressed then
+		warn("[SongDatabase] Failed to decode base64 for", name)
+		return nil
+	end
 
 	-- 3. Decompress -> JSON string
+	-- Try Zlib first (pako.deflate format), then raw Deflate as fallback
 	local jsonString = CompressMachine.Zlib.Decompress(compressed)
+	if not jsonString then
+		-- Try raw deflate as fallback
+		jsonString = CompressMachine.Deflate.Decompress(compressed)
+	end
+	if not jsonString then
+		warn("[SongDatabase] Failed to decompress for", name, "compressed length:", #compressed)
+		return nil
+	end
 
 	-- 4. Parse JSON into Lua table
 	local HttpService = game:GetService("HttpService")
-	local hitObjects = HttpService:JSONDecode(jsonString)
+	local parseSuccess, hitObjects = pcall(function()
+		return HttpService:JSONDecode(jsonString)
+	end)
+
+	if not parseSuccess then
+		warn("[SongDatabase] Failed to parse JSON for", name, hitObjects)
+		return nil
+	end
 
 	return hitObjects
 end

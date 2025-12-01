@@ -65,7 +65,7 @@ local function SongSelect()
 		end
 
 		SPUtil:attach_sound(rbx, "Select")
-		warn("Play button clicked - Gameplay screen not implemented yet")
+		screenContext.switchScreen("Gameplay")
 	end
 
 	return e(UI.Frame, {

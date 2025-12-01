@@ -15,6 +15,8 @@ local MainMenu = require(Screens.MainMenu.MainMenu)
 local SongSelect = require(Screens.SongSelect.SongSelect)
 local Options = require(Screens.Options.Options)
 local Changelog = require(Screens.Changelog.Changelog)
+local Gameplay = require(Screens.Gameplay.Gameplay)
+local Results = require(Screens.Results.Results)
 
 -- Placeholder component for screens not yet implemented
 local function PlaceholderScreen(props)
@@ -65,7 +67,8 @@ local ScreenRegistry = {
 	Changelog = Changelog,
 	GlobalRanking = PlaceholderScreen,
 	YourScores = PlaceholderScreen,
-	Gameplay = PlaceholderScreen,
+	Gameplay = Gameplay,
+	Results = Results,
 	Initialize = PlaceholderScreen,
 }
 
