@@ -24,6 +24,9 @@ Game.results = nil :: {
 	grade: string,
 	songKey: string | number,
 	rate: number,
+	-- Hit timing data for hit graph
+	hits: { { hit_object_time: number, time_left: number, judgement: number } },
+	mean: number,
 }?
 
 Game.currentGame = Val.new(nil) -- Current active game instance
