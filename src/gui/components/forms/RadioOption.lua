@@ -14,7 +14,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
 local useVal = require(ReplicatedStorage.hooks.useVal)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
 
 local e = React.createElement
 local useState = React.useState
@@ -57,8 +56,7 @@ local function RadioButton(props)
 end
 
 local function RadioOption(props)
-	local value = useVal(props.valInstance)
-	local setValue = useValSetter(props.valInstance)
+	local value, setValue = useVal(props.valInstance)
 	local config: any = props.config or {}
 
 	local selection: {string} = config.selection or {}

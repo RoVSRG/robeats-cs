@@ -115,7 +115,7 @@ local function Gameplay()
 		table.insert(
 			connections,
 			GameStats.accuracy:on(function(value)
-				setAccuracy(value * 100) -- Convert to percentage
+				setAccuracy(value) -- Convert to percentage
 			end)
 		)
 

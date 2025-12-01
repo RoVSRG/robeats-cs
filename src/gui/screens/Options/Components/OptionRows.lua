@@ -3,7 +3,6 @@ local UserInputService = game:GetService("UserInputService")
 local React = require(ReplicatedStorage.Packages.React)
 local UI = require(ReplicatedStorage.Components.Primitives)
 local useVal = require(ReplicatedStorage.hooks.useVal)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
 
 local e = React.createElement
 local useEffect = React.useEffect
@@ -59,8 +58,7 @@ local function divider(width, height)
 end
 
 local function BoolOptionRow(props)
-	local value = useVal(props.val)
-	local setValue = useValSetter(props.val)
+	local value, setValue = useVal(props.val)
 	local isHovering, setIsHovering = useState(false)
 
 	local function handleToggle()
@@ -102,8 +100,7 @@ local function BoolOptionRow(props)
 end
 
 local function IntOptionRow(props)
-	local value: number = useVal(props.val) :: number
-	local setValue = useValSetter(props.val)
+	local value: number, setValue = useVal(props.val)
 	local config = props.config or {}
 	local hoverDecrement, setHoverDecrement = useState(false)
 	local hoverIncrement, setHoverIncrement = useState(false)
@@ -183,8 +180,7 @@ local function IntOptionRow(props)
 end
 
 local function KeybindOptionRow(props)
-	local value = useVal(props.val)
-	local setValue = useValSetter(props.val)
+	local value, setValue = useVal(props.val)
 	local isListening, setIsListening = useState(false)
 	local isHovering, setIsHovering = useState(false)
 
@@ -263,8 +259,7 @@ local function KeybindOptionRow(props)
 end
 
 local function RadioOptionRow(props)
-	local value = useVal(props.val)
-	local setValue = useValSetter(props.val)
+	local value, setValue = useVal(props.val)
 	local selection = props.config.selection or {}
 
 	local buttons = {

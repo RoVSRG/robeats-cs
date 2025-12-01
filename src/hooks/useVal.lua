@@ -2,10 +2,13 @@
 	useVal Hook
 
 	Subscribe a React component to a Val instance and re-render on changes.
+	Returns the current value and a stable setter function.
 
 	Usage:
-		local selectedSong = useVal(Transient.song.selected)
-		local rating = useVal(Transient.profileAttributes.rating)
+		local selectedSong, setSelectedSong = useVal(Transient.song.selected)
+		local rating = useVal(Transient.profileAttributes.rating) -- setter optional
+
+		setSelectedSong(123) -- Updates the Val instance
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +16,7 @@ local React = require(ReplicatedStorage.Packages.React)
 
 local useState = React.useState
 local useEffect = React.useEffect
+local useCallback = React.useCallback
 
 local function useVal(valInstance)
 	-- Initialize with current value
@@ -29,7 +33,12 @@ local function useVal(valInstance)
 		return disconnect
 	end, { valInstance })
 
-	return value
+	-- Stable setter callback that updates the Val instance
+	local setter = useCallback(function(newValue)
+		valInstance:set(newValue)
+	end, { valInstance })
+
+	return value, setter
 end
 
 return useVal

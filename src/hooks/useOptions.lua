@@ -12,7 +12,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Options = require(ReplicatedStorage.State.Options)
 local useVal = require(script.Parent.useVal)
-local useValSetter = require(script.Parent.useValSetter)
 
 local function useOptions(optionKey: string)
 	local optionVal: any = Options[optionKey]
@@ -24,8 +23,7 @@ local function useOptions(optionKey: string)
 		return nil :: any, noop, nil
 	end
 
-	local value = useVal(optionVal)
-	local setValue = useValSetter(optionVal)
+	local value, setValue = useVal(optionVal)
 	local config = optionVal._optionConfig
 
 	return value, setValue, config

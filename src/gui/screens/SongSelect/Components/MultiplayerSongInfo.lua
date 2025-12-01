@@ -4,7 +4,7 @@ local React = require(ReplicatedStorage.Packages.React)
 
 local UI = require(ReplicatedStorage.Components.Primitives)
 local useTransient = require(ReplicatedStorage.hooks.useTransient)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
+local useVal = require(ReplicatedStorage.hooks.useVal)
 local Transient = require(ReplicatedStorage.State.Transient)
 local SongDatabase = require(ReplicatedStorage.SongDatabase)
 local Rating = require(ReplicatedStorage.Calculator.Rating)
@@ -30,8 +30,7 @@ local useEffect = React.useEffect
 ]]
 local function MultiplayerSongInfo(props)
 	local selectedSongId = useTransient("song.selected")
-	local rate = useTransient("song.rate")
-	local setRate = useValSetter(Transient.song.rate)
+	local rate, setRate = useVal(Transient.song.rate)
 
 	local songData, setSongData = useState(nil)
 

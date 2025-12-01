@@ -4,7 +4,6 @@ local UI = require(ReplicatedStorage.Components.Primitives)
 local Skins = require(ReplicatedStorage.Skins)
 local Options = require(ReplicatedStorage.State.Options)
 local useVal = require(ReplicatedStorage.hooks.useVal)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
 
 local e = React.createElement
 local useEffect = React.useEffect
@@ -12,8 +11,7 @@ local useMemo = React.useMemo
 local useRef = React.useRef
 
 local function SkinsPanel(props)
-	local selectedSkin = useVal(Options.Skin2D)
-	local setSelectedSkin = useValSetter(Options.Skin2D)
+	local selectedSkin, setSelectedSkin = useVal(Options.Skin2D)
 	local mountRef = useRef(nil)
 
 	local skinNames = useMemo(function()

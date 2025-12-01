@@ -15,15 +15,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local React = require(ReplicatedStorage.Packages.React)
 local useVal = require(ReplicatedStorage.hooks.useVal)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
 
 local e = React.createElement
 local useState = React.useState
 local useEffect = React.useEffect
 
 local function KeybindOption(props)
-	local value = useVal(props.valInstance)
-	local setValue = useValSetter(props.valInstance)
+	local value, setValue = useVal(props.valInstance)
 	local isListening, setIsListening = useState(false)
 
 	local displayText

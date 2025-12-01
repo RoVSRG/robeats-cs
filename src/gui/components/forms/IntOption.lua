@@ -14,13 +14,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
 local useVal = require(ReplicatedStorage.hooks.useVal)
-local useValSetter = require(ReplicatedStorage.hooks.useValSetter)
 
 local e = React.createElement
 
 local function IntOption(props)
-	local value: number = useVal(props.valInstance) :: number
-	local setValue = useValSetter(props.valInstance)
+	local value: number, setValue = useVal(props.valInstance)
 	local config: any = props.config or {}
 
 	local increment: number = config.increment or 1
