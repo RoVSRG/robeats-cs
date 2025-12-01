@@ -250,14 +250,13 @@ local function Gameplay()
 					Game.results = results
 
 					-- Submit score to server
-					local response = Remotes.Functions.SubmitScore:InvokeServer(results, {
+					local profile = Remotes.Functions.SubmitScore:InvokeServer(results, {
 						rate = rate,
 						hash = Transient.song.hash:get(),
 						overallDifficulty = Options.OverallDifficulty:get(),
 					})
 
-					local profile = response.result
-					if profile then
+					if profile and profile.rank then
 						Transient.updateProfilePartial({
 							rank = "#" .. profile.rank,
 							rating = profile.rating,

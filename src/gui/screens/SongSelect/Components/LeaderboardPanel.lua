@@ -55,8 +55,8 @@ local function LeaderboardPanel(props)
 				return GetLeaderboard:InvokeServer(songData.MD5Hash)
 			end)
 
-			if success and response and response.success then
-				setLeaderboardData(response.result)
+			if success and response and response.leaderboard then
+				setLeaderboardData(response)
 			else
 				setLeaderboardData(nil)
 			end
