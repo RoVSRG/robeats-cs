@@ -9,6 +9,7 @@ local Transient = require(ReplicatedStorage.State.Transient)
 local SongDatabase = require(ReplicatedStorage.SongDatabase)
 local Rating = require(ReplicatedStorage.Calculator.Rating)
 local Color = require(ReplicatedStorage.Shared.Color)
+local FX = require(ReplicatedStorage.Modules.FX)
 
 local e = React.createElement
 local useState = React.useState
@@ -48,11 +49,13 @@ local function MultiplayerSongInfo(props)
 	local function incrementRate()
 		local newRate = math.min(200, rate + 5)
 		setRate(newRate)
+		FX.PlaySelect()
 	end
 
 	local function decrementRate()
 		local newRate = math.max(50, rate - 5)
 		setRate(newRate)
+		FX.PlaySelect()
 	end
 
 	-- Calculate song duration in minutes:seconds (Length is in ms, scaled by rate)
@@ -187,6 +190,7 @@ local function MultiplayerSongInfo(props)
 			Size = UDim2.fromScale(0.3962264, 0.4615384),
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
+			Visible = songData ~= nil,
 		}, {
 			-- Subtract button - Position (0, 0), Size (0.4761904, 0.5), Red
 			Subtract = e(UI.TextButton, {
