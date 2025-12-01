@@ -154,6 +154,22 @@ Primitives.Layout = function(props: LayoutProps)
 	})
 end
 
+type FlexItemProps = {
+	Mode: Enum.UIFlexMode?,
+	GrowRatio: number?,
+	ShrinkRatio: number?,
+	ItemLineAlignment: Enum.ItemLineAlignment?,
+}
+
+Primitives.FlexItem = function(props: FlexItemProps)
+	return e("UIFlexItem", {
+		FlexMode = props.Mode or Enum.UIFlexMode.Fill,
+		GrowRatio = props.GrowRatio or 1,
+		ShrinkRatio = props.ShrinkRatio or 1,
+		ItemLineAlignment = props.ItemLineAlignment or Enum.ItemLineAlignment.Center,
+	})
+end
+
 Primitives.Theme = Theme
 
 return Primitives

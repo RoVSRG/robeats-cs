@@ -3,9 +3,12 @@ local React = require(ReplicatedStorage.Packages.React)
 
 local UI = require(ReplicatedStorage.Components.Primitives)
 
+local Transient = require(ReplicatedStorage.State.Transient)
+
 local e = React.createElement
-local useState = React.useState
 local useMemo = React.useMemo
+
+local useVal = require(ReplicatedStorage.hooks.useVal)
 
 --[[
 	PaginatedList - Pagination-based list component
@@ -27,7 +30,7 @@ local function PaginatedList(props)
 	local renderItem = props.renderItem
 
 	-- Track current page (1-indexed)
-	local currentPage, setCurrentPage = useState(1)
+	local currentPage, setCurrentPage = useVal(Transient.page)
 
 	-- Calculate pagination
 	local totalPages = math.ceil(#items / itemsPerPage)
@@ -46,8 +49,15 @@ local function PaginatedList(props)
 	end, { startIndex, endIndex, items })
 
 	-- Reset to page 1 when items change (e.g., after search/filter)
+
+	local mounted = React.useRef(false)
+
 	React.useEffect(function()
-		setCurrentPage(1)
+		if mounted.current then
+			setCurrentPage(1)
+		end
+
+		mounted.current = true
 	end, { #items })
 
 	-- Build children for current page
@@ -144,8 +154,10 @@ local function PaginatedList(props)
 			NextButton = e(UI.TextButton, {
 				Text = "▶",
 				Size = UDim2.new(0, 40, 0, 20),
-				BackgroundColor3 = currentPage < totalPages and Color3.fromRGB(60, 60, 60) or Color3.fromRGB(40, 40, 40),
-				TextColor3 = currentPage < totalPages and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(100, 100, 100),
+				BackgroundColor3 = currentPage < totalPages and Color3.fromRGB(60, 60, 60)
+					or Color3.fromRGB(40, 40, 40),
+				TextColor3 = currentPage < totalPages and Color3.fromRGB(255, 255, 255)
+					or Color3.fromRGB(100, 100, 100),
 				TextSize = 14,
 				Font = UI.Theme.fonts.bold,
 				AutoButtonColor = false,

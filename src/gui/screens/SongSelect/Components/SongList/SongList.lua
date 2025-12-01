@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
 
 local UI = require(ReplicatedStorage.Components.Primitives)
-local VirtualList = require(script.Parent.VirtualList)
+local PaginatedList = require(script.Parent.PaginatedList)
 local SongButton = require(script.Parent.SongButton)
 
 -- Fix paths: go up from SongList -> SongList/ -> Components/ -> SongSelect/ -> hooks/
@@ -107,7 +107,7 @@ local function SongList(props)
 		}),
 
 		-- Song button container (ScrollingFrame) - Position (0.017, 0.0125), Size (0.966, 0.8875)
-		SongButtonContainer = e(VirtualList, {
+		SongButtonContainer = e(PaginatedList, {
 			items = songs,
 			itemHeight = 38,
 			itemsPerPage = 50,

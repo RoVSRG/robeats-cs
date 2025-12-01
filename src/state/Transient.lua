@@ -27,6 +27,8 @@ Transient.song.hash = Val.calc(function(get)
 	return nil
 end)
 
+Transient.page = Val.new(1)
+
 ----------------------------------------------------------------
 
 Transient.profileAttributes = {

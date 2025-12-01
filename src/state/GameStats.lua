@@ -81,7 +81,7 @@ GameStats.accuracy = Val.calc(function(get)
 	local total = get(GameStats.notesHit) + get(GameStats.miss)
 
 	if total == 0 then
-		return 100
+		return 0
 	end
 
 	local weighted = (get(GameStats.marvelous) * ACCURACY_WEIGHTS[NoteResult.Marvelous])
@@ -125,7 +125,11 @@ end)
 	@param params - Hit parameters (GhostTap, TimeMiss, etc.)
 	@param renderableHit - Optional hit data for timing display
 ]]
-function GameStats.recordHit(noteResult: number, params: { GhostTap: boolean?, TimeMiss: boolean? }?, renderableHit: any?)
+function GameStats.recordHit(
+	noteResult: number,
+	params: { GhostTap: boolean?, TimeMiss: boolean? }?,
+	renderableHit: any?
+)
 	params = params or {}
 
 	Val.batch(function(set)
@@ -148,7 +152,7 @@ function GameStats.recordHit(noteResult: number, params: { GhostTap: boolean?, T
 			set(GameStats.bad, GameStats.bad:get() + 1)
 			set(GameStats.combo, 0) -- Bad breaks combo
 		elseif noteResult == NoteResult.Miss then
-			if params.GhostTap then
+			if (params :: any).GhostTap then
 				set(GameStats.ghostTaps, GameStats.ghostTaps:get() + 1)
 			else
 				set(GameStats.miss, GameStats.miss:get() + 1)
@@ -191,6 +195,7 @@ function GameStats.reset()
 	_meanCount = 0
 
 	Val.batch(function(set)
+		set(GameStats.accuracy, 0)
 		set(GameStats.score, 0)
 		set(GameStats.combo, 0)
 		set(GameStats.maxCombo, 0)

@@ -28,6 +28,8 @@ local useEffect = React.useEffect
 local useRef = React.useRef
 local useContext = React.useContext
 
+local useVal = require(ReplicatedStorage.hooks.useVal)
+
 -- Archive-exact colors for judgement grades
 local JUDGEMENT_COLORS = {
 	marvelous = Color3.fromRGB(255, 255, 255), -- White
@@ -75,10 +77,12 @@ local function Gameplay()
 	local currentTimeMs, setCurrentTimeMs = useState(0)
 	local songLengthMs, setSongLengthMs = useState(0)
 
+	local songKey = useVal(Transient.song.selected)
+	local rate = useVal(Transient.song.rate)
+	local is2D = useVal(Options.Use2DMode)
+
 	-- Initialize game on mount
 	useEffect(function()
-		local songKey = Transient.song.selected:get()
-		local rate = Transient.song.rate:get()
 		local songData = SongDatabase:GetSongByKey(songKey)
 
 		if not songKey then
@@ -357,33 +361,33 @@ local function Gameplay()
 	end, {})
 
 	-- Handle pause input
-	useEffect(function()
-		local connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-			if gameProcessed then
-				return
-			end
+	-- useEffect(function()
+	-- 	local connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	-- 		if gameProcessed then
+	-- 			return
+	-- 		end
 
-			if input.KeyCode == Enum.KeyCode.One then
-				local game = gameRef.current
-				if not game then
-					return
-				end
+	-- 		if input.KeyCode == Enum.KeyCode.One then
+	-- 			local game = gameRef.current
+	-- 			if not game then
+	-- 				return
+	-- 			end
 
-				local state = game:getState()
-				if state == RobeatsGame.State.Playing then
-					game:pause()
-					setIsPaused(true)
-				elseif state == RobeatsGame.State.Paused then
-					game:resume()
-					setIsPaused(false)
-				end
-			end
-		end)
+	-- 			local state = game:getState()
+	-- 			if state == RobeatsGame.State.Playing then
+	-- 				game:pause()
+	-- 				setIsPaused(true)
+	-- 			elseif state == RobeatsGame.State.Paused then
+	-- 				game:resume()
+	-- 				setIsPaused(false)
+	-- 			end
+	-- 		end
+	-- 	end)
 
-		return function()
-			connection:Disconnect()
-		end
-	end, {})
+	-- 	return function()
+	-- 		connection:Disconnect()
+	-- 	end
+	-- end, {})
 
 	-- Pause menu handlers
 	local function handleResume()
@@ -473,14 +477,14 @@ local function Gameplay()
 		local yPosition = (slotIndex - 1) * 0.2 -- 0%, 20%, 40%, 60%, 80%
 		local isVisible = playerData ~= nil
 		local playerName = playerData and playerData.name or ""
-		local playerScore = playerData and playerData.score or 0
+		-- local playerScore = playerData and playerData.score or 0
 		local playerCombo = playerData and playerData.combo or 0
 		local playerAccuracy = playerData and playerData.accuracy or 100
 		local playerRating = playerData and playerData.rating or 0
 		local userId = playerData and playerData.userId
 
 		-- Format stats line: rating | score | accuracy%
-		local statsText = string.format("%.2f | %d | %.2f%%", playerRating, playerScore, playerAccuracy)
+		local statsText = string.format("%.2f | %.2f%%", playerRating, playerAccuracy)
 
 		-- Get avatar thumbnail URL
 		local avatarUrl = userId and string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", userId) or ""
@@ -505,7 +509,8 @@ local function Gameplay()
 			-- Avatar
 			Avatar = e(UI.ImageLabel, {
 				Size = UDim2.fromOffset(48, 48),
-				Position = UDim2.fromScale(0.014, 0.09),
+				Position = UDim2.new(0, 15, 0.5, 0),
+				AnchorPoint = Vector2.new(0, 0.5),
 				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 				Image = avatarUrl,
 				ZIndex = 11,
@@ -528,14 +533,14 @@ local function Gameplay()
 				ZIndex = 11,
 			}),
 
-			-- Stats (rating | score | accuracy%)
+			-- Stats (rating | accuracy%)
 			Stats = e(UI.TextLabel, {
 				Text = statsText,
 				Size = UDim2.fromOffset(180, 31),
 				Position = UDim2.fromScale(0.229, 0.455),
 				BackgroundTransparency = 1,
 				TextColor3 = Color3.fromRGB(255, 255, 255),
-				TextSize = 14,
+				TextSize = 20,
 				Font = Enum.Font.GothamMedium,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextYAlignment = Enum.TextYAlignment.Top,
@@ -559,6 +564,10 @@ local function Gameplay()
 		})
 	end
 
+	local difficulty = React.useMemo(function()
+		return SongDatabase:GetSongByKey(Transient.song.selected:get()).Difficulty
+	end, { Transient.song.selected:get() })
+
 	-- Get local player data for player slot display
 	local localPlayer = Players.LocalPlayer
 	local localPlayerData = {
@@ -567,8 +576,10 @@ local function Gameplay()
 		score = score,
 		combo = combo,
 		accuracy = accuracy,
-		rating = 0, -- TODO: Calculate play rating based on accuracy and song difficulty
+		rating = Rating.calculateRating(rate / 100, accuracy, difficulty),
 	}
+
+	local offset2D = UDim2.fromOffset(if is2D then 150 else 0, 0)
 
 	return e(UI.Frame, {
 		Size = UDim2.fromScale(1, 1),
@@ -597,7 +608,7 @@ local function Gameplay()
 		-- Size: 157x168 pixels
 		MAWindow = e(UI.Frame, {
 			Size = UDim2.fromOffset(157, 168),
-			Position = UDim2.fromScale(0.5867, 0.114),
+			Position = UDim2.fromScale(0.5867, 0.114) + offset2D,
 			BackgroundColor3 = Color3.fromRGB(25, 25, 25), -- #191919
 			ZIndex = 10,
 		}, {
@@ -662,7 +673,7 @@ local function Gameplay()
 		-- Back Button (below MAWindow) - archive: Y=1.0476 relative to MAWindow
 		BackButton = e(UI.TextButton, {
 			Size = UDim2.fromOffset(157, 28),
-			Position = UDim2.new(0.5867, -1, 0.114, 176), -- X offset -1 matches archive's -0.56%
+			Position = UDim2.new(0.5867, -1, 0.114, 176) + offset2D, -- X offset -1 matches archive's -0.56%
 			BackgroundColor3 = Color3.fromRGB(255, 0, 4), -- Archive red
 			TextColor3 = Color3.fromRGB(0, 0, 0),
 			Text = "Back (no save)",
