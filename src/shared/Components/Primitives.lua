@@ -99,6 +99,20 @@ Primitives.UIListLayout = function(props)
 	return e("UIListLayout", props)
 end
 
+Primitives.TextBox = function(props)
+	local cleaned, children = splitChildren(props)
+	local defaults = {
+		BackgroundTransparency = 1,
+		Font = Theme.fonts.body,
+		TextColor3 = Theme.colors.textPrimary,
+		TextSize = Theme.textSize,
+		TextScaled = false,
+		BorderSizePixel = 0,
+		ClearTextOnFocus = true,
+	}
+	return e("TextBox", merge(defaults, cleaned), children)
+end
+
 -- shorthand atoms
 Primitives.Corner = function(radius)
 	return Primitives.UICorner({

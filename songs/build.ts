@@ -98,7 +98,7 @@ function generateHitObjectData(hitObjects: HitObject[]): {
 }
 
 function toBase64(data: string): string {
-  return Buffer.from(data).toString("base64");
+  return Buffer.from(data, "binary").toString("base64");
 }
 
 async function main() {

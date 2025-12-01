@@ -262,12 +262,11 @@ function RobeatsGameWrapper:loadSong(config: GameConfig)
 
 	-- Count total notes
 	local songData = SongDatabase:GetSongByKey(config.songKey)
-	local folderName = songData.FolderName
-
-	local hitObjects = SongDatabase:GetHitObjectsForFolderName(folderName)
-
-	if songData and hitObjects then
-		self._stats.totalNotes = #hitObjects
+	if songData and songData.FolderName then
+		local hitObjects = SongDatabase:GetHitObjectsForFolderName(songData.FolderName)
+		if hitObjects then
+			self._stats.totalNotes = #hitObjects
+		end
 	end
 
 	self:_setState("ready")

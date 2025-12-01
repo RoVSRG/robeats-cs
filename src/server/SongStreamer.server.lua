@@ -66,8 +66,14 @@ Functions.GetSongsPage.OnServerInvoke = function(player, pageIndex: number)
 end
 
 Functions.GetHitObjects.OnServerInvoke = function(player, folderName)
-	local songFolder = SongsFolder:FindFirstChild(folderName)
 	if not folderName then
+		warn("[Server] GetHitObjects: folderName is nil")
+		return nil
+	end
+
+	local songFolder = SongsFolder:FindFirstChild(folderName)
+	if not songFolder then
+		warn("[Server] GetHitObjects: Song folder not found:", folderName)
 		return nil
 	end
 

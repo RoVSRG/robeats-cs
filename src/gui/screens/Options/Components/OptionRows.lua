@@ -61,12 +61,18 @@ end
 local function BoolOptionRow(props)
 	local value = useVal(props.val)
 	local setValue = useValSetter(props.val)
+	local isHovering, setIsHovering = useState(false)
 
 	local function handleToggle()
 		setValue(not value)
 	end
 
-	local backgroundColor = value and Color3.fromRGB(90, 170, 113) or Color3.fromRGB(147, 44, 46)
+	local backgroundColor
+	if value then
+		backgroundColor = isHovering and Color3.fromRGB(100, 180, 123) or Color3.fromRGB(90, 170, 113)
+	else
+		backgroundColor = isHovering and Color3.fromRGB(157, 54, 56) or Color3.fromRGB(147, 44, 46)
+	end
 	local text = value and "TRUE" or "FALSE"
 
 	return rowBase(props, {
@@ -83,6 +89,12 @@ local function BoolOptionRow(props)
 			BorderSizePixel = 0,
 			LayoutOrder = 1,
 			[React.Event.MouseButton1Click] = handleToggle,
+			[React.Event.MouseEnter] = function()
+				setIsHovering(true)
+			end,
+			[React.Event.MouseLeave] = function()
+				setIsHovering(false)
+			end,
 		}, {
 			e(UI.UICorner, { CornerRadius = UDim.new(0, 8) }),
 		}),
@@ -93,6 +105,8 @@ local function IntOptionRow(props)
 	local value: number = useVal(props.val) :: number
 	local setValue = useValSetter(props.val)
 	local config = props.config or {}
+	local hoverDecrement, setHoverDecrement = useState(false)
+	local hoverIncrement, setHoverIncrement = useState(false)
 
 	local increment = config.increment or 1
 	local min = config.min or -math.huge
@@ -112,7 +126,7 @@ local function IntOptionRow(props)
 		e(UI.TextButton, {
 			Text = "-",
 			Size = UDim2.fromOffset(24, 24),
-			BackgroundColor3 = Color3.fromRGB(57, 57, 57),
+			BackgroundColor3 = hoverDecrement and Color3.fromRGB(67, 67, 67) or Color3.fromRGB(57, 57, 57),
 			TextColor3 = Color3.fromRGB(230, 230, 230),
 			Font = UI.Theme.fonts.body,
 			TextSize = 14,
@@ -121,6 +135,12 @@ local function IntOptionRow(props)
 			LayoutOrder = 1,
 			[React.Event.MouseButton1Click] = function()
 				updateValue(-increment)
+			end,
+			[React.Event.MouseEnter] = function()
+				setHoverDecrement(true)
+			end,
+			[React.Event.MouseLeave] = function()
+				setHoverDecrement(false)
 			end,
 		}, {
 			e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
@@ -140,7 +160,7 @@ local function IntOptionRow(props)
 		e(UI.TextButton, {
 			Text = "+",
 			Size = UDim2.fromOffset(24, 24),
-			BackgroundColor3 = Color3.fromRGB(57, 57, 57),
+			BackgroundColor3 = hoverIncrement and Color3.fromRGB(67, 67, 67) or Color3.fromRGB(57, 57, 57),
 			TextColor3 = Color3.fromRGB(230, 230, 230),
 			Font = UI.Theme.fonts.body,
 			TextSize = 14,
@@ -149,6 +169,12 @@ local function IntOptionRow(props)
 			LayoutOrder = 3,
 			[React.Event.MouseButton1Click] = function()
 				updateValue(increment)
+			end,
+			[React.Event.MouseEnter] = function()
+				setHoverIncrement(true)
+			end,
+			[React.Event.MouseLeave] = function()
+				setHoverIncrement(false)
 			end,
 		}, {
 			e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
@@ -160,6 +186,7 @@ local function KeybindOptionRow(props)
 	local value = useVal(props.val)
 	local setValue = useValSetter(props.val)
 	local isListening, setIsListening = useState(false)
+	local isHovering, setIsHovering = useState(false)
 
 	useEffect(function()
 		if not isListening then
@@ -196,7 +223,14 @@ local function KeybindOptionRow(props)
 		displayText = "NONE"
 	end
 
-	local backgroundColor = isListening and Color3.fromRGB(255, 167, 36) or Color3.fromRGB(41, 41, 41)
+	local backgroundColor
+	if isListening then
+		backgroundColor = Color3.fromRGB(255, 167, 36)
+	elseif isHovering then
+		backgroundColor = Color3.fromRGB(51, 51, 51)
+	else
+		backgroundColor = Color3.fromRGB(41, 41, 41)
+	end
 
 	return rowBase(props, {
 		optionLabel(props.label),
@@ -216,6 +250,12 @@ local function KeybindOptionRow(props)
 					setIsListening(true)
 				end
 			end,
+			[React.Event.MouseEnter] = function()
+				setIsHovering(true)
+			end,
+			[React.Event.MouseLeave] = function()
+				setIsHovering(false)
+			end,
 		}, {
 			e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
 		}),
@@ -227,28 +267,55 @@ local function RadioOptionRow(props)
 	local setValue = useValSetter(props.val)
 	local selection = props.config.selection or {}
 
-	local buttons = {}
+	local buttons = {
+		Layout = e("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			ItemLineAlignment = Enum.ItemLineAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Padding = UDim.new(0, 4),
+		}),
+	}
 
 	for index, option in ipairs(selection) do
-		local isActive = tostring(value) == tostring(option)
-		local backgroundColor = isActive and Color3.fromRGB(255, 167, 36) or Color3.fromRGB(41, 41, 41)
+		local function RadioButton()
+			local isHovering, setIsHovering = useState(false)
+			local isActive = tostring(value) == tostring(option)
 
-		buttons["Radio" .. index] = e(UI.TextButton, {
-			Text = tostring(option),
-			Size = UDim2.fromOffset(100, 26),
-			BackgroundColor3 = backgroundColor,
-			TextColor3 = Color3.fromRGB(230, 230, 230),
-			Font = UI.Theme.fonts.body,
-			TextSize = 12,
-			AutoButtonColor = false,
-			BorderSizePixel = 0,
-			LayoutOrder = index,
-			[React.Event.MouseButton1Click] = function()
-				setValue(option)
-			end,
-		}, {
-			e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
-		})
+			local backgroundColor
+			if isActive then
+				backgroundColor = Color3.fromRGB(255, 167, 36)
+			elseif isHovering then
+				backgroundColor = Color3.fromRGB(51, 51, 51)
+			else
+				backgroundColor = Color3.fromRGB(41, 41, 41)
+			end
+
+			return e(UI.TextButton, {
+				Text = tostring(option),
+				Size = UDim2.fromOffset(100, 26),
+				BackgroundColor3 = backgroundColor,
+				TextColor3 = Color3.fromRGB(230, 230, 230),
+				Font = UI.Theme.fonts.body,
+				TextSize = 12,
+				AutoButtonColor = false,
+				BorderSizePixel = 0,
+				LayoutOrder = index,
+				[React.Event.MouseButton1Click] = function()
+					setValue(option)
+				end,
+				[React.Event.MouseEnter] = function()
+					setIsHovering(true)
+				end,
+				[React.Event.MouseLeave] = function()
+					setIsHovering(false)
+				end,
+			}, {
+				e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
+			})
+		end
+
+		buttons["Radio" .. index] = e(RadioButton)
 	end
 
 	return rowBase({
@@ -261,16 +328,7 @@ local function RadioOptionRow(props)
 			BackgroundTransparency = 1,
 			LayoutOrder = 1,
 			Size = UDim2.new(0, 320, 0, 26),
-		}, {
-			Layout = e("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				ItemLineAlignment = Enum.ItemLineAlignment.Center,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Padding = UDim.new(0, 4),
-			}),
-			Buttons = buttons,
-		}),
+		}, buttons),
 	})
 end
 
