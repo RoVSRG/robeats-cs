@@ -122,7 +122,7 @@ local function SkinsPanel(props)
 				end
 			end,
 		}, {
-			Padding = e(UI.UIPadding, { PaddingLeft = UDim.new(0, 10) }),
+			UI.Padding({ Left = 10 }),
 			Corner = e(UI.UICorner, { CornerRadius = UDim.new(0, 6) }),
 			Stroke = e("UIStroke", {
 				Color = strokeColor,

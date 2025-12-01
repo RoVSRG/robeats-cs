@@ -99,6 +99,47 @@ Primitives.UIListLayout = function(props)
 	return e("UIListLayout", props)
 end
 
+-- shorthand atoms
+Primitives.Corner = function(radius)
+	return Primitives.UICorner({
+		CornerRadius = if radius then UDim.new(0, radius) else Theme.corner,
+	})
+end
+
+type PaddingProps = {
+	Left: number?,
+	Right: number?,
+	Top: number?,
+	Bottom: number?,
+}
+
+Primitives.Padding = function(props: PaddingProps)
+	return Primitives.UIPadding({
+		PaddingLeft = UDim.new(0, props.Left or 0),
+		PaddingRight = UDim.new(0, props.Right or 0),
+		PaddingTop = UDim.new(0, props.Top or 0),
+		PaddingBottom = UDim.new(0, props.Bottom or 0),
+	})
+end
+
+type LayoutProps = {
+	Direction: Enum.FillDirection?,
+	HorizontalAlignment: Enum.HorizontalAlignment?,
+	VerticalAlignment: Enum.VerticalAlignment?,
+	Order: Enum.SortOrder?,
+	Padding: number?,
+}
+
+Primitives.Layout = function(props: LayoutProps)
+	return Primitives.UIListLayout({
+		FillDirection = props.Direction or Enum.FillDirection.Vertical,
+		HorizontalAlignment = props.HorizontalAlignment or Enum.HorizontalAlignment.Left,
+		VerticalAlignment = props.VerticalAlignment or Enum.VerticalAlignment.Top,
+		SortOrder = props.Order or Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, props.Padding or 0),
+	})
+end
+
 Primitives.Theme = Theme
 
 return Primitives
